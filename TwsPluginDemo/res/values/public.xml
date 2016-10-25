@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        在插件中指定这些id的范围是为了使主程序的各类资源的id和插件各类资源的id不重复，否则会出错 
+    	注意：style属性需要特殊配置start="0x7f090000"，不能单独分组，否则插件中定义的style不可用
+    -->
+    <public-padding name="plugin_attr_" end="0x7f110000" start="0x7f110000" type="attr" />
+    <public-padding name="plugin_drawable_" end="0x7f120000" start="0x7f120000" type="drawable" />
+    <public-padding name="plugin_layout_" end="0x7f130000" start="0x7f130000" type="layout" />
+    <public-padding name="plugin_anim_" end="0x7f140000" start="0x7f140000" type="anim" />
+    <public-padding name="plugin_xml_" end="0x7f150000" start="0x7f150000" type="xml" />
+    <public-padding name="plugin_raw_" end="0x7f160000" start="0x7f160000" type="raw" />
+    <public-padding name="plugin_dimen_" end="0x7f170000" start="0x7f170000" type="dimen" />
+    <public-padding name="plugin_string_" end="0x7f180000" start="0x7f180000" type="string" />
+    <public-padding name="plugin_style_" end="0x7f090000" start="0x7f090000" type="style" />
+    <public-padding name="plugin_color_" end="0x7f1a0000" start="0x7f1a0000" type="color" />
+    <public-padding name="plugin_id_" end="0x7f1b0000" start="0x7f1b0000" type="id" />
+    <public-padding name="plugin_bool_" end="0x7f1c0000" start="0x7f1c0000" type="bool" />
+    <public-padding name="plugin_int_" end="0x7f1d0000" start="0x7f1d0000" type="integer" />
+    <public-padding name="plugin_array_" end="0x7f1e0000" start="0x7f1e0000" type="array" />
+    <public-padding name="plugin_menu_" end="0x7f1f0000" start="0x7f1f0000" type="menu" />
+
+</resources>

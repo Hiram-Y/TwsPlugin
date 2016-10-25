@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+这里配置sharedUserId的作用，是为了告诉宿主程序，这个插件需要依赖宿主程序的class和资源
+如果不配置这个参数，表示这个插件是一个独立插件，即本身可以独立安装运行
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.plugindemo"
+    android:sharedUserId="com.example.pluginmain"
+    android:versionCode="1"
+    android:versionName="1.0.1" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="22" />
+
+    <application
+        android:name="com.example.plugindemo.PluginTestApplication"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light" >
+
+        <!-- uses-library作用是用来通知插件框架此插件依赖哪些其他插件 -->
+        <uses-library
+            android:name="com.example.plugindemobase"
+            android:required="true" />
+
+        <!-- 测试插件Meta-Data -->
+        <meta-data
+            android:name="abcdef"
+            android:value="654321" />
+
+        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
+        <exported-fragment
+            android:name="some_id_for_fragment1"
+            android:value="com.example.plugindemo.fragment.PluginNormalFragment" />
+        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
+        <exported-fragment
+            android:name="some_id_for_fragment2"
+            android:value="com.example.plugindemo.fragment.PluginSpecFragment" />
+        <!-- 通知插件框架本插件向外提供的业务服务接口 android:value为实现,android:label为接口 -->
+        <exported-service
+            android:name="login_service"
+            android:label="com.example.plugindemobase.ILoginService"
+            android:value="com.example.plugindemo.PluginLoginService" />
+        <!-- 如果服务需要支持跨进程调用，例如被宿主进程调用，则需要配置android:label为服务所实现的接口className -->
+        <exported-service
+            android:name="share_service"
+            android:label="com.tencent.tws.sharelib.ShareService"
+            android:value="com.example.plugindemo.PluginSharedService" />
+
+        <activity android:name=".activity.LauncherActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.plugindemo.activity.PluginTestActivity"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="test.abc" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.plugindemo.activity.PluginFragmentTestActivity"
+            android:windowSoftInputMode="stateAlwaysVisible" >
+            <intent-filter>
+                <action android:name="test.def" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.plugindemo.activity.PluginNotInManifestActivity"
+            android:hardwareAccelerated="true"
+            android:immersive="true"
+            android:launchMode="singleTop"
+            android:uiOptions="splitActionBarWhenNarrow" >
+            <intent-filter>
+                <action android:name="test.xyz1" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="testhost"
+                    android:scheme="testscheme" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.plugindemo.activity.PluginForOppoAndVivoActivity" >
+            <intent-filter>
+                <action android:name="test.ijk" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.plugindemo.activity.PluginTestOpenPluginActivity" >
+            <intent-filter>
+                <action android:name="test.zxc" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.plugindemo.activity.PluginWebViewActivity" >
+            <intent-filter>
+                <action android:name="test.webXX" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.plugindemo.activity.PluginForDialogActivity" >
+            <intent-filter>
+                <action android:name="test.dialogXX" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.plugindemo.activity.PluginSingleTaskActivity"
+            android:launchMode="singleTask" >
+        </activity>
+        <activity android:name="com.example.plugindemo.activity.PluginTestTabActivity" >
+        </activity>
+        <activity
+            android:name="com.example.plugindemo.activity.TransparentActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+
+        <service android:name="com.example.plugindemo.service.PluginTestService" >
+            <intent-filter>
+                <action android:name="test.lmn" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.example.plugindemo.service.PluginTestService2" >
+            <intent-filter>
+                <action android:name="test.lmn2" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="com.example.plugindemo.receiver.PluginTestReceiver" >
+            <intent-filter>
+                <action android:name="test.rst" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="test.rst2" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.example.plugindemo.receiver.PluginTestReceiver2" >
+            <intent-filter>
+                <action android:name="test.rst2" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="com.example.plugindemo.provider.PluginContentProvider"
+            android:authorities="com.example.plugindemo.provider"
+            android:exported="true" />
+    </application>
+
+</manifest>
