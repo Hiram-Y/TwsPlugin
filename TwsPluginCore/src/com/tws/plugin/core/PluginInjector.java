@@ -56,11 +56,11 @@ public class PluginInjector {
 	 */
 	static void injectBaseContext(Context context) {
 		TwsLog.d(TAG, "替换宿主程序Application对象的mBase");
-		Context base = (Context)RefInvoker.getFieldObject(context, ContextWrapper.class.getName(),
+		Context base = (Context) RefInvoker.getFieldObject(context, ContextWrapper.class.getName(),
 				android_content_ContextWrapper_mBase);
 		Context newBase = new PluginBaseContextWrapper(base);
-		RefInvoker.setFieldObject(context, ContextWrapper.class.getName(),
-				android_content_ContextWrapper_mBase, newBase);
+		RefInvoker.setFieldObject(context, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase,
+				newBase);
 	}
 
 	/**
@@ -77,12 +77,14 @@ public class PluginInjector {
 		ActivityThread.wrapHandler();
 	}
 
-	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
-		TwsLog.d(TAG, "安装插件ContentProvider:" + pluginContext.getPackageName() + " pluginProviderInfos.siz is " + pluginProviderInfos.size());
+	public static void installContentProviders(Context context, Context pluginContext,
+			Collection<PluginProviderInfo> pluginProviderInfos) {
+		TwsLog.d(TAG, "安装插件ContentProvider:" + pluginContext.getPackageName() + " pluginProviderInfos.siz is "
+				+ pluginProviderInfos.size());
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();
-			//name做上标记，表示是来自插件，方便classloader进行判断
+			// name做上标记，表示是来自插件，方便classloader进行判断
 			p.name = pluginProviderInfo.getName();
 			p.authority = pluginProviderInfo.getAuthority();
 			p.applicationInfo = new ApplicationInfo(context.getApplicationInfo());
@@ -92,7 +94,8 @@ public class PluginInjector {
 			providers.add(p);
 		}
 
-		//pluginContext.getPackageName().equals(applicationInfo.packageName) == true
+		// pluginContext.getPackageName().equals(applicationInfo.packageName) ==
+		// true
 		ActivityThread.installContentProviders(pluginContext, providers);
 	}
 
@@ -105,7 +108,8 @@ public class PluginInjector {
 				android_app_Activity_mInstrumentation);
 		if (!(instrumention instanceof PluginInstrumentionWrapper)) {
 			// 说明被360还原了，这里再次尝试替换
-			RefInvoker.setFieldObject(activity, Activity.class.getName(), android_app_Activity_mInstrumentation, pluginInstrumentation);
+			RefInvoker.setFieldObject(activity, Activity.class.getName(), android_app_Activity_mInstrumentation,
+					pluginInstrumentation);
 		}
 	}
 
@@ -115,8 +119,7 @@ public class PluginInjector {
 		// 如果是打开插件中的activity,
 		// 或者是打开的用来显示插件组件的宿主activity
 		boolean isStubActivity = PluginManagerHelper.isStub(intent.getComponent().getClassName());
-		if (ProcessUtil.isPluginProcess()
-				&& (isStubActivity || container != null)) {
+		if (ProcessUtil.isPluginProcess() && (isStubActivity || container != null)) {
 
 			// 在activityoncreate之前去完成attachBaseContext的事情
 
@@ -124,34 +127,36 @@ public class PluginInjector {
 			PluginDescriptor pd = null;
 
 			if (isStubActivity) {
-				//是打开插件中的activity
+				// 是打开插件中的activity
 
 				pd = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
 
 				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
-				pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
+				pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
+						activity.getBaseContext(), 0);
 
-				//获取插件Application对象
+				// 获取插件Application对象
 				Application pluginApp = plugin.pluginApplication;
 
-				//重设mApplication
-				RefInvoker.setFieldObject(activity, Activity.class.getName(),
-						"mApplication", pluginApp);
+				// 重设mApplication
+				RefInvoker.setFieldObject(activity, Activity.class.getName(), "mApplication", pluginApp);
 			} else {
-				//是打开的用来显示插件组件的宿主activity
+				// 是打开的用来显示插件组件的宿主activity
 
 				if (!TextUtils.isEmpty(container.pluginId())) {
-					//进入这里表示指定了这个宿主Activity "只显示" 某个插件的组件
+					// 进入这里表示指定了这个宿主Activity "只显示" 某个插件的组件
 					// 因此直接将这个Activity的Context也替换成插件的Context
 					pd = PluginManagerHelper.getPluginDescriptorByPluginId(container.pluginId());
 					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(container.pluginId());
-					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
+					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
+							activity.getBaseContext(), 0);
 
 				} else {
-					//do nothing
-					//进入这里表示这个宿主可能要同时显示来自多个不同插件的组件, 也就没办法将Context替换成之中某一个插件的context,
-					//剩下的交给PluginViewFactory去处理
+					// do nothing
+					// 进入这里表示这个宿主可能要同时显示来自多个不同插件的组件,
+					// 也就没办法将Context替换成之中某一个插件的context,
+					// 剩下的交给PluginViewFactory去处理
 					return;
 				}
 
@@ -162,7 +167,8 @@ public class PluginInjector {
 					android_app_Activity_mActivityInfo);
 			int pluginAppTheme = getPluginTheme(activityInfo, pluginActivityInfo, pd);
 
-			TwsLog.e(TAG, "Theme 0x" + Integer.toHexString(pluginAppTheme) + " activity:" + activity.getClass().getName());
+			TwsLog.d(TAG, "Theme 0x" + Integer.toHexString(pluginAppTheme) + " activity:"
+					+ activity.getClass().getName());
 
 			resetActivityContext(pluginContext, activity, pluginAppTheme);
 
@@ -174,80 +180,82 @@ public class PluginInjector {
 			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
 			// 插入Context
 			Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
-			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase, null);
-			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_attachBaseContext,
-					new Class[]{Context.class}, new Object[]{mainContext});
+			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase,
+					null);
+			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(),
+					android_content_ContextThemeWrapper_attachBaseContext, new Class[] { Context.class },
+					new Object[] { mainContext });
 		}
 	}
 
-	static void resetActivityContext(final Context pluginContext, final Activity activity,
-									 final int pluginAppTheme) {
+	static void resetActivityContext(final Context pluginContext, final Activity activity, final int pluginAppTheme) {
 		if (pluginContext == null) {
 			return;
 		}
 
 		// 重设BaseContext
 		RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase, null);
-		RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_attachBaseContext,
-				new Class[]{Context.class}, new Object[]{pluginContext});
+		RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(),
+				android_content_ContextThemeWrapper_attachBaseContext, new Class[] { Context.class },
+				new Object[] { pluginContext });
 
 		// 由于在attach的时候Resource已经被初始化了，所以需要重置Resource
-		RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mResources, null);
+		RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(),
+				android_content_ContextThemeWrapper_mResources, null);
 
 		CompatForSupportv7_23_2.fixResource(pluginContext, activity);
 
 		// 重设theme
 		if (pluginAppTheme != 0) {
-			RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mTheme, null);
+			RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(),
+					android_content_ContextThemeWrapper_mTheme, null);
 			activity.setTheme(pluginAppTheme);
 		}
 		// 重设theme
-		((PluginContextTheme)pluginContext).mTheme = null;
+		((PluginContextTheme) pluginContext).mTheme = null;
 		pluginContext.setTheme(pluginAppTheme);
 
-		//重设mContext
-		RefInvoker.setFieldObject(activity.getWindow(), Window.class.getName(),
-				"mContext", pluginContext);
+		// 重设mContext
+		RefInvoker.setFieldObject(activity.getWindow(), Window.class.getName(), "mContext", pluginContext);
 
-		//重设mWindowStyle
-		RefInvoker.setFieldObject(activity.getWindow(), Window.class.getName(),
-				"mWindowStyle", null);
+		// 重设mWindowStyle
+		RefInvoker.setFieldObject(activity.getWindow(), Window.class.getName(), "mWindowStyle", null);
 
 		// 重设LayoutInflater
 		TwsLog.d(TAG, activity.getWindow().getClass().getName());
-		RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
-				"mLayoutInflater", LayoutInflater.from(activity));
+		RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(), "mLayoutInflater",
+				LayoutInflater.from(activity));
 
 		// 如果api>=11,还要重设factory2
 		if (Build.VERSION.SDK_INT >= 11) {
 			RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(),
-					"setPrivateFactory", new Class[]{LayoutInflater.Factory2.class}, new Object[]{activity});
+					"setPrivateFactory", new Class[] { LayoutInflater.Factory2.class }, new Object[] { activity });
 		}
 	}
 
-	static void resetWindowConfig(final Context pluginContext, final PluginDescriptor pd,
-								  final Activity activity,
-								  final ActivityInfo activityInfo,
-								  final PluginActivityInfo pluginActivityInfo) {
+	static void resetWindowConfig(final Context pluginContext, final PluginDescriptor pd, final Activity activity,
+			final ActivityInfo activityInfo, final PluginActivityInfo pluginActivityInfo) {
 
 		if (pluginActivityInfo != null) {
 
-			//如果PluginContextTheme的getPackageName返回了插件包名,需要在这里对attribute修正
+			// 如果PluginContextTheme的getPackageName返回了插件包名,需要在这里对attribute修正
 			activity.getWindow().getAttributes().packageName = PluginLoader.getApplication().getPackageName();
 
 			if (null != pluginActivityInfo.getWindowSoftInputMode()) {
-				activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
+				activity.getWindow().setSoftInputMode(
+						Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
 			}
 			if (Build.VERSION.SDK_INT >= 14) {
 				if (null != pluginActivityInfo.getUiOptions()) {
-					activity.getWindow().setUiOptions(Integer.parseInt(pluginActivityInfo.getUiOptions().replace("0x", ""), 16));
+					activity.getWindow().setUiOptions(
+							Integer.parseInt(pluginActivityInfo.getUiOptions().replace("0x", ""), 16));
 				}
 			}
 			if (null != pluginActivityInfo.getScreenOrientation()) {
 				int orientation = Integer.parseInt(pluginActivityInfo.getScreenOrientation());
-				//noinspection ResourceType
+				// noinspection ResourceType
 				if (orientation != activityInfo.screenOrientation && !activity.isChild()) {
-					//noinspection ResourceType
+					// noinspection ResourceType
 					activity.setRequestedOrientation(orientation);
 				}
 			}
@@ -266,8 +274,8 @@ public class PluginInjector {
 			TwsLog.d(TAG, claName + " uiOptions is " + pluginActivityInfo.getUiOptions());
 		}
 
-		//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo，
-		//避免activity试图通过ActivityInfo中的资源id来读取资源时失败
+		// 如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo，
+		// 避免activity试图通过ActivityInfo中的资源id来读取资源时失败
 		activityInfo.icon = pd.getApplicationIcon();
 		activityInfo.logo = pd.getApplicationLogo();
 		if (Build.VERSION.SDK_INT >= 19) {
@@ -276,54 +284,59 @@ public class PluginInjector {
 		}
 	}
 
-	/*package*/static void replaceReceiverContext(Context baseContext, Context newBase) {
+	/* package */static void replaceReceiverContext(Context baseContext, Context newBase) {
 
 		if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
-			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
+			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext,
+					"android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
 			RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", newBase);
 		}
 	}
 
-	//这里是因为在多进程情况下，杀死插件进程，自动恢复service时有个bug导致一个service同时存在多个service实例
-	//这里做个遍历保护
-	//break;
-	/*package*/static void replacePluginServiceContext(String serviceName) {
+	// 这里是因为在多进程情况下，杀死插件进程，自动恢复service时有个bug导致一个service同时存在多个service实例
+	// 这里做个遍历保护
+	// break;
+	/* package */static void replacePluginServiceContext(String serviceName) {
 		Map<IBinder, Service> services = ActivityThread.getAllServices();
 		if (services != null) {
 			Iterator<Service> itr = services.values().iterator();
-			while(itr.hasNext()) {
+			while (itr.hasNext()) {
 				Service service = itr.next();
-				if (service != null && service.getClass().getName().equals(serviceName) ) {
+				if (service != null && service.getClass().getName().equals(serviceName)) {
 
-					replacePluginServiceContext(serviceName,service );
+					replacePluginServiceContext(serviceName, service);
 				}
 
 			}
 		}
 	}
 
-	/*package*/static void replacePluginServiceContext(String servieName, Service service) {
+	/* package */static void replacePluginServiceContext(String servieName, Service service) {
 		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(servieName);
 
 		LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
-		RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
-				PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
-						service.getBaseContext(), pd.getApplicationTheme()));
+		RefInvoker.setFieldObject(
+				service,
+				ContextWrapper.class.getName(),
+				"mBase",
+				PluginLoader.getNewPluginComponentContext(plugin.pluginContext, service.getBaseContext(),
+						pd.getApplicationTheme()));
 
 		RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", plugin.pluginApplication);
 
-		RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginManagerHelper.bindStubService(service.getClass().getName()));
+		RefInvoker.setFieldObject(service, Service.class, "mClassName",
+				PluginManagerHelper.bindStubService(service.getClass().getName()));
 
 	}
 
-	/*package*/static void replaceHostServiceContext(String serviceName) {
+	/* package */static void replaceHostServiceContext(String serviceName) {
 		Map<IBinder, Service> services = ActivityThread.getAllServices();
 		if (services != null) {
 			Iterator<Service> itr = services.values().iterator();
-			while(itr.hasNext()) {
+			while (itr.hasNext()) {
 				Service service = itr.next();
-				if (service != null && service.getClass().getName().equals(serviceName) ) {
+				if (service != null && service.getClass().getName().equals(serviceName)) {
 					PluginInjector.injectBaseContext(service);
 					break;
 				}
@@ -334,16 +347,17 @@ public class PluginInjector {
 
 	/**
 	 * 主题的选择顺序为 先选择插件Activity配置的主题，再选择插件Application配置的主题，
-	 * 如果是非独立插件，再选择宿主Activity主题
-	 * 如果是独立插件，再选择系统默认主题
+	 * 如果是非独立插件，再选择宿主Activity主题 如果是独立插件，再选择系统默认主题
+	 * 
 	 * @param activityInfo
 	 * @param pluginActivityInfo
 	 * @param pd
 	 * @return
 	 */
-	private static int getPluginTheme(ActivityInfo activityInfo, PluginActivityInfo pluginActivityInfo, PluginDescriptor pd) {
+	private static int getPluginTheme(ActivityInfo activityInfo, PluginActivityInfo pluginActivityInfo,
+			PluginDescriptor pd) {
 		int pluginAppTheme = 0;
-		if (pluginActivityInfo != null ) {
+		if (pluginActivityInfo != null) {
 			pluginAppTheme = ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
 		}
 		if (pluginAppTheme == 0) {
@@ -355,7 +369,8 @@ public class PluginInjector {
 		}
 
 		if (pluginAppTheme == 0) {
-			//If the activity defines a theme, that is used; else, the application theme is used.
+			// If the activity defines a theme, that is used; else, the
+			// application theme is used.
 			pluginAppTheme = activityInfo.getThemeResource();
 		}
 		return pluginAppTheme;
@@ -363,15 +378,16 @@ public class PluginInjector {
 
 	/**
 	 * 通常系统服务实例内部都有一个成员变量private final Context mContext;
-	 *
+	 * 
 	 * 这个成员变量通常是一个ContextImpl实例。
-	 *
-	 * @param manager 通过getSystemService获取的系统服务。例如 ActivityManager
-	 *
+	 * 
+	 * @param manager
+	 *            通过getSystemService获取的系统服务。例如 ActivityManager
+	 * 
 	 */
 	static void replaceContext(Object manager, Context context) {
 		Object original = RefInvoker.getFieldObject(manager, manager.getClass(), "mContext");
-		if (original != null) {//表示确实存在此成员变量对象，替换掉
+		if (original != null) {// 表示确实存在此成员变量对象，替换掉
 			RefInvoker.setFieldObject(manager, manager.getClass().getName(), "mContext", context);
 		}
 	}
@@ -383,25 +399,25 @@ public class PluginInjector {
 		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplication(), Application.class.getName(),
 				"mLoadedApk");
 		if (mLoadedApk == null) {
-			//重试一次
+			// 重试一次
 			mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplication(), Application.class.getName(),
 					"mLoadedApk");
 		}
-		if(mLoadedApk == null) {
-			//换个方式再试一次
+		if (mLoadedApk == null) {
+			// 换个方式再试一次
 			mLoadedApk = ActivityThread.getLoadedApk();
 		}
 		if (mLoadedApk != null) {
 			ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(mLoadedApk, "android.app.LoadedApk",
 					"mClassLoader");
 			if (!(originalLoader instanceof HostClassLoader)) {
-				HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplication()
-						.getCacheDir().getAbsolutePath(),
-						PluginLoader.getApplication().getCacheDir().getAbsolutePath(), originalLoader);
+				HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplication().getCacheDir()
+						.getAbsolutePath(), PluginLoader.getApplication().getCacheDir().getAbsolutePath(),
+						originalLoader);
 				RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
 			}
 		} else {
-			TwsLog.e(TAG, "What!!Why?");
+			TwsLog.w(TAG, "What!!Why?");
 		}
 	}
 }

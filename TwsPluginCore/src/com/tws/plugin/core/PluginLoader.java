@@ -65,8 +65,7 @@ public class PluginLoader {
 			// 这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
 			// 原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
 			boolean isPluginProcess = ProcessUtil.isPluginProcess();
-
-			if (ProcessUtil.isPluginProcess()) {
+			if (isPluginProcess) {
 				AndroidOsServiceManager.installProxy();
 			}
 
@@ -121,14 +120,15 @@ public class PluginLoader {
 						public void onActivityDestroyed(Activity activity) {
 							Intent intent = activity.getIntent();
 							if (intent != null && intent.getComponent() != null) {
-								PluginManagerHelper.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
+								PluginManagerHelper.unBindLaunchModeStubActivity(intent.getComponent().getClassName(),
+										activity.getClass().getName());
 							}
 						}
 					});
 				}
 			}
 			long t2 = System.currentTimeMillis();
-			TwsLog.e(TAG, "插件框架初始化完成  耗时：" + (t2 - t1));
+			TwsLog.d(TAG, "插件框架初始化完成  耗时：" + (t2 - t1));
 		}
 	}
 
@@ -192,13 +192,11 @@ public class PluginLoader {
 				TwsLog.e(TAG, "ClassNotFound " + clazzName, e);
 			} catch (java.lang.IllegalAccessError illegalAccessError) {
 				illegalAccessError.printStackTrace();
-				throw new IllegalAccessError("出现这个异常最大的可能是插件dex和" + "宿主dex包含了相同的class导致冲突, " + "请检查插件的编译脚本，确保排除了所有公共依赖库的jar");
+				throw new IllegalAccessError("出现这个异常最大的可能是插件dex和" + "宿主dex包含了相同的class导致冲突, "
+						+ "请检查插件的编译脚本，确保排除了所有公共依赖库的jar");
 			}
 
 		}
-
-		TwsLog.e(TAG, "loadPluginClass Fail for clazzName " + clazzName
-				+ (pluginDescriptor == null ? " pluginDescriptor = null" : " pluginDescriptor not null"));
 
 		return null;
 
@@ -240,8 +238,9 @@ public class PluginLoader {
 	/* package */static Context getNewPluginComponentContext(Context pluginContext, Context base, int theme) {
 		PluginContextTheme newContext = null;
 		if (pluginContext != null) {
-			newContext = (PluginContextTheme) PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(), base,
-					pluginContext.getResources(), (DexClassLoader) pluginContext.getClassLoader());
+			newContext = (PluginContextTheme) PluginCreator.createPluginContext(
+					((PluginContextTheme) pluginContext).getPluginDescriptor(), base, pluginContext.getResources(),
+					(DexClassLoader) pluginContext.getClassLoader());
 
 			newContext.setPluginApplication((Application) ((PluginContextTheme) pluginContext).getApplicationContext());
 
@@ -258,8 +257,8 @@ public class PluginLoader {
 
 		if (plugin != null) {
 			PluginContextTheme newContext = (PluginContextTheme) PluginCreator.createPluginContext(
-					((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(), sApplication.getBaseContext(), plugin.pluginResource,
-					plugin.pluginClassLoader);
+					((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(), sApplication.getBaseContext(),
+					plugin.pluginResource, plugin.pluginClassLoader);
 
 			newContext.setPluginApplication(plugin.pluginApplication);
 
@@ -274,8 +273,10 @@ public class PluginLoader {
 	public static boolean isInstalled(String pluginId, String pluginVersion) {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
-			TwsLog.d(TAG, "call isInstalled pluginId=" + pluginId + " pluginDescriptor.getVersion=" + pluginDescriptor.getVersion() + " pluginVersion="
-					+ pluginVersion);
+			TwsLog.d(
+					TAG,
+					"call isInstalled pluginId=" + pluginId + " pluginDescriptor.getVersion="
+							+ pluginDescriptor.getVersion() + " pluginVersion=" + pluginVersion);
 			return pluginDescriptor.getVersion().equals(pluginVersion);
 		}
 		return false;

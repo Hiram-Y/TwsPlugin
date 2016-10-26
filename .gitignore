@@ -99,3 +99,8 @@
 /WxSdkLibrary/bin/dexedLibs/*.jar
 /WxSdkLibrary/bin/*.ap_
 /WxSdkLibrary/gen/com/example/wxsdklibrary/*.java
+/TwsPluginHost/bin/classes/com/example/pluginhost/*.class
+/TwsPluginHost/bin/classes/com/example/pluginhost/widget/*.class
+/TwsPluginHost/bin/*.cache
+/TwsPluginHost/gen/com/example/pluginhost/*.java
+/WxSdkLibrary/bin/classes/com/example/pluginhost/wxapi/*.class

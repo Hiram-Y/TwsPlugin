@@ -30,7 +30,6 @@ public class PluginManagerHelper {
 			if (bundle != null) {
 				pluginDescriptor = (PluginDescriptor) bundle
 						.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
-				TwsLog.e(TAG, "getPluginDescriptorByClassName localCache.put:" + clazzName + " " + pluginDescriptor + " localCache.size=" + localCache.size());
 				localCache.put(clazzName, pluginDescriptor);
 			}
 		}
@@ -73,7 +72,6 @@ public class PluginManagerHelper {
 			if (bundle != null) {
 				pluginDescriptor = (PluginDescriptor) bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
 				localCache.put(pluginId, pluginDescriptor);
-				TwsLog.e(TAG, "getPluginDescriptorByPluginId localCache.put:" + pluginId + " " + pluginDescriptor + " localCache.size=" + localCache.size());
 			}
 		} else {
 			TwsLog.d(TAG, "取本端缓存:" + pluginDescriptor.getInstalledPath());

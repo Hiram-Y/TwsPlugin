@@ -83,7 +83,7 @@ public class PluginClassLoader extends DexClassLoader {
 						}
 					}
 				}
-				TwsLog.e(TAG, "findLibrary 最多创建5个副本...");
+				TwsLog.d(TAG, "findLibrary 最多创建5个副本...");
 			}
 		}
 		return null;

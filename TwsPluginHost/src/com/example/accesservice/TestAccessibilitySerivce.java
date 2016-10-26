@@ -21,12 +21,12 @@ public class TestAccessibilitySerivce extends AccessibilityService {
 		info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; // 反馈
 		info.notificationTimeout = 100; // 通知的时间
 		setServiceInfo(info);
-		TwsLog.e(TAG, "xxx onServiceConnected");
+		TwsLog.d(TAG, "xxx onServiceConnected");
 	}
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
-		TwsLog.e(TAG, "xxx AccessibilityEvent : " + event.toString());
+		TwsLog.d(TAG, "xxx AccessibilityEvent : " + event.toString());
 	}
 
 	@Override

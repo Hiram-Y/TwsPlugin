@@ -33,22 +33,22 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.plugin_launcher);
 
-		TwsLog.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
+		TwsLog.d("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
-		TwsLog.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
-		TwsLog.e(
+		TwsLog.d("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
+		TwsLog.d(
 				"xxx3",
 				getResources().getString(R.string.app_name) + "  "
 						+ getPackageManager().getApplicationLabel(getApplicationInfo()));
-		Log.e("xxx3",
+		TwsLog.d("xxx3",
 				getResources().getString(R.string.app_name) + "  "
 						+ getPackageManager().getApplicationLabel(getApplicationInfo()));
-		TwsLog.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
-		TwsLog.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
-		TwsLog.e("xxx6",
+		TwsLog.d("xxx4", getPackageName() + ", " + getText(R.string.app_name));
+		TwsLog.d("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
+		TwsLog.d("xxx6",
 				getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugindemo")));
-		TwsLog.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
+		TwsLog.d("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
 		// TwsLog.e("xxx8",
 		// getResources().getString(getResources().getIdentifier("app_name",
 		// "string", "com.example.pluginhost")));

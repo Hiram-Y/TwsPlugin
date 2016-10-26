@@ -123,8 +123,8 @@ class PluginManagerImpl {
 			PluginLauncher.instance().stopPlugin(pluginId, old);
 			result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
-			TwsLog.d(TAG, "delete old result:" + result + " deleteSuccess=" + deleteSuccess + " old.getInstalledPath=" + old.getInstalledPath()
-					+ " old.getPackageName=" + old.getPackageName());
+			TwsLog.d(TAG, "delete old result:" + result + " deleteSuccess=" + deleteSuccess + " old.getInstalledPath="
+					+ old.getInstalledPath() + " old.getPackageName=" + old.getPackageName());
 		} else {
 			TwsLog.d(TAG, "插件未安装：" + pluginId);
 		}
@@ -235,7 +235,8 @@ class PluginManagerImpl {
 		// 判断插件适用系统版本
 		if (pluginDescriptor.getMinSdkVersion() != null
 				&& Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion())) {
-			TwsLog.e(TAG, "当前系统版本过低, 不支持此插件 系统v:" + Build.VERSION.SDK_INT + " 插件v:" + pluginDescriptor.getMinSdkVersion());
+			TwsLog.e(TAG,
+					"当前系统版本过低, 不支持此插件 系统v:" + Build.VERSION.SDK_INT + " 插件v:" + pluginDescriptor.getMinSdkVersion());
 			new File(srcPluginFile).delete();
 			return new InstallResult(InstallResult.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(),
 					pluginDescriptor.getVersion());
@@ -252,22 +253,22 @@ class PluginManagerImpl {
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			TwsLog.e(TAG, "已安装过，安装路径为:" + oldPluginDescriptor.getInstalledPath() + " oldPluginVer:" + oldPluginDescriptor.getVersion() + " pluginVer:"
-					+ pluginDescriptor.getVersion());
+			TwsLog.w(TAG, "已安装过，安装路径为:" + oldPluginDescriptor.getInstalledPath() + " oldPluginVer:"
+					+ oldPluginDescriptor.getVersion() + " pluginVer:" + pluginDescriptor.getVersion());
 
 			// 检查插件是否已经加载
 			if (PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName())) {
 				if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
-					TwsLog.e(TAG, "旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
+					TwsLog.w(TAG, "旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
 					remove(oldPluginDescriptor.getPackageName());
 				} else {
-					TwsLog.e(TAG, "旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
+					TwsLog.w(TAG, "旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
 					new File(srcPluginFile).delete();
 					return new InstallResult(InstallResult.FAIL_BECAUSE_HAS_LOADED, pluginDescriptor.getPackageName(),
 							pluginDescriptor.getVersion());
 				}
 			} else {
-				TwsLog.e(TAG, "旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
+				TwsLog.w(TAG, "旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
 				remove(oldPluginDescriptor.getPackageName());
 			}
 		}

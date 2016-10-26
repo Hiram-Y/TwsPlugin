@@ -145,7 +145,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
 					return getApplicationInfo(pluginDescriptor);
 				}
 			} else {
-				TwsLog.e(TAG, "注意：使用了宿主包名：" + packageName);
+				TwsLog.w(TAG, "注意：使用了宿主包名：" + packageName);
 			}
 			return super.beforeInvoke(target, method, args);
 		}

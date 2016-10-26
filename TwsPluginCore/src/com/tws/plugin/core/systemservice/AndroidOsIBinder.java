@@ -22,6 +22,10 @@ public class AndroidOsIBinder extends MethodProxy {
 	}
 
 	public static IBinder installProxy(IBinder invokeResult) {
+		if(invokeResult == null){
+			return null;
+		}
+
 		TwsLog.d(TAG, "安装AndroidOsIBinderProxy");
 		IBinder result = (IBinder) invokeResult;
 		IBinder resultProxy = (IBinder) ProxyUtil.createProxy(result, new AndroidOsIBinder());

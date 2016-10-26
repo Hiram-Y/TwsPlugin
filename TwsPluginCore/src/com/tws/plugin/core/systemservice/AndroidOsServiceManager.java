@@ -19,14 +19,16 @@ public class AndroidOsServiceManager extends MethodProxy {
 	private static HashSet<String> sCacheKeySet;
 	private static HashMap<String, IBinder> sCache;
 
-    static {
-        sMethods.put("getService", new getService());
-    }
+	static {
+		sMethods.put("getService", new getService());
+	}
 
 	public static void installProxy() {
 		TwsLog.d(TAG, "安装IServiceManagerProxy");
-		Object androidOsServiceManagerProxy = RefInvoker.invokeStaticMethod("android.os.ServiceManager", "getIServiceManager", (Class[]) null, (Object[]) null);
-		Object androidOsServiceManagerProxyProxy = ProxyUtil.createProxy(androidOsServiceManagerProxy, new AndroidOsServiceManager());
+		Object androidOsServiceManagerProxy = RefInvoker.invokeStaticMethod("android.os.ServiceManager",
+				"getIServiceManager", (Class[]) null, (Object[]) null);
+		Object androidOsServiceManagerProxyProxy = ProxyUtil.createProxy(androidOsServiceManagerProxy,
+				new AndroidOsServiceManager());
 		RefInvoker.setStaticOjbect("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
 
 		// 干掉缓存
@@ -38,10 +40,14 @@ public class AndroidOsServiceManager extends MethodProxy {
 		TwsLog.d(TAG, "安装完成");
 	}
 
-    public static class getService extends MethodDelegate {
+	public static class getService extends MethodDelegate {
 
 		@Override
 		public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+			if (invokeResult == null) {
+				return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
+			}
+
 			TwsLog.d(TAG, "afterInvoke:" + method.getName() + " args is " + args[0]);
 			if (ProcessUtil.isPluginProcess()) {
 				IBinder binder = AndroidOsIBinder.installProxy((IBinder) invokeResult);
@@ -51,6 +57,7 @@ public class AndroidOsServiceManager extends MethodProxy {
 				}
 				return binder;
 			}
+
 			return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
 		}
 	}

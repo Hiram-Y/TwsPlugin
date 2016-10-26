@@ -35,8 +35,6 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 		// 默认是宿主程序Application主题
 		try {
 			pluginContext = getActivity().createPackageContext("com.example.plugindemo", 0);
-			// 设置主题为插件程序主题
-			// PluginThemeHelper.setTheme(pluginContext, R.style.PluginTheme);
 			pluginInflater = (LayoutInflater) pluginContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();

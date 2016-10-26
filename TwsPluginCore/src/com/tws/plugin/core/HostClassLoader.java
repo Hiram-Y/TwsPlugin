@@ -35,7 +35,8 @@ public class HostClassLoader extends DexClassLoader {
 
 		if (className.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 
-			TwsLog.d(TAG, "className is " + className + " PluginShadowService is " + PluginShadowService.class.getName());
+			TwsLog.d(TAG,
+					"className is " + className + " PluginShadowService is " + PluginShadowService.class.getName());
 
 			// 这里返回PluginShadowService是因为service的构造函数以及onCreate函数
 			// 2个函数在ActivityThread的同一个函数中被调用,框架没机会在构造器执行之后,oncreate执行之前,
@@ -57,7 +58,7 @@ public class HostClassLoader extends DexClassLoader {
 
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 
-			TwsLog.e(TAG, "className is " + className + " target is " + realName + (clazz == null ? " null" : " found"));
+			TwsLog.d(TAG, "className is " + className + " target is " + realName + (clazz == null ? " null" : " found"));
 
 			if (clazz != null) {
 				return clazz;

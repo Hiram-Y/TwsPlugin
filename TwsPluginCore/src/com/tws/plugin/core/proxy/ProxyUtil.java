@@ -10,13 +10,14 @@ public class ProxyUtil {
 
 	public static Object createProxy2(Object target, Object delegate) {
 		MethodDelegate realDelegate = (MethodDelegate) delegate;
-		return createProxy(target,  realDelegate);
+		return createProxy(target, realDelegate);
 	}
 
 	public static Object createProxy(Object target, MethodDelegate delegate) {
 		Class<?> clazz = target.getClass();
 		List<Class<?>> interfaces = getAllInterfaces(clazz);
-		Class[] ifs = interfaces != null && interfaces.size() > 0 ? interfaces.toArray(new Class[interfaces.size()]) : new Class[0];
+		Class[] ifs = interfaces != null && interfaces.size() > 0 ? interfaces.toArray(new Class[interfaces.size()])
+				: new Class[0];
 		return Proxy.newProxyInstance(target.getClass().getClassLoader(), ifs, new MethodHandler(target, delegate));
 	}
 
