@@ -26,6 +26,7 @@ import android.view.Window;
 
 import com.tencent.tws.sharelib.annotation.AnnotationProcessor;
 import com.tencent.tws.sharelib.annotation.PluginContainer;
+import com.tencent.tws.sharelib.util.HostProxy;
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginActivityInfo;
 import com.tws.plugin.content.PluginDescriptor;
@@ -357,22 +358,34 @@ public class PluginInjector {
 	private static int getPluginTheme(ActivityInfo activityInfo, PluginActivityInfo pluginActivityInfo,
 			PluginDescriptor pd) {
 		int pluginAppTheme = 0;
-		if (pluginActivityInfo != null) {
-			pluginAppTheme = ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
-		}
-		if (pluginAppTheme == 0) {
-			pluginAppTheme = pd.getApplicationTheme();
+		if ("samsung".equalsIgnoreCase(Build.BRAND)) {
+			TwsLog.d(TAG, "getPluginTheme is samsung device！");
+			pluginAppTheme = android.R.style.Theme_Holo_Light;
+			// if (pluginActivityInfo != null) {
+			// pluginAppTheme =
+			// ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
+			// }
+			// if (pluginAppTheme == 0) {
+			// pluginAppTheme = pd.getApplicationTheme();
+			// }
+			//
+			// if (pluginAppTheme == 0 && pd.isStandalone()) {
+			// pluginAppTheme = android.R.style.Theme_Holo_Light;
+			// }
+			//
+			// if (pluginAppTheme == 0) {
+			// // If the activity defines a theme, that is used; else, the
+			// // application theme is used.
+			// pluginAppTheme = activityInfo.getThemeResource();
+			// }
+		} else {
+			TwsLog.d(TAG, "getPluginTheme " + Build.BRAND + " use HostApplicationTheme!");
+			pluginAppTheme = HostProxy.getHostApplicationThemeId();
+			if (pluginAppTheme == 0 && pd.isStandalone()) {
+				pluginAppTheme = android.R.style.Theme_Holo_Light;
+			}
 		}
 
-		if (pluginAppTheme == 0 && pd.isStandalone()) {
-			pluginAppTheme = android.R.style.Theme_DeviceDefault;
-		}
-
-		if (pluginAppTheme == 0) {
-			// If the activity defines a theme, that is used; else, the
-			// application theme is used.
-			pluginAppTheme = activityInfo.getThemeResource();
-		}
 		return pluginAppTheme;
 	}
 
