@@ -70,30 +70,23 @@
         <activity android:name=".DetailActivity" />
 
         <!-- 要展示插件中的fragment，所以配成插件进程 -->
-        <activity
-            android:name=".TestFragmentActivity"
-             />
+        <activity android:name=".TestFragmentActivity" />
 
         <!-- 要展示插件中的皮肤，所以配成插件进程 -->
-        <activity
-            android:name=".TestSkinActivity"
-             />
+        <activity android:name=".TestSkinActivity" />
 
         <!-- 要展示插件中的View，所以配成插件进程 -->
-        <activity
-            android:name=".TestViewActivity"
-             />
+        <activity android:name=".TestViewActivity" />
 
         <!-- 要展示插件中的Activity，所以配成插件进程 -->
         <activity
             android:name=".TestTabActivity"
-             />
+            android:process=":plugin" />
 
         <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
             android:name="com.example.pluginmain.wxapi.WXEntryActivity"
-            android:exported="true"
-             >
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_EXACT" />
 
@@ -116,7 +109,7 @@
             android:name="com.tws.plugin.core.manager.PluginManagerProvider"
             android:authorities="com.example.pluginmain.manager.pluginmanager"
             android:exported="false"
-             />
+            android:process=":plugin" />
         <provider
             android:name="com.limpoxe.support.servicemanager.ServiceProvider"
             android:authorities="com.example.pluginmain.svcmgr"
@@ -126,7 +119,7 @@
         <receiver
             android:name="com.example.pluginmain.stub.PluginStubReceiver"
             android:exported="true"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -139,11 +132,11 @@
             时处于运行状态的service数量，一般预注册十来个应该绰绰有余了)，
             这里的虚拟Service并不需要真实存在，
             只是占个位置，运行实动态绑定到实际的插件Service
-            对service的类全名没有要求，可随意指定，框架中是通过action来查询。
+            对service的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->
         <service
             android:name="com.example.pluginmain.stub.PluginStubService1"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -152,7 +145,7 @@
         </service>
         <service
             android:name="com.example.pluginmain.stub.PluginStubService2"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -161,7 +154,7 @@
         </service>
         <service
             android:name="com.example.pluginmain.stub.PluginStubService3"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -170,7 +163,7 @@
         </service>
         <service
             android:name="com.example.pluginmain.stub.PluginStubService4"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -179,7 +172,7 @@
         </service>
         <service
             android:name="com.example.pluginmain.stub.PluginStubService5"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -190,7 +183,7 @@
         <activity
             android:name="com.example.pluginmain.stub.PluginStubActivity0"
             android:exported="true"
-            
+            android:process=":plugin"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
@@ -199,21 +192,19 @@
             </intent-filter>
         </activity>
 
-        <!-- /////////////////////////////////////////////////////////////////// -->
-        <!-- /////////////////////////////////////////////////////////////////// -->
         <!--
-            为了支持非standard的launchMode，
+        为了支持非standard的launchMode，
             所有的插件中共有多少个非standard模式的Activity，就在这里注册多少个对应的虚拟的Activity(standard的只需要1个)，
             这些虚拟Activity并不需要真实存在，
             （实际情况中注册的虚拟非standard的activity个数可以比插件中的非standard的activity总个数少。
             因为不太可能所有的插件activity都同时被唤起，每种非standard的注册十几个绰绰有余）
-            对Activity的类全名没有要求，可随意指定，框架中是通过action来查询。
+            对Activity的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->
         <activity
             android:name="com.example.pluginmain.stub.PluginStubActivity1"
             android:exported="true"
             android:launchMode="singleTask"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -224,7 +215,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity2"
             android:exported="true"
             android:launchMode="singleTask"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -235,7 +226,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity3"
             android:exported="true"
             android:launchMode="singleTask"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -246,7 +237,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity4"
             android:exported="true"
             android:launchMode="singleTask"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -257,7 +248,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity5"
             android:exported="true"
             android:launchMode="singleTop"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -268,7 +259,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity6"
             android:exported="true"
             android:launchMode="singleTop"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -279,7 +270,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity7"
             android:exported="true"
             android:launchMode="singleTop"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -290,7 +281,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity8"
             android:exported="true"
             android:launchMode="singleInstance"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -301,7 +292,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity9"
             android:exported="true"
             android:launchMode="singleInstance"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
@@ -312,7 +303,7 @@
             android:name="com.example.pluginmain.stub.PluginStubActivity10"
             android:exported="true"
             android:launchMode="singleInstance"
-             >
+            android:process=":plugin" >
             <intent-filter>
                 <action android:name="com.example.pluginmain.STUB_DEFAULT" />
 
