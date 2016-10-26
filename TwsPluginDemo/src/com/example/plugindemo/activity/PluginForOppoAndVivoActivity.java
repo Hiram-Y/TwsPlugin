@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.plugindemo.R;
-import com.plugin.util.HostProxy;
+import com.tencent.tws.sharelib.util.HostProxy;
 
 public class PluginForOppoAndVivoActivity extends Activity implements OnClickListener {
 

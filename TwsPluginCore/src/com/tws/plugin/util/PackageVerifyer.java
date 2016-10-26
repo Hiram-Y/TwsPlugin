@@ -1,7 +1,5 @@
 package com.tws.plugin.util;
 
-import android.content.pm.Signature;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +12,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import tws.component.log.TwsLog;
+import android.content.pm.Signature;
 /**
  * Copy from Android SDK
  */

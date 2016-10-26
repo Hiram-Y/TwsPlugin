@@ -36,7 +36,7 @@ import com.example.plugindemo.R;
 import com.example.plugindemo.provider.PluginDbTables;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
-import com.plugin.util.HostProxy;
+import com.tencent.tws.sharelib.util.HostProxy;
 
 @SuppressWarnings("ALL")
 public class PluginWebViewActivity extends Activity implements OnClickListener {

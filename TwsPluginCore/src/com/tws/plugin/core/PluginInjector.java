@@ -24,8 +24,8 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
 
-import com.tencent.tws.assistant.annotation.AnnotationProcessor;
-import com.tencent.tws.assistant.annotation.PluginContainer;
+import com.tencent.tws.sharelib.annotation.AnnotationProcessor;
+import com.tencent.tws.sharelib.annotation.PluginContainer;
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginActivityInfo;
 import com.tws.plugin.content.PluginDescriptor;

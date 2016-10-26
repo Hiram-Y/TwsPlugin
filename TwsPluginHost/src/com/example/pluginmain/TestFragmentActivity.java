@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.tencent.tws.assistant.annotation.PluginContainer;
+import com.tencent.tws.sharelib.annotation.PluginContainer;
 import com.tws.plugin.core.PluginLoader;
 
 /**

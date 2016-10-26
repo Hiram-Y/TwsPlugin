@@ -1,13 +1,13 @@
 package com.tws.plugin.core.app;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+
 import android.view.LayoutInflater;
 import android.view.View;
 
 import com.tws.plugin.util.RefInvoker;
-
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AndroidViewLayoutInflater {
 

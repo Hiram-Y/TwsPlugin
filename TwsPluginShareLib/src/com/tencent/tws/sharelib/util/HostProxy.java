@@ -1,4 +1,4 @@
-package com.plugin.util;
+package com.tencent.tws.sharelib.util;
 
 import tws.component.log.TwsLog;
 import android.app.Application;

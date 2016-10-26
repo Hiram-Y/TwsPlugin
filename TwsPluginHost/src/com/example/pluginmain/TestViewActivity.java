@@ -6,7 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tencent.tws.assistant.annotation.PluginContainer;
+import com.tencent.tws.sharelib.annotation.PluginContainer;
 
 @PluginContainer
 public class TestViewActivity extends Activity {

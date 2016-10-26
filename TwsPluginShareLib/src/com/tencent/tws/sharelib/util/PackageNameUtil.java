@@ -1,4 +1,4 @@
-package com.plugin.util;
+package com.tencent.tws.sharelib.util;
 
 import android.content.Context;
 import android.content.ContextWrapper;

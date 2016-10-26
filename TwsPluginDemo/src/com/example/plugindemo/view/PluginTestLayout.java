@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
-import com.plugin.util.HostProxy;
+import com.tencent.tws.sharelib.util.HostProxy;
 
 /**
  * 仅仅用来测试插件程序找中是否可以使用自定义控件

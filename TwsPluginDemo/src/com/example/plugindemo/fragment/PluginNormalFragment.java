@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.plugindemo.R;
-import com.plugin.util.HostProxy;
+import com.tencent.tws.sharelib.util.HostProxy;
 
 /**
  * 此fragment没有使用特定的context,因此只能在插件中的activity，或者宿主中的特定activity中展示

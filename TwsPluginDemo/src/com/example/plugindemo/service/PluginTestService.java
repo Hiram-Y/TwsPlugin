@@ -9,8 +9,8 @@ import android.widget.Toast;
 
 import com.example.plugindemo.R;
 import com.example.plugindemo.vo.ParamVO;
-import com.plugin.util.HostProxy;
 import com.tencent.tws.sharelib.IMyAidlInterface;
+import com.tencent.tws.sharelib.util.HostProxy;
 
 /**
  * @author yongchen
