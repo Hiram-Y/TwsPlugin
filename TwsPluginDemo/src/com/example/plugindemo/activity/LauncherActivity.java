@@ -33,17 +33,23 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.plugin_launcher);
 
+		TwsLog.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
+		TwsLog.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
+		TwsLog.e(
+				"xxx3",
+				getResources().getString(R.string.app_name) + "  "
+						+ getPackageManager().getApplicationLabel(getApplicationInfo()));
 		Log.e("xxx3",
 				getResources().getString(R.string.app_name) + "  "
 						+ getPackageManager().getApplicationLabel(getApplicationInfo()));
-		Log.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
-		Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
-		Log.e("xxx6",
+		TwsLog.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
+		TwsLog.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
+		TwsLog.e("xxx6",
 				getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugindemo")));
-		Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
-		// Log.e("xxx8",
+		TwsLog.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
+		// TwsLog.e("xxx8",
 		// getResources().getString(getResources().getIdentifier("app_name",
 		// "string", "com.example.pluginmain")));
 
@@ -300,10 +306,12 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		SharedPreferences sp = getSharedPreferences("aaa", 0);
 		sp.edit().putString("xyz", "123").commit();
 		File f = getDir("bbb", 0);
-		TwsLog.d(TAG, f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
+		TwsLog.d(TAG,
+				f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
 
 		f = getFilesDir();
-		TwsLog.d(TAG, f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
+		TwsLog.d(TAG,
+				f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
 
 		// if (Build.VERSION.SDK_INT >= 21) {
 		// f = getNoBackupFilesDir();
@@ -312,12 +320,14 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		// }
 
 		f = getCacheDir();
-		TwsLog.d(TAG, f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
+		TwsLog.d(TAG,
+				f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
 
 		// if (Build.VERSION.SDK_INT >= 21) {
 		// f = getCodeCacheDir();
 		// }
-		TwsLog.d(TAG, f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
+		TwsLog.d(TAG,
+				f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
 
 		SQLiteDatabase db = openOrCreateDatabase("ccc", 0, null);
 		try {
@@ -330,7 +340,8 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		}
 
 		f = getDatabasePath("ccc");
-		TwsLog.d(TAG, f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
+		TwsLog.d(TAG,
+				f.getAbsoluteFile() + " exists:" + f.exists() + " canRead:" + f.canRead() + " canWrite:" + f.canWrite());
 
 		String[] list = databaseList();
 
