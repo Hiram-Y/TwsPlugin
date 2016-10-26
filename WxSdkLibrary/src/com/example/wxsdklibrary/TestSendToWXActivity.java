@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.pluginmain.wxapi.WXEntryActivity;
+import com.example.pluginhost.wxapi.WXEntryActivity;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
 import com.tencent.mm.sdk.openapi.IWXAPI;

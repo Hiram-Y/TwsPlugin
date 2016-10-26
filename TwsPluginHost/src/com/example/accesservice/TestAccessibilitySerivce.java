@@ -16,7 +16,7 @@ public class TestAccessibilitySerivce extends AccessibilityService {
 	protected void onServiceConnected() {
 		super.onServiceConnected();
 		AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-		info.packageNames = new String[] { "com.example.pluginmain" }; // 监听过滤的包名
+		info.packageNames = new String[] { "com.example.pluginhost" }; // 监听过滤的包名
 		info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK; // 监听哪些行为
 		info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; // 反馈
 		info.notificationTimeout = 100; // 通知的时间

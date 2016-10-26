@@ -1,4 +1,4 @@
-package com.example.pluginmain;
+package com.example.pluginhost;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.pluginhost.R;
 import com.tws.plugin.core.PluginThemeHelper;
 
 public class TestSkinActivity extends Activity {

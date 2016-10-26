@@ -1,10 +1,11 @@
-package com.example.pluginmain;
+package com.example.pluginhost;
 
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TabHost;
 
+import com.example.pluginhost.R;
 import com.tws.plugin.core.PluginIntentResolver;
 
 @SuppressWarnings("ALL")

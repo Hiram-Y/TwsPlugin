@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.facebook.rebound.demo"
-    android:sharedUserId="com.example.pluginmain"
+    android:sharedUserId="com.example.pluginhost"
     android:versionCode="1"
     android:versionName="1.0.1" >
 

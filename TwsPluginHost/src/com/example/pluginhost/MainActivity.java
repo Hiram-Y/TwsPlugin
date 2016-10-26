@@ -1,4 +1,4 @@
-package com.example.pluginmain;
+package com.example.pluginhost;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,8 @@ import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.example.pluginmain.widget.StatusButton;
+import com.example.pluginhost.widget.StatusButton;
+import com.example.pluginhost.R;
 import com.tencent.tws.sharelib.IMyAidlInterface;
 import com.tencent.tws.sharelib.SharePOJO;
 import com.tencent.tws.sharelib.ShareService;

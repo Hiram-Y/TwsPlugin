@@ -1,4 +1,4 @@
-package com.example.pluginmain.wxapi;
+package com.example.pluginhost.wxapi;
 
 import android.app.Activity;
 import android.content.Intent;

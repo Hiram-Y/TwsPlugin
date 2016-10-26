@@ -5,7 +5,7 @@ import android.app.Application;
 
 public class HostProxy {
 	private static Application sApplication = null;
-	private static String HOST_PACKAGE_NAME = "com.example.pluginmain";
+	private static String HOST_PACKAGE_NAME = "com.example.pluginhost";
 
 	public static void setApplication(Application context) {
 		sApplication = context;

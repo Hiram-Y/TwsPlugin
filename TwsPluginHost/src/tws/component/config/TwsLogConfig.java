@@ -15,7 +15,7 @@ public class TwsLogConfig extends TwsLogBaseConfig {
 
 	@Override
 	public String getPackageName() {
-		return "com.example.pluginmain";
+		return "com.example.pluginhost";
 	}
 
 	// @Override

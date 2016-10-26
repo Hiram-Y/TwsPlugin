@@ -1,4 +1,4 @@
-package com.example.pluginmain;
+package com.example.pluginhost;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.pluginhost.R;
 import com.tencent.tws.sharelib.annotation.PluginContainer;
 import com.tws.plugin.core.PluginLoader;
 

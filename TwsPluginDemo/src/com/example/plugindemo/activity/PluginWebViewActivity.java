@@ -175,7 +175,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 
 		// 唤起宿主Activity
 		// intent.setClassName(getPackageName(),
-		// "com.example.pluginmain.PluginDetailActivity");
+		// "com.example.pluginhost.PluginDetailActivity");
 		// 唤起插件Activity
 		intent.setClassName(getPackageName(), PluginTestActivity.class.getName());
 		// 还可以支持唤起service、receiver等等。

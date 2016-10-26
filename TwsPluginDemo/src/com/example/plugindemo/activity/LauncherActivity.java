@@ -51,7 +51,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		TwsLog.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
 		// TwsLog.e("xxx8",
 		// getResources().getString(getResources().getIdentifier("app_name",
-		// "string", "com.example.pluginmain")));
+		// "string", "com.example.pluginhost")));
 
 		ActionBar actionBar = getActionBar();
 		if (actionBar == null) {
@@ -86,7 +86,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 
 	private static void startFragmentInHostActivity(Context context, String targetId) {
 		Intent pluginActivity = new Intent();
-		pluginActivity.setClassName(context, "com.example.pluginmain.TestFragmentActivity");
+		pluginActivity.setClassName(context, "com.example.pluginhost.TestFragmentActivity");
 		pluginActivity.putExtra("PluginDispatcher.fragmentId", targetId);
 		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(pluginActivity);

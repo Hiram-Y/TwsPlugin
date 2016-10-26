@@ -1,4 +1,4 @@
-package com.example.pluginmain.widget;
+package com.example.pluginhost.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
