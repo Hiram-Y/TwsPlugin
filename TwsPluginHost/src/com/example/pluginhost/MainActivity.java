@@ -54,7 +54,6 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.main_activity);
 
 		setTitle("Host-插件调试界面");
@@ -71,6 +70,8 @@ public class MainActivity extends Activity {
 		registerReceiver(pluginInstallEvent, new IntentFilter(PluginCallback.ACTION_PLUGIN_CHANGED));
 	}
 
+	private static final String ASSETS_PLUGS_DIR = "plugins";
+
 	private void initView() {
 		mList = (ViewGroup) findViewById(R.id.list);
 		mBuiltinPlugList = (ViewGroup) findViewById(R.id.builtin_plug_list);
@@ -81,27 +82,54 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				if (!isInstalled) {
-					try {
-						String[] files = getAssets().list("");
-						for (String apk : files) {
-							if (apk.endsWith(".apk")) {
-								copyAndInstall(apk);
-							}
-						}
-						isInstalled = true;
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				} else {
-					Toast.makeText(MainActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
-				}
+				installAssetsAllPlugs();
 			}
 		});
 
 		showInstalledAll();
 		showBuildinPluginList();
 		showSdcardPluginList();
+	}
+
+	private void installAssetsAllPlugs() {
+		if (!isInstalled) {
+			try {
+				String[] files = getAssets().list(ASSETS_PLUGS_DIR);
+				String name = "";
+				for (String apk : files) {
+					if (apk.endsWith(".apk")) {
+						name = ASSETS_PLUGS_DIR + "/" + apk;
+						copyAndInstall(name);
+					}
+				}
+				isInstalled = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			Toast.makeText(MainActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private void copyAndInstall(String name) {
+		try {
+			InputStream assestInput = getAssets().open(name);
+			String dest = getExternalFilesDir(null).getAbsolutePath() + "/" + name;
+			if (FileUtil.copyFile(assestInput, dest)) {
+				PluginManagerHelper.installPlugin(dest);
+			} else {
+				assestInput = getAssets().open(name);
+				dest = getCacheDir().getAbsolutePath() + "/" + name;
+				if (FileUtil.copyFile(assestInput, dest)) {
+					PluginManagerHelper.installPlugin(dest);
+				} else {
+					Toast.makeText(MainActivity.this, "抽取assets中的Apk失败" + dest, Toast.LENGTH_LONG).show();
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private String mTmpFileName = "";
@@ -159,7 +187,7 @@ public class MainActivity extends Activity {
 		mBuiltinPlugList.removeAllViews();
 		String[] mBuildInPlugins = null;
 		try {
-			mBuildInPlugins = getAssets().list("");
+			mBuildInPlugins = getAssets().list(ASSETS_PLUGS_DIR);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -202,7 +230,7 @@ public class MainActivity extends Activity {
 								buttonEx.setStatus(StatusButton.UNINSTALL_PLUGIN);
 							}
 						} else {
-							copyAndInstall((String) buttonEx.getPluginLabel());
+							copyAndInstall(ASSETS_PLUGS_DIR + "/" + (String) buttonEx.getPluginLabel());
 							Toast.makeText(getApplicationContext(), "点击 安装 " + buttonEx.getPluginLabel(),
 									Toast.LENGTH_SHORT).show();
 							buttonEx.setStatus(StatusButton.INSTALLED_PLUGIN);
@@ -219,27 +247,6 @@ public class MainActivity extends Activity {
 			return null;
 
 		return apkFile.substring(0, apkFile.length() - 4);
-	}
-
-	private void copyAndInstall(String name) {
-		try {
-			InputStream assestInput = getAssets().open(name);
-			String dest = getExternalFilesDir(null).getAbsolutePath() + "/" + name;
-			if (FileUtil.copyFile(assestInput, dest)) {
-				PluginManagerHelper.installPlugin(dest);
-			} else {
-				assestInput = getAssets().open(name);
-				dest = getCacheDir().getAbsolutePath() + "/" + name;
-				if (FileUtil.copyFile(assestInput, dest)) {
-					PluginManagerHelper.installPlugin(dest);
-				} else {
-					Toast.makeText(MainActivity.this, "抽取assets中的Apk失败" + dest, Toast.LENGTH_LONG).show();
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
-		}
 	}
 
 	private void showInstalledAll() {

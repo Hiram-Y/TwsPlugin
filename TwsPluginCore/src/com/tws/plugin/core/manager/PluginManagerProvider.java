@@ -19,6 +19,7 @@ import com.tws.plugin.core.PluginLoader;
  * 
  * 利用ContentProvider实现同步跨进程调用
  * 
+ * ContentProvider的相关操作应该放在installContentProvider之后执行,而installContentProvider是ActivityThread在调用application的attach之后,onCreate之前执行
  */
 public class PluginManagerProvider extends ContentProvider {
 
@@ -130,7 +131,8 @@ public class PluginManagerProvider extends ContentProvider {
 			TwsLog.d(TAG, "callingPackage = " + getCallingPackage());
 		}
 
-		TwsLog.d(TAG, "Thead id=" + Thread.currentThread().getId() + " name=" + Thread.currentThread().getName() + " method=" + method + ", arg=" + arg);
+		TwsLog.d(TAG, "Thead id=" + Thread.currentThread().getId() + " name=" + Thread.currentThread().getName()
+				+ " method=" + method + ", arg=" + arg);
 
 		Bundle bundle = new Bundle();
 

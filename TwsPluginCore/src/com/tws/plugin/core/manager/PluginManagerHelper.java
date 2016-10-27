@@ -5,10 +5,16 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import tws.component.log.TwsLog;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.compat.CompatForContentProvider;
+import com.tws.plugin.core.PluginLoader;
+import com.tws.plugin.util.RefInvoker;
 
 /**
  * @author yongchen
@@ -25,8 +31,8 @@ public class PluginManagerHelper {
 		PluginDescriptor pluginDescriptor = localCache.get(clazzName);
 
 		if (pluginDescriptor == null) {
-			Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-					PluginManagerProvider.ACTION_QUERY_BY_CLASS_NAME, clazzName, null);
+			Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_QUERY_BY_CLASS_NAME,
+					clazzName, null);
 			if (bundle != null) {
 				pluginDescriptor = (PluginDescriptor) bundle
 						.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
@@ -39,8 +45,7 @@ public class PluginManagerHelper {
 
 	@SuppressWarnings("unchecked")
 	public static Collection<PluginDescriptor> getPlugins() {
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_QUERY_ALL, null, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_QUERY_ALL, null, null);
 
 		Collection<PluginDescriptor> list = null;
 		if (bundle != null) {
@@ -54,6 +59,8 @@ public class PluginManagerHelper {
 	}
 
 	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
+		if (TextUtils.isEmpty(pluginId))
+			return null;
 
 		if (pluginId.startsWith("com.android.")) {
 			// 之所以有这判断, 是因为可能BinderProxyDelegate
@@ -67,8 +74,8 @@ public class PluginManagerHelper {
 		PluginDescriptor pluginDescriptor = localCache.get(pluginId);
 
 		if (pluginDescriptor == null) {
-			Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-					PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId, null);
+			Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId,
+					null);
 			if (bundle != null) {
 				pluginDescriptor = (PluginDescriptor) bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
 				localCache.put(pluginId, pluginDescriptor);
@@ -82,8 +89,7 @@ public class PluginManagerHelper {
 
 	public static int installPlugin(String srcFile) {
 		clearLocalCache();
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_INSTALL, srcFile, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_INSTALL, srcFile, null);
 
 		int result = 7;// install-Fail
 		if (bundle != null) {
@@ -94,8 +100,7 @@ public class PluginManagerHelper {
 
 	public static synchronized void remove(String pluginId) {
 		clearLocalCache();
-		CompatForContentProvider.call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE, pluginId,
-				null);
+		call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE, pluginId, null);
 	}
 
 	/**
@@ -103,8 +108,7 @@ public class PluginManagerHelper {
 	 */
 	public static synchronized void removeAll() {
 		clearLocalCache();
-		CompatForContentProvider.call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE_ALL, null,
-				null);
+		call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
 	}
 
 	public static void clearLocalCache() {
@@ -113,8 +117,8 @@ public class PluginManagerHelper {
 
 	public static PluginDescriptor getPluginDescriptorByFragmentId(String clazzId) {
 
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_QUERY_BY_FRAGMENT_ID, clazzId, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_QUERY_BY_FRAGMENT_ID,
+				clazzId, null);
 		if (bundle != null) {
 			return (PluginDescriptor) bundle.getSerializable(PluginManagerProvider.QUERY_BY_FRAGMENT_ID_RESULT);
 		}
@@ -122,8 +126,7 @@ public class PluginManagerHelper {
 	}
 
 	public static String bindStubReceiver() {
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_BIND_RECEIVER, null, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_BIND_RECEIVER, null, null);
 		if (bundle != null) {
 			return bundle.getString(PluginManagerProvider.BIND_RECEIVER_RESULT);
 		}
@@ -133,8 +136,8 @@ public class PluginManagerHelper {
 	public static String bindStubActivity(String pluginActivityClassName, int launchMode) {
 		Bundle arg = new Bundle();
 		arg.putInt("launchMode", launchMode);
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_BIND_ACTIVITY, pluginActivityClassName, arg);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_BIND_ACTIVITY,
+				pluginActivityClassName, arg);
 		if (bundle != null) {
 			return bundle.getString(PluginManagerProvider.BIND_ACTIVITY_RESULT);
 		}
@@ -144,8 +147,7 @@ public class PluginManagerHelper {
 	public static boolean isExact(String name, int type) {
 		Bundle arg = new Bundle();
 		arg.putInt("type", type);
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_IS_EXACT, name, arg);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_IS_EXACT, name, arg);
 		if (bundle != null) {
 			return bundle.getBoolean(PluginManagerProvider.IS_EXACT_RESULT);
 		}
@@ -155,13 +157,12 @@ public class PluginManagerHelper {
 	public static void unBindLaunchModeStubActivity(String activityName, String className) {
 		Bundle arg = new Bundle();
 		arg.putString("className", className);
-		CompatForContentProvider.call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_UNBIND_ACTIVITY,
-				activityName, arg);
+		call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_UNBIND_ACTIVITY, activityName, arg);
 	}
 
 	public static String getBindedPluginServiceName(String stubServiceName) {
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_GET_BINDED_SERVICE, stubServiceName, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_GET_BINDED_SERVICE,
+				stubServiceName, null);
 		if (bundle != null) {
 			return bundle.getString(PluginManagerProvider.GET_BINDED_SERVICE_RESULT);
 		}
@@ -169,8 +170,8 @@ public class PluginManagerHelper {
 	}
 
 	public static String bindStubService(String pluginServiceClassName) {
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_BIND_SERVICE, pluginServiceClassName, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_BIND_SERVICE,
+				pluginServiceClassName, null);
 		if (bundle != null) {
 			return bundle.getString(PluginManagerProvider.BIND_SERVICE_RESULT);
 		}
@@ -178,13 +179,11 @@ public class PluginManagerHelper {
 	}
 
 	public static void unBindStubService(String pluginServiceName) {
-		CompatForContentProvider.call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_UNBIND_SERVICE,
-				pluginServiceName, null);
+		call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_UNBIND_SERVICE, pluginServiceName, null);
 	}
 
 	public static boolean isStub(String className) {
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_IS_STUB, className, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_IS_STUB, className, null);
 		if (bundle != null) {
 			return bundle.getBoolean(PluginManagerProvider.IS_STUB_RESULT);
 		}
@@ -192,11 +191,17 @@ public class PluginManagerHelper {
 	}
 
 	public static String dumpServiceInfo() {
-		Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-				PluginManagerProvider.ACTION_DUMP_SERVICE_INFO, null, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_DUMP_SERVICE_INFO, null,
+				null);
 		if (bundle != null) {
 			return bundle.getString(PluginManagerProvider.DUMP_SERVICE_INFO_RESULT);
 		}
 		return null;
+	}
+
+	public static Bundle call(Uri uri, String method, String arg, Bundle extras) {
+		ContentResolver resolver = PluginLoader.getApplication().getContentResolver();
+
+		return resolver.call(uri, method, arg, extras);
 	}
 }

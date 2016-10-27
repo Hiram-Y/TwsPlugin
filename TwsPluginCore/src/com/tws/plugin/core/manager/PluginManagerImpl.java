@@ -40,9 +40,12 @@ class PluginManagerImpl {
 
 	private static final boolean NEED_VERIFY_CERT = true;
 
+	private static final String PLUGIN_SHAREED_PREFERENCE_NAME = "plugins.shared.preferences";
+
 	private static final String INSTALLED_KEY = "plugins.list";
 	private static final String PENDING_KEY = "plugins.pending";
 
+	private static final String PLUGIN_DIR = "plugin_dir";
 	private final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
 	private final Hashtable<String, PluginDescriptor> sPendingPlugins = new Hashtable<String, PluginDescriptor>();
 
@@ -60,7 +63,7 @@ class PluginManagerImpl {
 	}
 
 	private String getPluginRootDir() {
-		return PluginLoader.getApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
+		return PluginLoader.getApplication().getDir(PLUGIN_DIR, Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -349,7 +352,7 @@ class PluginManagerImpl {
 	}
 
 	private static SharedPreferences getSharedPreference() {
-		SharedPreferences sp = PluginLoader.getApplication().getSharedPreferences("plugins.installed",
+		SharedPreferences sp = PluginLoader.getApplication().getSharedPreferences(PLUGIN_SHAREED_PREFERENCE_NAME,
 				Build.VERSION.SDK_INT < 11 ? Context.MODE_PRIVATE : Context.MODE_PRIVATE | 0x0004);
 		return sp;
 	}
@@ -422,5 +425,4 @@ class PluginManagerImpl {
 
 		return (Hashtable<String, PluginDescriptor>) object;
 	}
-
 }

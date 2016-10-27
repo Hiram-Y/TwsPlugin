@@ -72,17 +72,17 @@
         <!-- 要展示插件中的fragment，所以配成插件进程 -->
         <activity
             android:name="com.example.pluginhost.TestFragmentActivity"
-            android:process=":plugin" />
+             />
 
         <!-- 要展示插件中的View，所以配成插件进程 -->
         <activity
             android:name="com.example.pluginhost.TestViewActivity"
-            android:process=":plugin" />
+             />
 
         <!-- 要展示插件中的Activity，所以配成插件进程 -->
         <activity
             android:name="com.example.pluginhost.TestTabActivity"
-            android:process=":plugin" />
+             />
 
         <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
@@ -110,7 +110,7 @@
             android:name="com.tws.plugin.core.manager.PluginManagerProvider"
             android:authorities="com.example.pluginhost.manager.pluginmanager"
             android:exported="false"
-            android:process=":plugin" />
+             />
         <provider
             android:name="com.limpoxe.support.servicemanager.ServiceProvider"
             android:authorities="com.example.pluginhost.svcmgr"
@@ -120,7 +120,7 @@
         <receiver
             android:name="com.example.pluginhost.stub.PluginStubReceiver"
             android:exported="true"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -137,7 +137,7 @@
         -->
         <service
             android:name="com.example.pluginhost.stub.PluginStubService1"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -146,7 +146,7 @@
         </service>
         <service
             android:name="com.example.pluginhost.stub.PluginStubService2"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -155,7 +155,7 @@
         </service>
         <service
             android:name="com.example.pluginhost.stub.PluginStubService3"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -164,7 +164,7 @@
         </service>
         <service
             android:name="com.example.pluginhost.stub.PluginStubService4"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -173,7 +173,7 @@
         </service>
         <service
             android:name="com.example.pluginhost.stub.PluginStubService5"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -184,7 +184,7 @@
         <activity
             android:name="com.example.pluginhost.stub.PluginStubActivity0"
             android:exported="true"
-            android:process=":plugin"
+            
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
@@ -205,7 +205,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity1"
             android:exported="true"
             android:launchMode="singleTask"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -216,7 +216,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity2"
             android:exported="true"
             android:launchMode="singleTask"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -227,7 +227,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity3"
             android:exported="true"
             android:launchMode="singleTask"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -238,7 +238,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity4"
             android:exported="true"
             android:launchMode="singleTask"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -249,7 +249,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity5"
             android:exported="true"
             android:launchMode="singleTop"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -260,7 +260,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity6"
             android:exported="true"
             android:launchMode="singleTop"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -271,7 +271,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity7"
             android:exported="true"
             android:launchMode="singleTop"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -282,7 +282,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity8"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -293,7 +293,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity9"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
@@ -304,7 +304,7 @@
             android:name="com.example.pluginhost.stub.PluginStubActivity10"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:process=":plugin" >
+             >
             <intent-filter>
                 <action android:name="com.example.pluginhost.STUB_DEFAULT" />
 
