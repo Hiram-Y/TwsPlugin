@@ -1,5 +1,6 @@
 package com.example.plugindemo.fragment;
 
+import tws.component.log.TwsLog;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,7 @@ import com.tencent.tws.sharelib.util.HostProxy;
  */
 public class PluginNormalFragment extends Fragment implements OnClickListener {
 
+	private static final String TAG = "rick_Print:";
 	private ViewGroup mRoot;
 	private LayoutInflater mInflater;
 
@@ -59,17 +61,24 @@ public class PluginNormalFragment extends Fragment implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		Log.v("v.click 111", "" + v.getId());
+		TwsLog.d(TAG, "onClick");
 		if (v.getId() == R.id.plugin_test_btn1) {
 			View view = mInflater.inflate(R.layout.plugin_layout, null, false);
 			mRoot.addView(view);
-			Toast.makeText(this.getActivity(), getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
+			Toast.makeText(this.getActivity(), getString(R.string.hello_world1), Toast.LENGTH_SHORT).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
-			View view = mInflater.inflate(HostProxy.getShareLayoutId("share_main"), null, false);
+			int shareLayoutID = HostProxy.getShareLayoutId("share_main");
+			TwsLog.d(TAG, "get shareLayoutID=" + Integer.toHexString(shareLayoutID));
+			View view = mInflater.inflate(shareLayoutID, null, false);
+			TwsLog.d(TAG, "get inflate(shareLayoutID view=" + view);
 			mRoot.addView(view);
-			Toast.makeText(this.getActivity(), getString(HostProxy.getShareStringId("share_string_1")), Toast.LENGTH_LONG).show();
+
+			int shareStringid = HostProxy.getShareStringId("share_string_1");
+			TwsLog.d(TAG, "get shareStringid=" + Integer.toHexString(shareStringid));
+			Toast.makeText(this.getActivity(), getString(shareStringid), Toast.LENGTH_SHORT).show();
 		} else if (v.getId() == R.id.plugin_test_btn3) {
-			View view = LayoutInflater.from(getActivity()).inflate(HostProxy.getShareLayoutId("share_main"), null, false);
+			View view = LayoutInflater.from(getActivity()).inflate(HostProxy.getShareLayoutId("share_main"), null,
+					false);
 			mRoot.addView(view);
 		} else if (v.getId() == R.id.plugin_test_btn4) {
 			((Button) v).setText(HostProxy.getShareStringId("share_string_1"));

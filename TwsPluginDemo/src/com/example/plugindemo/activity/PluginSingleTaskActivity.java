@@ -8,8 +8,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.plugintestbase.ILoginService;
-import com.example.plugintestbase.LoginVO;
+import com.example.pluginbase.ILoginService;
+import com.example.pluginbase.LoginVO;
 
 public class PluginSingleTaskActivity extends Activity implements OnClickListener {
 

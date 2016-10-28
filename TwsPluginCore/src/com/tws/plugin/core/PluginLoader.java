@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -58,8 +59,32 @@ public class PluginLoader {
 	private static final String ASSETS_PLUGS_DIR = "plugins";
 	private static Hashtable<String, String> mPluginName_PackageName = new Hashtable<String, String>();
 
-	private PluginLoader() {
+	public static final int PLUGIN_UPDATE_REMOVE = 0;
+	public static final int PLUGIN_UPDATE_ADD = 1;
+	public static final int PLUGIN_UPDATE_START = 2;
+	public static final int PLUGIN_UPDATE_STOP = 3;
+	public static final int PLUGIN_UPDATE_REMOVEALL = 4;
 
+	private static PluginLoader instance;
+	private String mDillPluginName;
+
+	private PluginLoader() {
+	}
+
+	public static PluginLoader getInstance() {
+		if (instance == null) {
+			instance = new PluginLoader();
+		}
+
+		return instance;
+	}
+
+	public void setDillPluginName(String pluginName) {
+		mDillPluginName = pluginName;
+	}
+
+	public String getDillPluginName() {
+		return mDillPluginName;
 	}
 
 	public static Application getApplication() {
@@ -75,7 +100,6 @@ public class PluginLoader {
 	 * @param app
 	 */
 	public static synchronized void initPluginFramework(Application app) {
-
 		if (!isLoaderInited) {
 			TwsLog.d(TAG, "begin init PluginFramework...");
 			long startTime = System.currentTimeMillis();
@@ -150,27 +174,6 @@ public class PluginLoader {
 				}
 			}
 			TwsLog.d(TAG, "Complete Init PluginFramework Take:" + (System.currentTimeMillis() - startTime) + "ms");
-		}
-	}
-
-	private static void copyAndInstall(String name) {
-		try {
-			InputStream assestInput = getApplication().getAssets().open(name);
-			String dest = getApplication().getExternalFilesDir(null).getAbsolutePath() + "/" + name;
-			if (FileUtil.copyFile(assestInput, dest)) {
-				PluginManagerHelper.installPlugin(dest);
-			} else {
-				assestInput = getApplication().getAssets().open(name);
-				dest = getApplication().getCacheDir().getAbsolutePath() + "/" + name;
-				if (FileUtil.copyFile(assestInput, dest)) {
-					PluginManagerHelper.installPlugin(dest);
-				} else {
-					Toast.makeText(getApplication(), "抽取assets中的Apk失败" + dest, Toast.LENGTH_LONG).show();
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			Toast.makeText(getApplication(), "安装失败", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -383,6 +386,7 @@ public class PluginLoader {
 				e.printStackTrace();
 			}
 
+			mPluginName_PackageName.clear();
 			if (getVersionCode() < currentVersionCode) {
 				TwsLog.d(TAG, "升级安装,先清理之前所有安装的插件");
 				// 版本升级 清理掉之前安装的所有插件
@@ -392,11 +396,22 @@ public class PluginLoader {
 				// 构建map记录
 				Hashtable<String, String> pluginsNameCache = readPluginsNameCacheMap();
 				if (pluginsNameCache != null && 0 < pluginsNameCache.size()) {
+					TwsLog.d(TAG, "构建map记录 01");
 					mPluginName_PackageName.putAll(pluginsNameCache);
+					Iterator<String> keys = mPluginName_PackageName.keySet().iterator();
+					String pluginName, pluginPackageName;
+					TwsLog.d(TAG, "===================print mPluginName_PackageName info ===================");
+					while (keys.hasNext()) {
+						pluginName = keys.next();
+						pluginPackageName = mPluginName_PackageName.get(pluginName);
+						TwsLog.d(TAG, "【" + pluginName + "," + pluginPackageName + "】");
+					}
 				} else {
+					TwsLog.d(TAG, "构建map记录 02");
 					initMap();
 				}
 			}
+			savePluginsNameCacheMap(mPluginName_PackageName);
 
 			// step2 加载assets/plugins下面的插件
 			final AssetManager asset = getApplication().getAssets();
@@ -413,6 +428,7 @@ public class PluginLoader {
 				for (String apk : files) {
 					if (apk.endsWith(".apk")) {
 						// 根据apk的名称来配对是否有安装
+						getInstance().setDillPluginName(apk);
 						packageName = mPluginName_PackageName.get(apk.toLowerCase());
 						pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 						if (null != pluginDescriptor) {
@@ -424,9 +440,9 @@ public class PluginLoader {
 						// 没有安装就执行安装流程
 						copyAndInstall(ASSETS_PLUGS_DIR + "/" + apk);
 
-						// 安装完成后需要入map
-						// Write code here^
-						// 另外 安装卸载都需要同步这个map
+						// 安装卸载都需要同步mPluginName_PackageName,这个在下面的callBack里面进行处理
+					} else {
+						getInstance().setDillPluginName(null);
 					}
 				}
 			}
@@ -438,10 +454,11 @@ public class PluginLoader {
 	private static int getVersionCode() {
 		SharedPreferences sp = getSharedPreference();
 
-		return sp == null ? 1 : sp.getInt(VERSION_CODE_KEY, 1);
+		return sp == null ? 0 : sp.getInt(VERSION_CODE_KEY, 0);
 	}
 
-	private static void saveVersionCode(int verCode) {
+	private static synchronized void saveVersionCode(int verCode) {
+		TwsLog.d(TAG, "saveVersionCode:" + verCode);
 		getSharedPreference().edit().putInt(VERSION_CODE_KEY, verCode).commit();
 	}
 
@@ -451,7 +468,7 @@ public class PluginLoader {
 		return sp;
 	}
 
-	private synchronized boolean savePluginsNameCacheMap(Hashtable<String, String> nameCache) {
+	private synchronized static boolean savePluginsNameCacheMap(Hashtable<String, String> nameCache) {
 		ObjectOutputStream objectOutputStream = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try {
@@ -516,5 +533,77 @@ public class PluginLoader {
 		}
 
 		return (Hashtable<String, String>) object;
+	}
+
+	private static void copyAndInstall(String name) {
+		try {
+			InputStream assestInput = getApplication().getAssets().open(name);
+			String dest = getApplication().getExternalFilesDir(null).getAbsolutePath() + "/" + name;
+			if (FileUtil.copyFile(assestInput, dest)) {
+				PluginManagerHelper.installPlugin(dest);
+			} else {
+				assestInput = getApplication().getAssets().open(name);
+				dest = getApplication().getCacheDir().getAbsolutePath() + "/" + name;
+				if (FileUtil.copyFile(assestInput, dest)) {
+					PluginManagerHelper.installPlugin(dest);
+				} else {
+					Toast.makeText(getApplication(), "抽取assets中的Apk失败" + dest, Toast.LENGTH_SHORT).show();
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			Toast.makeText(getApplication(), "安装失败", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private synchronized static void removePlugin(String packageName) {
+		// Iterator<String> keys = mPluginName_PackageName.keySet().iterator();
+		// String pluginName;
+		// String pluginPackageName;
+		// while (keys.hasNext()) {
+		// pluginName = keys.next();
+		// pluginPackageName = mPluginName_PackageName.get(pluginName);
+		// if (TextUtils.equals(packageName, pluginPackageName)) {
+		// TwsLog.w(TAG, "pluginChangedCallBack REMOVE pluginName=" + pluginName
+		// + " ======= packageName="
+		// + packageName);
+		// mPluginName_PackageName.remove(pluginName);
+		// }
+		// }
+
+		Enumeration<String> keys = mPluginName_PackageName.keys();
+		String pluginName, pluginPackageName;
+		while (keys.hasMoreElements()) {
+			pluginName = keys.nextElement();
+			pluginPackageName = mPluginName_PackageName.get(pluginName);
+			if (TextUtils.equals(packageName, pluginPackageName)) {
+				TwsLog.w(TAG, "pluginChangedCallBack REMOVE pluginName=" + pluginName + " ======= packageName="
+						+ packageName);
+				mPluginName_PackageName.remove(pluginName);
+			}
+		}
+
+		savePluginsNameCacheMap(mPluginName_PackageName);
+	}
+
+	public static void pluginChangedCallBack(int action, String packageName) {
+		switch (action) {
+		case PLUGIN_UPDATE_REMOVE:
+			removePlugin(packageName);
+			break;
+		case PLUGIN_UPDATE_ADD:
+			TwsLog.w(TAG, "pluginChangedCallBack ADD pluginName=" + getInstance().getDillPluginName()
+					+ " ======= packageName=" + packageName);
+			mPluginName_PackageName.put(getInstance().getDillPluginName(), packageName);
+			savePluginsNameCacheMap(mPluginName_PackageName);
+			break;
+		case PLUGIN_UPDATE_REMOVEALL:
+			mPluginName_PackageName.clear();
+			savePluginsNameCacheMap(mPluginName_PackageName);
+			break;
+
+		default:
+			break;
+		}
 	}
 }

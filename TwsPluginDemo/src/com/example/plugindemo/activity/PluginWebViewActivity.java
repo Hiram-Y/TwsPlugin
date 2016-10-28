@@ -34,8 +34,8 @@ import android.widget.Toast;
 import com.example.hellojni.HelloJni;
 import com.example.plugindemo.R;
 import com.example.plugindemo.provider.PluginDbTables;
-import com.example.plugintestbase.ILoginService;
-import com.example.plugintestbase.LoginVO;
+import com.example.pluginbase.ILoginService;
+import com.example.pluginbase.LoginVO;
 import com.tencent.tws.sharelib.util.HostProxy;
 
 @SuppressWarnings("ALL")
@@ -102,7 +102,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			values.put(PluginDbTables.PluginFirstTable.MY_FIRST_PLUGIN_NAME, "test web" + System.currentTimeMillis());
 			getContentResolver().insert(PluginDbTables.PluginFirstTable.CONTENT_URI, values);
 
-			Toast.makeText(this, "ContentResolver insert test web", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "ContentResolver insert test web", Toast.LENGTH_SHORT).show();
 
 		} else if (v.getId() == R.id.db_read) {
 			boolean isSuccess = false;
@@ -116,17 +116,17 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 						String pluginName = cursor.getString(index);
 						Log.d("xx", pluginName);
 						Toast.makeText(this, "ContentResolver " + pluginName + " count=" + cursor.getCount(),
-								Toast.LENGTH_LONG).show();
+								Toast.LENGTH_SHORT).show();
 					}
 				}
 				cursor.close();
 			}
 			if (!isSuccess) {
-				Toast.makeText(this, "ContentResolver 查无数据", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "ContentResolver 查无数据", Toast.LENGTH_SHORT).show();
 			}
 		} else if (v.getId() == R.id.db_so) {
 
-			Toast.makeText(this, "Test Jni so libaray 4 + 7 = " + HelloJni.calculate(4, 7), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Test Jni so libaray 4 + 7 = " + HelloJni.calculate(4, 7), Toast.LENGTH_SHORT).show();
 
 		} else if (v.getId() == R.id.db_assert) {
 
@@ -207,7 +207,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		try {
 			InputStream assestInput = getAssets().open("test.json");
 			String text = streamToString(assestInput);
-			Toast.makeText(this, "read assets from plugin" + text, Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "read assets from plugin" + text, Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

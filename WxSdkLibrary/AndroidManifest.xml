@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.WithActionBar" >
         <uses-library
-            android:name="com.example.plugintestbase"
+            android:name="com.example.pluginbase"
             android:required="true" />
 
         <activity android:name="com.example.wxsdklibrary.TestSendToWXActivity" >

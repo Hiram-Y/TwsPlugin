@@ -135,7 +135,7 @@ public class FileUtil {
 			}
 
 			if (!isSuccess) {
-				Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG)
+				Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_SHORT)
 						.show();
 			}
 		} catch (Exception e) {

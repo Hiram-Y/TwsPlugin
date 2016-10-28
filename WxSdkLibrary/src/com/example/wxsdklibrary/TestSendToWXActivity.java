@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.pluginhost.wxapi.WXEntryActivity;
-import com.example.plugintestbase.ILoginService;
-import com.example.plugintestbase.LoginVO;
+import com.example.pluginbase.ILoginService;
+import com.example.pluginbase.LoginVO;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;

@@ -1,7 +1,7 @@
 package com.example.plugindemo;
 
-import com.example.plugintestbase.ILoginService;
-import com.example.plugintestbase.LoginVO;
+import com.example.pluginbase.ILoginService;
+import com.example.pluginbase.LoginVO;
 
 
 /**

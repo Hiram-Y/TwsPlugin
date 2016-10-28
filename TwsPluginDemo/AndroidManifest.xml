@@ -20,7 +20,7 @@
 
         <!-- uses-library作用是用来通知插件框架此插件依赖哪些其他插件 -->
         <uses-library
-            android:name="com.example.plugindemobase"
+            android:name="com.example.pluginbase"
             android:required="true" />
 
         <!-- 测试插件Meta-Data -->
@@ -39,7 +39,7 @@
         <!-- 通知插件框架本插件向外提供的业务服务接口 android:value为实现,android:label为接口 -->
         <exported-service
             android:name="login_service"
-            android:label="com.example.plugindemobase.ILoginService"
+            android:label="com.example.pluginbase.ILoginService"
             android:value="com.example.plugindemo.PluginLoginService" />
         <!-- 如果服务需要支持跨进程调用，例如被宿主进程调用，则需要配置android:label为服务所实现的接口className -->
         <exported-service

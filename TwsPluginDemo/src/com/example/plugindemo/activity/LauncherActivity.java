@@ -41,7 +41,8 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 				"xxx3",
 				getResources().getString(R.string.app_name) + "  "
 						+ getPackageManager().getApplicationLabel(getApplicationInfo()));
-		TwsLog.d("xxx3",
+		TwsLog.d(
+				"xxx3",
 				getResources().getString(R.string.app_name) + "  "
 						+ getPackageManager().getApplicationLabel(getApplicationInfo()));
 		TwsLog.d("xxx4", getPackageName() + ", " + getText(R.string.app_name));

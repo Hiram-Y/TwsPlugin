@@ -36,7 +36,7 @@ public class DetailActivity extends Activity {
 
 		String pluginId = getIntent().getStringExtra("plugin_id");
 		if (pluginId == null) {
-			Toast.makeText(this, "缺少plugin_id参数", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "缺少plugin_id参数", Toast.LENGTH_SHORT).show();
 			return;
 		}
 

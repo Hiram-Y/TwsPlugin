@@ -1,4 +1,4 @@
-package com.example.plugintestbase;
+package com.example.pluginbase;
 
 import java.io.Serializable;
 

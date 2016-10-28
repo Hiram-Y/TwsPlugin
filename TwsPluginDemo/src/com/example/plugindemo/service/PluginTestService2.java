@@ -20,7 +20,7 @@ public class PluginTestService2 extends Service {
 		Toast.makeText(
 				this,
 				" PluginTestService2 "
-						+ getResources().getText(R.string.hello_world3), Toast.LENGTH_LONG).show();
+						+ getResources().getText(R.string.hello_world3), Toast.LENGTH_SHORT).show();
 		Log.d("xx", "PluginTestService2 onCreate2" + getApplication() + " "+ getApplicationContext());
 	}
 
@@ -35,7 +35,7 @@ public class PluginTestService2 extends Service {
 					this,
 					" PluginTestService2 "
 							+ (intent == null ? " null" : (getResources().getText(R.string.hello_world3) + "," + intent
-							.toUri(0))), Toast.LENGTH_LONG).show();
+							.toUri(0))), Toast.LENGTH_SHORT).show();
 		}
 
 		return super.onStartCommand(intent, flags, startId);

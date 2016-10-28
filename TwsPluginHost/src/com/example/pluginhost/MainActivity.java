@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
 		setTitle("Host-插件调试界面");
 
 		// SD卡存放路径
-		mInnerSDCardPath = getInnerSDCardPath() + "//DMPlugs";
+		mInnerSDCardPath = getInnerSDCardPath() + "//plugins";
 		File sdPlgusFile = new File(mInnerSDCardPath);
 		if (!sdPlgusFile.isDirectory() || !sdPlgusFile.exists()) {
 			sdPlgusFile.mkdirs();
@@ -93,12 +93,12 @@ public class MainActivity extends Activity {
 				if (FileUtil.copyFile(assestInput, dest)) {
 					PluginManagerHelper.installPlugin(dest);
 				} else {
-					Toast.makeText(MainActivity.this, "抽取assets中的Apk失败" + dest, Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, "抽取assets中的Apk失败" + dest, Toast.LENGTH_SHORT).show();
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
+			Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -344,7 +344,7 @@ public class MainActivity extends Activity {
 							IMyAidlInterface iMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
 							try {
 								iMyAidlInterface.basicTypes(1, 2L, true, 0.1f, 0.01d, "测试插件AIDL");
-								Toast.makeText(MainActivity.this, "onServiceConnected", Toast.LENGTH_LONG).show();
+								Toast.makeText(MainActivity.this, "onServiceConnected", Toast.LENGTH_SHORT).show();
 							} catch (RemoteException e) {
 								e.printStackTrace();
 							}
@@ -361,7 +361,7 @@ public class MainActivity extends Activity {
 				ShareService ss = (ShareService) LocalServiceManager.getService("share_service");
 				if (ss != null) {
 					SharePOJO pojo = ss.doSomething("测试跨进程localservice");
-					Toast.makeText(MainActivity.this, pojo.name, Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, pojo.name, Toast.LENGTH_SHORT).show();
 				}
 			}
 		});

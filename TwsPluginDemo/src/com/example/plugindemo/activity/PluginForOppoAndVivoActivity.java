@@ -42,7 +42,7 @@ public class PluginForOppoAndVivoActivity extends Activity implements OnClickLis
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Toast.makeText(this, "test plugin menu", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "test plugin menu", Toast.LENGTH_SHORT).show();
 		Log.e("xx", "" + item.getTitle());
 		return super.onOptionsItemSelected(item);
 	}
@@ -70,7 +70,7 @@ public class PluginForOppoAndVivoActivity extends Activity implements OnClickLis
 		if (v.getId() == R.id.plugin_test_btn1) {
 			View view = mInflater.inflate(R.layout.plugin_layout, null, false);
 			mRoot.addView(view);
-			Toast.makeText(this, getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.hello_world1), Toast.LENGTH_SHORT).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
 
 		} else if (v.getId() == R.id.plugin_test_btn4) {

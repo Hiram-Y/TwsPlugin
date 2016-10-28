@@ -60,7 +60,7 @@ public class WelcomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
-				Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " + HelloJni.calculate(3, 4), Toast.LENGTH_LONG)
+				Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " + HelloJni.calculate(3, 4), Toast.LENGTH_SHORT)
 						.show();
 			}
 		});

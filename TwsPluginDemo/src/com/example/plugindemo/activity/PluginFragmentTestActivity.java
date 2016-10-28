@@ -42,7 +42,7 @@ public class PluginFragmentTestActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Toast.makeText(this, "test plugin menu", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "test plugin menu", Toast.LENGTH_SHORT).show();
 		Log.e(LOG_TAG, "" + item.getTitle());
 		return super.onOptionsItemSelected(item);
 	}

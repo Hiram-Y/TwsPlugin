@@ -58,7 +58,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler{
 			break;
 		}
 		
-		Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
 
 		finish();
 	}

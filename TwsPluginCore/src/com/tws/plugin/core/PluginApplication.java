@@ -1,8 +1,10 @@
 package com.tws.plugin.core;
 
 import tws.component.log.TwsLog;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.util.ProcessUtil;
@@ -10,11 +12,16 @@ import com.tws.plugin.util.ProcessUtil;
 public class PluginApplication extends Application {
 
 	private static final String TAG = "rick_Print:PluginApplication";
+	private static PluginApplication instance;
+
+	public static PluginApplication getInstance() {
+		return instance;
+	}
 
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
-
+		instance = this;
 		// 这个地方之所以这样写，是因为如果是插件进程，initPluginFramework必须在applicaiotn启动时执行
 		// 而如果是宿主进程，initPluginFramework可以在这里执行，也可以在需要时再在宿主的其他组件中执行，
 		// 例如点击宿主的某个Activity中的button后再执行这个方法来启动插件框架。
@@ -32,7 +39,8 @@ public class PluginApplication extends Application {
 			// 宿主进程，可以在这里执行，也可以选择在宿主的其他地方在需要时再启动插件框架
 			PluginLoader.initPluginFramework(this);
 		}
-		TwsLog.d(TAG, "call attachBaseContext");
+		// init ServiceManager
+		LocalServiceManager.init();
 	}
 
 	/**
@@ -45,10 +53,31 @@ public class PluginApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		// ServiceManager.init的最佳时机是在application的oncreate之前执行
-		LocalServiceManager.init();
 		super.onCreate();
-		PluginLoader.loadPlugins(this);
-		TwsLog.d(TAG, "call onCreate");
+
+		TwsLog.registerLogReceiver(this);
+
+		String strCurProcessName = getCurProcessName(getApplicationContext());
+		if (strCurProcessName == null) {// 非Host进程 跳出，防止重复加载
+			Log.e(TAG, "onCreate, cant get cur process name, err");
+			return;
+		}
+
+		if (strCurProcessName.equalsIgnoreCase(getPackageName())) {
+			PluginLoader.loadPlugins(this);
+		}
+	}
+
+	String getCurProcessName(Context context) {
+		int pid = android.os.Process.myPid();
+
+		ActivityManager mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		for (ActivityManager.RunningAppProcessInfo appProcess : mActivityManager.getRunningAppProcesses()) {
+			if (appProcess.pid == pid) {
+				return appProcess.processName;
+			}
+		}
+
+		return null;
 	}
 }

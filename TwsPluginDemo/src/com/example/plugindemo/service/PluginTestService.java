@@ -25,7 +25,7 @@ public class PluginTestService extends Service {
 		TwsLog.d(TAG, "PluginTestService onCreate" + getApplication() + " " + getApplicationContext() + " "
 				+ getResources().getText(R.string.hello_world3));
 		Toast.makeText(HostProxy.getApplication(),
-				"PluginTestService 01 onCreate " + getResources().getText(R.string.hello_world3), Toast.LENGTH_LONG)
+				"PluginTestService 01 onCreate " + getResources().getText(R.string.hello_world3), Toast.LENGTH_SHORT)
 				.show();
 	}
 
@@ -39,7 +39,7 @@ public class PluginTestService extends Service {
 				"PluginTestService onStartCommand " + " " + getResources().getText(R.string.hello_world3));
 
 		Toast.makeText(HostProxy.getApplication(),
-				"PluginTestService 02 " + getResources().getText(R.string.hello_world3), Toast.LENGTH_LONG).show();
+				"PluginTestService 02 " + getResources().getText(R.string.hello_world3), Toast.LENGTH_SHORT).show();
 
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -48,7 +48,7 @@ public class PluginTestService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		TwsLog.d(TAG, "PluginTestService onDestroy");
-		Toast.makeText(HostProxy.getApplication(), "停止PluginTestService", Toast.LENGTH_LONG).show();
+		Toast.makeText(HostProxy.getApplication(), "停止PluginTestService", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

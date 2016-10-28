@@ -38,7 +38,7 @@ public class PluginForDialogActivity extends Activity {
 		dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 			@Override
 			public void onDismiss(DialogInterface dialog) {
-				Toast.makeText(PluginForDialogActivity.this, "dismiss", Toast.LENGTH_LONG).show();
+				Toast.makeText(PluginForDialogActivity.this, "dismiss", Toast.LENGTH_SHORT).show();
 			}
 		});
 		dialog.show();
