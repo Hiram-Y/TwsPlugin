@@ -44,7 +44,6 @@ public class MainActivity extends Activity {
 
 	private static final String TAG = "rick_Print:MainActivity";
 	private ViewGroup mList;
-	private Button install;
 	private ViewGroup mBuiltinPlugList;
 	private ViewGroup mSdcardPluginList;
 	boolean isInstalled = false;
@@ -76,39 +75,10 @@ public class MainActivity extends Activity {
 		mList = (ViewGroup) findViewById(R.id.list);
 		mBuiltinPlugList = (ViewGroup) findViewById(R.id.builtin_plug_list);
 		mSdcardPluginList = (ViewGroup) findViewById(R.id.sdcard_plugin_list);
-		install = (Button) findViewById(R.id.install);
-
-		install.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				installAssetsAllPlugs();
-			}
-		});
 
 		showInstalledAll();
 		showBuildinPluginList();
 		showSdcardPluginList();
-	}
-
-	private void installAssetsAllPlugs() {
-		if (!isInstalled) {
-			try {
-				String[] files = getAssets().list(ASSETS_PLUGS_DIR);
-				String name = "";
-				for (String apk : files) {
-					if (apk.endsWith(".apk")) {
-						name = ASSETS_PLUGS_DIR + "/" + apk;
-						copyAndInstall(name);
-					}
-				}
-				isInstalled = true;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			Toast.makeText(MainActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
-		}
 	}
 
 	private void copyAndInstall(String name) {
@@ -138,6 +108,12 @@ public class MainActivity extends Activity {
 		mSdcardPluginList.removeAllViews();
 		File file = new File(mInnerSDCardPath);
 		File[] subFile = file.listFiles();
+		if (subFile == null || subFile.length < 1) {
+			findViewById(R.id.sdcard_plugin_text).setVisibility(View.GONE);
+		} else {
+			findViewById(R.id.sdcard_plugin_text).setVisibility(View.VISIBLE);
+		}
+
 		for (File plugin : subFile) {
 			mTmpFileName = plugin.getName();
 			if (!mTmpFileName.endsWith(".apk"))
@@ -259,7 +235,7 @@ public class MainActivity extends Activity {
 		while (itr.hasNext()) {
 			final PluginDescriptor pluginDescriptor = itr.next();
 			Button button = new Button(this);
-			button.setPadding(9, 3, 9, 3);
+			button.setPadding(9, 0, 9, 0);
 			LayoutParams layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 			layoutParam.topMargin = 3;
 			layoutParam.bottomMargin = 3;
@@ -299,7 +275,7 @@ public class MainActivity extends Activity {
 			return;
 
 		Button button = new Button(this);
-		button.setPadding(9, 3, 9, 3);
+		button.setPadding(9, 0, 9, 0);
 		LayoutParams layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		layoutParam.topMargin = 3;
 		layoutParam.bottomMargin = 3;
@@ -316,7 +292,7 @@ public class MainActivity extends Activity {
 		});
 
 		button = new Button(this);
-		button.setPadding(9, 3, 9, 3);
+		button.setPadding(9, 0, 9, 0);
 		layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		layoutParam.topMargin = 3;
 		layoutParam.bottomMargin = 3;
@@ -335,7 +311,7 @@ public class MainActivity extends Activity {
 
 		// 测试通过宿主service唤起插件service
 		button = new Button(this);
-		button.setPadding(9, 3, 9, 3);
+		button.setPadding(9, 0, 9, 0);
 		layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		layoutParam.topMargin = 3;
 		layoutParam.bottomMargin = 3;
@@ -351,7 +327,7 @@ public class MainActivity extends Activity {
 		});
 
 		button = new Button(this);
-		button.setPadding(9, 3, 9, 3);
+		button.setPadding(9, 0, 9, 0);
 		layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		layoutParam.topMargin = 3;
 		layoutParam.bottomMargin = 3;
@@ -391,7 +367,7 @@ public class MainActivity extends Activity {
 		});
 
 		button = new Button(this);
-		button.setPadding(9, 3, 9, 3);
+		button.setPadding(9, 0, 9, 0);
 		layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		layoutParam.topMargin = 3;
 		layoutParam.bottomMargin = 3;
