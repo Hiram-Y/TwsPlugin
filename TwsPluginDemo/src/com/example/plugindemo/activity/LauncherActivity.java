@@ -79,6 +79,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		findViewById(R.id.onClickPluginTestTabActivity).setOnClickListener(this);
 		findViewById(R.id.onClickPluginWebViewActivity).setOnClickListener(this);
 		findViewById(R.id.onClickTransparentActivity).setOnClickListener(this);
+		findViewById(R.id.onClickSidebarActivity).setOnClickListener(this);
 		findViewById(R.id.onClickPluginTestReceiver).setOnClickListener(this);
 		findViewById(R.id.onClickPluginTestReceiver2).setOnClickListener(this);
 		findViewById(R.id.onClickPluginTestService).setOnClickListener(this);
@@ -134,6 +135,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 			break;
 		case R.id.onClickTransparentActivity:
 			onClickTransparentActivity(v);
+			break;
+		case R.id.onClickSidebarActivity:
+			onClickSidebarActivity();
 			break;
 		case R.id.onClickPluginTestReceiver:
 			onClickPluginTestReceiver(v);
@@ -252,6 +256,15 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		// 利用className打开
 		Intent intent = new Intent();
 		intent.setClassName(this, TransparentActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	private void onClickSidebarActivity() {
+		// 利用className打开共享控件的测试activity
+		Intent intent = new Intent();
+		intent.setClassName(this, SideBarActivity.class.getName());
 		intent.putExtra("testParam", "testParam");
 		intent.putExtra("paramVO", new SharePOJO("测试VO"));
 		startActivity(intent);

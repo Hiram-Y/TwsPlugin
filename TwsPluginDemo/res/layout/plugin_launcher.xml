@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="15dp"
-            android:text="打开PluginHellWorld" />
+            android:text="打开PluginHellWorld插件首页" />
 
         <Button
             android:id="@+id/onClickPluginNormalFragment"
@@ -115,6 +115,14 @@
             android:layout_margin="10dp"
             android:padding="15dp"
             android:text="打开TransparentActivity" />
+
+        <Button
+            android:id="@+id/onClickSidebarActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="15dp"
+            android:text="点击测试共享控件" />
 
         <Button
             android:id="@+id/onClickPluginTestReceiver"

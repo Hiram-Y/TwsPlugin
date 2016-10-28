@@ -143,3 +143,8 @@
 /TwsPluginShareLib/bin/res/drawable-xxhdpi/*.png
 /TwsPluginShareLib/bin/res/drawable-xxxhdpi/*.png
 /TwsPluginShareLib/gen/com/tencent/tws/assistant/services/*.java
+/TwsPluginBase/bin/classes/com/example/pluginbase/*.class
+/TwsPluginBase/gen/com/example/pluginbase/*.java
+/TwsPluginDemoFor5/bin/*.cache
+/TwsPluginShareLib/bin/*.cache
+/WxSdkLibrary/bin/*.cache
