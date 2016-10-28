@@ -6,16 +6,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.pluginhost.wxapi.WXEntryActivity;
 import com.example.pluginbase.ILoginService;
 import com.example.pluginbase.LoginVO;
+import com.example.pluginmain.wxapi.WXEntryActivity;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.tencent.mm.sdk.openapi.WXMediaMessage;
 import com.tencent.mm.sdk.openapi.WXTextObject;
 import com.tencent.tws.sharelib.annotation.PluginContainer;
-import com.tencent.tws.sharelib.util.HostProxy;
 import com.tencent.tws.sharelib.util.PackageNameUtil;
 
 @PluginContainer
@@ -35,10 +34,9 @@ public class TestSendToWXActivity extends Activity {
 		ILoginService login = (ILoginService) getSystemService("login_service");
 		if (login != null) {
 			LoginVO vo = login.login("admin", "123456");
-			Toast.makeText(HostProxy.getApplication(), vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT)
-					.show();
+			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
 		} else {
-			Toast.makeText(HostProxy.getApplication(), "ILoginService == null", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
 		}
 
 		findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
@@ -62,5 +60,4 @@ public class TestSendToWXActivity extends Activity {
 			}
 		});
 	}
-
 }

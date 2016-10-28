@@ -24,55 +24,55 @@ public class HostProxy {
 
 	public static int getShareStyleId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "style", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareStyleId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareStyleId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareAttrId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "attr", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareAttrId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareAttrId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareDrawableId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "drawable", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareDrawableId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareDrawableId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareLayoutId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "layout", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareLayoutId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareLayoutId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareDimenId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "dimen", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareDimenId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareDimenId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareStringId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "string", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareStringId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareStringId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareColorId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "color", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareColorId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareColorId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareBoolId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "bool", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareBoolId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareBoolId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 
 	public static int getShareIntegerId(String resName) {
 		int id = sApplication.getResources().getIdentifier(resName, "integer", HOST_PACKAGE_NAME);
-		TwsLog.d("rick_Print:", "getShareIntegerId resName=" + resName + " id=" + id);
+		TwsLog.d("rick_Print:", "getShareIntegerId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
 }

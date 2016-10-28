@@ -11,8 +11,9 @@ import com.example.plugindemo.R;
 
 /**
  * 测试插件程序找中是否可以使用自定义控件自定义属性
+ * 
  * @author yongchen
- *
+ * 
  */
 public class PluginTestCustomAttrView extends LinearLayout {
 
@@ -27,13 +28,10 @@ public class PluginTestCustomAttrView extends LinearLayout {
 	public PluginTestCustomAttrView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		int[] customAttrArray = new int[]{
-				R.attr.custarr_text,
-				R.attr.custarr_text_color,
-				R.attr.custarr_text_color_size};
+		int[] customAttrArray = new int[] { R.attr.custarr_text, R.attr.custarr_text_color,
+				R.attr.custarr_text_color_size };
 
-		final TypedArray a = context.obtainStyledAttributes(
-				attrs, customAttrArray, 0, 0);
+		final TypedArray a = context.obtainStyledAttributes(attrs, customAttrArray, 0, 0);
 
 		attrText = a.getString(indexof(R.attr.custarr_text, customAttrArray));
 		attrColor = a.getColor(indexof(R.attr.custarr_text_color, customAttrArray), 0);
@@ -43,7 +41,7 @@ public class PluginTestCustomAttrView extends LinearLayout {
 	}
 
 	private int indexof(int attr, int[] attrArray) {
-		for (int i=0; i< attrArray.length; i++) {
+		for (int i = 0; i < attrArray.length; i++) {
 			if (attr == attrArray[i]) {
 				return i;
 			}
@@ -55,7 +53,7 @@ public class PluginTestCustomAttrView extends LinearLayout {
 	protected void onFinishInflate() {
 		super.onFinishInflate();
 		LayoutInflater.from(getContext()).inflate(R.layout.plugin_test_view, this);
-		Button button = (Button)findViewById(R.id.btnPlugin);
+		Button button = (Button) findViewById(R.id.btnPlugin);
 		button.setText(button.getText().toString() + attrText);
 		button.setTextColor(attrColor);
 		button.setTextSize(attrSize);

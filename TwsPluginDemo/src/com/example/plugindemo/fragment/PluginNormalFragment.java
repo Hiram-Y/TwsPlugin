@@ -47,35 +47,32 @@ public class PluginNormalFragment extends Fragment implements OnClickListener {
 
 		Button btn1 = (Button) mRoot.findViewById(R.id.plugin_test_btn1);
 		btn1.setOnClickListener(this);
+		btn1.setText("点击 添加plugin_layout视图");
 
 		Button btn2 = (Button) mRoot.findViewById(R.id.plugin_test_btn2);
 		btn2.setOnClickListener(this);
+		btn2.setText("点击 添加share_main视图");
 
 		Button btn3 = (Button) mRoot.findViewById(R.id.plugin_test_btn3);
 		btn3.setOnClickListener(this);
 
 		Button btn4 = (Button) mRoot.findViewById(R.id.plugin_test_btn4);
 		btn4.setOnClickListener(this);
+		btn4.setText("点击 设置共享资源文本");
 
 	}
 
 	@Override
 	public void onClick(View v) {
-		TwsLog.d(TAG, "onClick");
 		if (v.getId() == R.id.plugin_test_btn1) {
 			View view = mInflater.inflate(R.layout.plugin_layout, null, false);
 			mRoot.addView(view);
 			Toast.makeText(this.getActivity(), getString(R.string.hello_world1), Toast.LENGTH_SHORT).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
-			int shareLayoutID = HostProxy.getShareLayoutId("share_main");
-			TwsLog.d(TAG, "get shareLayoutID=" + Integer.toHexString(shareLayoutID));
-			View view = mInflater.inflate(shareLayoutID, null, false);
-			TwsLog.d(TAG, "get inflate(shareLayoutID view=" + view);
+			View view = mInflater.inflate(HostProxy.getShareLayoutId("share_main"), null, false);
 			mRoot.addView(view);
-
-			int shareStringid = HostProxy.getShareStringId("share_string_1");
-			TwsLog.d(TAG, "get shareStringid=" + Integer.toHexString(shareStringid));
-			Toast.makeText(this.getActivity(), getString(shareStringid), Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.getActivity(), getString(HostProxy.getShareStringId("share_string_1")),
+					Toast.LENGTH_SHORT).show();
 		} else if (v.getId() == R.id.plugin_test_btn3) {
 			View view = LayoutInflater.from(getActivity()).inflate(HostProxy.getShareLayoutId("share_main"), null,
 					false);

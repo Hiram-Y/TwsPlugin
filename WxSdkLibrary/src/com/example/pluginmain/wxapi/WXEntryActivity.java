@@ -1,4 +1,4 @@
-package com.example.pluginhost.wxapi;
+package com.example.pluginmain.wxapi;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -58,7 +58,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler{
 			break;
 		}
 		
-		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, result, Toast.LENGTH_LONG).show();
 
 		finish();
 	}
