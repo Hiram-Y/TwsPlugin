@@ -34,8 +34,10 @@ import android.widget.Toast;
 import com.tencent.tws.sharelib.util.HostProxy;
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
+import com.tws.plugin.content.PluginProviderInfo;
 import com.tws.plugin.core.app.AndroidViewLayoutInflater;
 import com.tws.plugin.core.compat.CompatForSupportv7ViewInflater;
+import com.tws.plugin.core.manager.InstallResult;
 import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.tws.plugin.core.systemservice.AndroidAppINotificationManager;
@@ -535,7 +537,7 @@ public class PluginLoader {
 		return (Hashtable<String, String>) object;
 	}
 
-	private static void copyAndInstall(String name) {
+	public static void copyAndInstall(String name) {
 		try {
 			InputStream assestInput = getApplication().getAssets().open(name);
 			String dest = getApplication().getExternalFilesDir(null).getAbsolutePath() + "/" + name;
@@ -557,20 +559,6 @@ public class PluginLoader {
 	}
 
 	private synchronized static void removePlugin(String packageName) {
-		// Iterator<String> keys = mPluginName_PackageName.keySet().iterator();
-		// String pluginName;
-		// String pluginPackageName;
-		// while (keys.hasNext()) {
-		// pluginName = keys.next();
-		// pluginPackageName = mPluginName_PackageName.get(pluginName);
-		// if (TextUtils.equals(packageName, pluginPackageName)) {
-		// TwsLog.w(TAG, "pluginChangedCallBack REMOVE pluginName=" + pluginName
-		// + " ======= packageName="
-		// + packageName);
-		// mPluginName_PackageName.remove(pluginName);
-		// }
-		// }
-
 		Enumeration<String> keys = mPluginName_PackageName.keys();
 		String pluginName, pluginPackageName;
 		while (keys.hasMoreElements()) {

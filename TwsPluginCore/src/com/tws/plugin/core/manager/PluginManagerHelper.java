@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.core.PluginLoader;
@@ -95,12 +96,46 @@ public class PluginManagerHelper {
 		if (bundle != null) {
 			result = bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
 		}
+		switch (result) {
+		case InstallResult.SRC_FILE_NOT_FOUND:
+			Toast.makeText(PluginLoader.getApplication(), "插件不存在", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.COPY_FILE_FAIL:
+			Toast.makeText(PluginLoader.getApplication(), "复制插件文件失败", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.SIGNATURES_INVALIDATE:
+			Toast.makeText(PluginLoader.getApplication(), "插件签名验证失败", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.VERIFY_SIGNATURES_FAIL:
+			Toast.makeText(PluginLoader.getApplication(), "插件证书和宿主证书不一致", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.PARSE_MANIFEST_FAIL:
+			Toast.makeText(PluginLoader.getApplication(), "解析插件Manifest文件失败", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.FAIL_BECAUSE_HAS_LOADED:
+			Toast.makeText(PluginLoader.getApplication(), "旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.INSTALL_FAIL:
+			Toast.makeText(PluginLoader.getApplication(), "安装插件失败", Toast.LENGTH_LONG).show();
+			break;
+		case InstallResult.MIN_API_NOT_SUPPORTED:
+			Toast.makeText(PluginLoader.getApplication(), "当前系统版本过低, 不支持此插件", Toast.LENGTH_LONG).show();
+			break;
+		default:// InstallResult.SUCCESS:
+			// Toast.makeText(PluginLoader.getApplication(), "安装成功",
+			// Toast.LENGTH_SHORT).show();
+			break;
+		}
+
 		return result;
 	}
 
 	public static synchronized void remove(String pluginId) {
 		clearLocalCache();
-		call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE, pluginId, null);
+		Bundle bundle = call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE, pluginId, null);
+		boolean success = bundle == null ? false : bundle.getBoolean(PluginManagerProvider.REMOVE_RESULT);
+		Toast.makeText(PluginLoader.getApplication(), success ? "卸载：" + pluginId + "成功" : "卸载：" + pluginId + "失败",
+				Toast.LENGTH_LONG).show();
 	}
 
 	/**
@@ -108,7 +143,11 @@ public class PluginManagerHelper {
 	 */
 	public static synchronized void removeAll() {
 		clearLocalCache();
-		call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
+		/* Bundle bundle = */call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
+		// boolean success = bundle == null ? false :
+		// bundle.getBoolean(PluginManagerProvider.REMOVE_RESULT);
+		// Toast.makeText(PluginLoader.getApplication(), success ? "卸载成功" :
+		// "卸载失败", Toast.LENGTH_LONG).show();
 	}
 
 	public static void clearLocalCache() {

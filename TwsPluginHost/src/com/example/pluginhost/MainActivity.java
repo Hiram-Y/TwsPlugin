@@ -2,7 +2,6 @@ package com.example.pluginhost;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,11 +28,11 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.example.pluginhost.widget.StatusButton;
-import com.example.pluginhost.R;
 import com.tencent.tws.sharelib.IMyAidlInterface;
 import com.tencent.tws.sharelib.SharePOJO;
 import com.tencent.tws.sharelib.ShareService;
 import com.tws.plugin.content.PluginDescriptor;
+import com.tws.plugin.core.PluginLoader;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.manager.PluginCallback;
 import com.tws.plugin.core.manager.PluginManagerHelper;
@@ -79,27 +78,6 @@ public class MainActivity extends Activity {
 		showInstalledAll();
 		showBuildinPluginList();
 		showSdcardPluginList();
-	}
-
-	private void copyAndInstall(String name) {
-		try {
-			InputStream assestInput = getAssets().open(name);
-			String dest = getExternalFilesDir(null).getAbsolutePath() + "/" + name;
-			if (FileUtil.copyFile(assestInput, dest)) {
-				PluginManagerHelper.installPlugin(dest);
-			} else {
-				assestInput = getAssets().open(name);
-				dest = getCacheDir().getAbsolutePath() + "/" + name;
-				if (FileUtil.copyFile(assestInput, dest)) {
-					PluginManagerHelper.installPlugin(dest);
-				} else {
-					Toast.makeText(MainActivity.this, "抽取assets中的Apk失败" + dest, Toast.LENGTH_SHORT).show();
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_SHORT).show();
-		}
 	}
 
 	private String mTmpFileName = "";
@@ -201,14 +179,10 @@ public class MainActivity extends Activity {
 
 							if (!TextUtils.isEmpty(pluginId)) {
 								PluginManagerHelper.remove(pluginId);
-								Toast.makeText(getApplicationContext(), "点击 卸载 " + buttonEx.getPluginLabel(),
-										Toast.LENGTH_SHORT).show();
 								buttonEx.setStatus(StatusButton.UNINSTALL_PLUGIN);
 							}
 						} else {
-							copyAndInstall(ASSETS_PLUGS_DIR + "/" + (String) buttonEx.getPluginLabel());
-							Toast.makeText(getApplicationContext(), "点击 安装 " + buttonEx.getPluginLabel(),
-									Toast.LENGTH_SHORT).show();
+							PluginLoader.copyAndInstall(ASSETS_PLUGS_DIR + "/" + (String) buttonEx.getPluginLabel());
 							buttonEx.setStatus(StatusButton.INSTALLED_PLUGIN);
 						}
 					}
@@ -400,9 +374,6 @@ public class MainActivity extends Activity {
 	private final BroadcastReceiver pluginInstallEvent = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Toast.makeText(MainActivity.this,
-					"插件" + intent.getStringExtra("id") + " " + intent.getStringExtra("type") + "完成", Toast.LENGTH_SHORT)
-					.show();
 			showInstalledAll();
 			showBuildinPluginList();
 			showSdcardPluginList();
