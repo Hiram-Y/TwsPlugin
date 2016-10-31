@@ -55,6 +55,7 @@ public class PluginLoader {
 	private static final String PLUGIN_SHAREED_PREFERENCE_NAME = "plugins.shared.preferences";
 	private static final String VERSION_CODE_KEY = "version.code";
 	private static final String PLUGIN_NAME_PAKCAGENAME = "plugin.map.cache";
+	private static final String CURRENT_PROCESS_PLUGINNAME = "curprocess.plugin.name";
 	private static Application sApplication;
 	private static boolean isLoaderInited = false;
 	private static boolean isLoaderPlugins = false;
@@ -82,11 +83,14 @@ public class PluginLoader {
 	}
 
 	public void setDillPluginName(String pluginName) {
+		// CURRENT_PROCESS_PLUGINNAME
+		getSharedPreference().edit().putString(CURRENT_PROCESS_PLUGINNAME, pluginName).commit();
 		mDillPluginName = pluginName;
 	}
 
 	public String getDillPluginName() {
-		return mDillPluginName;
+		String pluginName = getSharedPreference().getString(CURRENT_PROCESS_PLUGINNAME, mDillPluginName);
+		return pluginName;
 	}
 
 	public static Application getApplication() {
