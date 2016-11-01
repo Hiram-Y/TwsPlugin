@@ -57,7 +57,7 @@ public class DebugPluginActivity extends Activity {
 		setTitle("Host-插件调试界面");
 
 		// SD卡存放路径
-		mInnerSDCardPath = getInnerSDCardPath() + "//plugins";
+		mInnerSDCardPath = getInnerSDCardPath() + "/plugins";
 		File sdPlgusFile = new File(mInnerSDCardPath);
 		if (!sdPlgusFile.isDirectory() || !sdPlgusFile.exists()) {
 			sdPlgusFile.mkdirs();
@@ -87,7 +87,9 @@ public class DebugPluginActivity extends Activity {
 		File file = new File(mInnerSDCardPath);
 		File[] subFile = file.listFiles();
 		if (subFile == null || subFile.length < 1) {
+			Toast.makeText(this, "Inner SDCard Plugins Path empty~!", Toast.LENGTH_SHORT).show();
 			findViewById(R.id.sdcard_plugin_text).setVisibility(View.GONE);
+			return;
 		} else {
 			findViewById(R.id.sdcard_plugin_text).setVisibility(View.VISIBLE);
 		}
@@ -230,8 +232,8 @@ public class DebugPluginActivity extends Activity {
 					Intent launchIntent = getPackageManager().getLaunchIntentForPackage(
 							pluginDescriptor.getPackageName());
 					if (launchIntent == null) {
-						Toast.makeText(DebugPluginActivity.this, "插件" + pluginDescriptor.getPackageName() + "没有配置Launcher",
-								Toast.LENGTH_SHORT).show();
+						Toast.makeText(DebugPluginActivity.this,
+								"插件" + pluginDescriptor.getPackageName() + "没有配置Launcher", Toast.LENGTH_SHORT).show();
 						// 没有找到Launcher，打开插件详情
 						Intent intent = new Intent(DebugPluginActivity.this, DetailActivity.class);
 						intent.putExtra("plugin_id", pluginDescriptor.getPackageName());
@@ -321,7 +323,8 @@ public class DebugPluginActivity extends Activity {
 							IMyAidlInterface iMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
 							try {
 								iMyAidlInterface.basicTypes(1, 2L, true, 0.1f, 0.01d, "测试插件AIDL");
-								Toast.makeText(DebugPluginActivity.this, "onServiceConnected", Toast.LENGTH_SHORT).show();
+								Toast.makeText(DebugPluginActivity.this, "onServiceConnected", Toast.LENGTH_SHORT)
+										.show();
 							} catch (RemoteException e) {
 								e.printStackTrace();
 							}
