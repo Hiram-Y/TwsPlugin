@@ -148,3 +148,9 @@
 /TwsPluginDemoFor5/bin/*.cache
 /TwsPluginShareLib/bin/*.cache
 /WxSdkLibrary/bin/*.cache
+/TwsPluginConfigTheme/bin/*.xml
+/TwsPluginConfigTheme/bin/*.txt
+/TwsPluginConfigTheme/bin/classes/android/support/v7/appcompat/*.class
+/TwsPluginConfigTheme/bin/classes/com/example/twspluginconfigtheme/*.class
+/TwsPluginConfigTheme/gen/android/support/v7/appcompat/*.java
+/TwsPluginConfigTheme/gen/com/example/twspluginconfigtheme/*.java

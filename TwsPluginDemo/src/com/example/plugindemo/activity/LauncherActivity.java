@@ -111,6 +111,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		findViewById(R.id.test_read_assert).setOnClickListener(this);
 		findViewById(R.id.test_notification).setOnClickListener(this);
 		findViewById(R.id.onClickSidebarActivity).setOnClickListener(this);
+		findViewById(R.id.onClickTwsTActivity).setOnClickListener(this);
 	}
 
 	private static void startFragmentInHostActivity(Context context, String targetId) {
@@ -219,6 +220,12 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 			break;
 		case R.id.onClickSidebarActivity:
 			onClickSidebarActivity();
+			break;
+		case R.id.onClickTwsTActivity:
+			// 利用className打开共享控件的测试activity
+			Intent intent = new Intent();
+			intent.setClassName(this, TwsActivityDemo.class.getName());
+			startActivity(intent);
 			break;
 		default:
 			break;
