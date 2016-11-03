@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import tws.component.log.TwsLog;
-import android.app.Activity;
+import android.app.TwsActivity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,7 +39,7 @@ import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.util.FileUtil;
 import com.tws.plugin.util.ResourceUtil;
 
-public class DebugPluginActivity extends Activity {
+public class DebugPluginActivity extends TwsActivity {
 
 	private static final String TAG = "rick_Print:MainActivity";
 	private ViewGroup mList;

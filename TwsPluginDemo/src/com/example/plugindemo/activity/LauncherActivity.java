@@ -10,11 +10,10 @@ import java.io.InputStreamReader;
 
 import tws.component.log.TwsLog;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TwsActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -38,10 +37,11 @@ import com.example.plugindemo.R;
 import com.example.plugindemo.provider.PluginDbTables;
 import com.example.plugindemo.receiver.PluginTestReceiver2;
 import com.example.plugindemo.service.PluginTestService;
+import com.tencent.tws.assistant.app.ActionBar;
 import com.tencent.tws.sharelib.SharePOJO;
 import com.tencent.tws.sharelib.util.HostProxy;
 
-public class LauncherActivity extends Activity implements View.OnClickListener {
+public class LauncherActivity extends TwsActivity implements View.OnClickListener {
 
 	private static final String TAG = "rick_Print:LauncherActivity";
 
@@ -71,17 +71,19 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		// getResources().getString(getResources().getIdentifier("app_name",
 		// "string", "com.example.pluginhost")));
 
-		ActionBar actionBar = getActionBar();
-		if (actionBar == null) {
-			setTitle("这是插件首屏");
-		} else {
-			actionBar.setTitle("这是插件首屏");
-			actionBar.setSubtitle("这是副标题");
-			actionBar.setLogo(R.drawable.ic_launcher);
-			actionBar.setIcon(R.drawable.ic_launcher);
-			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
-					| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
-		}
+		ActionBar actionBar = getTwsActionBar();
+		actionBar.setDisplayOptions(actionBar.getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
+		setTitle("这是插件首屏");
+//		if (actionBar == null) {
+//			setTitle("这是插件首屏");
+//		} else {
+//			actionBar.setTitle("这是插件首屏");
+//			actionBar.setSubtitle("这是副标题");
+//			actionBar.setLogo(R.drawable.ic_launcher);
+//			actionBar.setIcon(R.drawable.ic_launcher);
+//			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
+//					| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+//		}
 
 		findViewById(R.id.onClickHellowrld).setOnClickListener(this);
 		findViewById(R.id.onClickWeiXin).setOnClickListener(this);

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">宿主共享库</string>
     <!-- Label for the "Done" button on the far left of action mode toolbars. -->
     <string name="abc_action_mode_done">Done</string>
     <!-- Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] -->
@@ -31,6 +30,7 @@
     <!-- Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
     <string name="abc_shareactionprovider_share_with">Share with</string>
     
+    <string name="app_name">宿主共享库</string>
     <string name="share_string_1">这是宿主程序共享库资源1</string>
     <string name="share_string_2">这是宿主程序共享库自定义控件</string>
     <string name="share_app_name">PluginTest</string>
