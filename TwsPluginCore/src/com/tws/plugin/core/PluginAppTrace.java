@@ -45,7 +45,7 @@ public class PluginAppTrace implements Handler.Callback {
 		} finally {
 
 			afterHandle(msg, result);
-			
+
 		}
 
 		return true;
@@ -55,24 +55,24 @@ public class PluginAppTrace implements Handler.Callback {
 
 		switch (msg.what) {
 
-			case CodeConst.LAUNCH_ACTIVITY:
-			case CodeConst.RELAUNCH_ACTIVITY:
+		case CodeConst.LAUNCH_ACTIVITY:
+		case CodeConst.RELAUNCH_ACTIVITY:
 
-				beforeLaunchActivityFor360Safe();
+			beforeLaunchActivityFor360Safe();
 
-				return null;
+			return null;
 
-			case CodeConst.RECEIVER:
+		case CodeConst.RECEIVER:
 
-				return beforeReceiver(msg);
+			return beforeReceiver(msg);
 
-			case CodeConst.CREATE_SERVICE:
+		case CodeConst.CREATE_SERVICE:
 
-				return beforeCreateService(msg);
+			return beforeCreateService(msg);
 
-			case CodeConst.STOP_SERVICE:
+		case CodeConst.STOP_SERVICE:
 
-				return beforeStopService(msg);
+			return beforeStopService(msg);
 		}
 		return null;
 	}
@@ -86,10 +86,10 @@ public class PluginAppTrace implements Handler.Callback {
 	}
 
 	private static Result beforeReceiver(Message msg) {
-		if (ProcessUtil.isPluginProcess()) {//判断进程是为了提高效率, 因为插件组件都是在插件进程中运行的.
+		if (ProcessUtil.isPluginProcess()) {// 判断进程是为了提高效率, 因为插件组件都是在插件进程中运行的.
 
 			Class clazz = PluginIntentResolver.resolveReceiverForClassLoader(msg.obj);
-			//找到class说明是插件中定义的receiver
+			// 找到class说明是插件中定义的receiver
 			if (clazz != null) {
 
 				PluginInjector.hackHostClassLoaderIfNeeded();
@@ -104,8 +104,8 @@ public class PluginAppTrace implements Handler.Callback {
 
 				return result;
 			} else {
-				//宿主的Receiver的context不需要做特别处理，因为在framework中Receiver的context本身是对appliction的包装。
-				//而宿主的application的baseContext已经在插件框架init的时候替换过了
+				// 宿主的Receiver的context不需要做特别处理，因为在framework中Receiver的context本身是对appliction的包装。
+				// 而宿主的application的baseContext已经在插件框架init的时候替换过了
 			}
 		}
 
@@ -120,8 +120,8 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static Result beforeStopService(Message msg) {
 		if (ProcessUtil.isPluginProcess()) {
-			//销毁service时回收映射关系, 之所以要回收映射关系是为了能在宿主中尽量少的注册占位组件.
-			//即回收映射关系并不是必须的, 只要预注册的占位组件数据足够即可.
+			// 销毁service时回收映射关系, 之所以要回收映射关系是为了能在宿主中尽量少的注册占位组件.
+			// 即回收映射关系并不是必须的, 只要预注册的占位组件数据足够即可.
 			Object activityThread = ActivityThread.currentActivityThread();
 			if (activityThread != null) {
 				Map<IBinder, Service> services = ActivityThread.getAllServices();
@@ -141,37 +141,40 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static void afterHandle(Message msg, Result result) {
 		switch (msg.what) {
-			case  CodeConst.RECEIVER:
+		case CodeConst.RECEIVER:
 
-				afterReceiver(result);
+			afterReceiver(result);
 
-				break;
+			break;
 
-			case CodeConst.CREATE_SERVICE:
+		case CodeConst.CREATE_SERVICE:
 
-				afterCreateService(result);
+			afterCreateService(result);
 
-				break;
+			break;
 		}
 	}
 
 	private static void afterReceiver(Result result) {
 		if (ProcessUtil.isPluginProcess()) {
 			if (result != null && result.baseContext != null) {
-				RefInvoker.setFieldObject(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+				RefInvoker.setFieldObject(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext",
+						null);
 			}
 		}
 	}
 
 	private static void afterCreateService(Result result) {
-		//这里不做进程判断,是因为如果是宿主进程, 也需要为宿主service换context
+		// 这里不做进程判断,是因为如果是宿主进程, 也需要为宿主service换context
 		if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
-			//替换service的context
-			//在引入了PluginShadowService以后,这个已经是多余的了, 注释掉先.
-			//PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, ""));
+			// 替换service的context
+			// 在引入了PluginShadowService以后,这个已经是多余的了, 注释掉先.
+			// PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE,
+			// ""));
 		} else {
-			//给宿主service注入一个无害的BaseContext, 主要是为了重写宿主Service的sentBroadCast和startService方法
-			//使得在宿主的service中通过intent可以打开插件的组件
+			// 给宿主service注入一个无害的BaseContext,
+			// 主要是为了重写宿主Service的sentBroadCast和startService方法
+			// 使得在宿主的service中通过intent可以打开插件的组件
 			PluginInjector.replaceHostServiceContext(result.serviceName);
 		}
 	}
@@ -223,11 +226,11 @@ public class PluginAppTrace implements Handler.Callback {
 		public static final int SET_CORE_SETTINGS = 138;
 		public static final int UPDATE_PACKAGE_COMPATIBILITY_INFO = 139;
 		public static final int TRIM_MEMORY = 140;
-		public static final int DUMP_PROVIDER           = 141;
-		public static final int UNSTABLE_PROVIDER_DIED  = 142;
+		public static final int DUMP_PROVIDER = 141;
+		public static final int UNSTABLE_PROVIDER_DIED = 142;
 		public static final int REQUEST_ASSIST_CONTEXT_EXTRAS = 143;
 		public static final int TRANSLUCENT_CONVERSION_COMPLETE = 144;
-		public static final int INSTALL_PROVIDER        = 145;
+		public static final int INSTALL_PROVIDER = 145;
 		public static final int ON_NEW_ACTIVITY_OPTIONS = 146;
 		public static final int CANCEL_VISIBLE_BEHIND = 147;
 		public static final int BACKGROUND_VISIBLE_BEHIND_CHANGED = 148;
@@ -336,7 +339,7 @@ public class PluginAppTrace implements Handler.Callback {
 			case ENTER_ANIMATION_COMPLETE:
 				return "ENTER_ANIMATION_COMPLETE";
 			}
-			return "(unknown: " + code +")";
+			return "(unknown: " + code + ")";
 		}
 	}
 

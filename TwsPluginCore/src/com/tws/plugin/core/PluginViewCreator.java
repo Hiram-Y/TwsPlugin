@@ -27,11 +27,11 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 	@Override
 	public View onCreateView(String name, Context context, AttributeSet attrs) {
 
-		//可以在这里全局替换控件类型
+		// 可以在这里全局替换控件类型
 		if ("TextView".equals(name)) {
-			//return new CustomTextView();
+			// return new CustomTextView();
 		} else if ("ImageView".equals(name)) {
-			//return new CustomImageView();
+			// return new CustomImageView();
 		}
 
 		return createViewFromTag(context, name, attrs);
@@ -71,24 +71,25 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 
 			if (pluginDescriptor != null) {
 
-				//插件可能尚未初始化，确保使用前已经初始化
+				// 插件可能尚未初始化，确保使用前已经初始化
 				LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 				Context baseContext = Context;
 				if (!(baseContext instanceof PluginContextTheme)) {
-					baseContext = ((ContextWrapper)baseContext).getBaseContext();
+					baseContext = ((ContextWrapper) baseContext).getBaseContext();
 				}
 				if (baseContext instanceof PluginContextTheme) {
 					baseContext = ((PluginContextTheme) baseContext).getBaseContext();
 				}
-				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, baseContext, pluginDescriptor.getApplicationTheme());
-				Class<? extends View> clazz = pluginViewContext.getClassLoader()
-						.loadClass(viewClassName).asSubclass(View.class);
+				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
+						baseContext, pluginDescriptor.getApplicationTheme());
+				Class<? extends View> clazz = pluginViewContext.getClassLoader().loadClass(viewClassName)
+						.asSubclass(View.class);
 
-				Constructor<? extends View> constructor = clazz.getConstructor(new Class[] {
-						Context.class, AttributeSet.class});
+				Constructor<? extends View> constructor = clazz.getConstructor(new Class[] { Context.class,
+						AttributeSet.class });
 				constructor.setAccessible(true);
-				return constructor.newInstance(new Object[]{pluginViewContext , atts});
+				return constructor.newInstance(new Object[] { pluginViewContext, atts });
 			} else {
 				TwsLog.e(TAG, "未找到插件:" + pluginId + "，请确认是否已安装");
 			}

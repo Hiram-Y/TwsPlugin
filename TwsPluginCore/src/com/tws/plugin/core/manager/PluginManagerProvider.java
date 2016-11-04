@@ -17,9 +17,11 @@ import com.tws.plugin.core.PluginLoader;
 /**
  * @author yongchen
  * 
- * 利用ContentProvider实现同步跨进程调用
+ *         利用ContentProvider实现同步跨进程调用
  * 
- * ContentProvider的相关操作应该放在installContentProvider之后执行,而installContentProvider是ActivityThread在调用application的attach之后,onCreate之前执行
+ *         ContentProvider的相关操作应该放在installContentProvider之后执行,
+ *         而installContentProvider是ActivityThread在调用application的attach之后
+ *         ,onCreate之前执行
  */
 public class PluginManagerProvider extends ContentProvider {
 

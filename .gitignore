@@ -154,3 +154,6 @@
 /TwsPluginConfigTheme/bin/classes/com/example/twspluginconfigtheme/*.class
 /TwsPluginConfigTheme/gen/android/support/v7/appcompat/*.java
 /TwsPluginConfigTheme/gen/com/example/twspluginconfigtheme/*.java
+/TwsPluginCore/bin/classes/com/tws/plugin/core/loading/WaitForLoadingPluginActivity$1$1.class
+/TwsPluginCore/bin/classes/com/tws/plugin/core/loading/WaitForLoadingPluginActivity$1.class
+/TwsPluginCore/bin/classes/com/tws/plugin/core/loading/WaitForLoadingPluginActivity.class

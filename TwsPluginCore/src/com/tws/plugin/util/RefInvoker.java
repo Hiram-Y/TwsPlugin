@@ -23,14 +23,14 @@ public class RefInvoker {
 		try {
 			Class clazz = Class.forName(className);
 			return invokeMethod(target, clazz, methodName, paramTypes, paramValues);
-		}catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
 	public static Object invokeMethod(Object target, Class clazz, String methodName, Class[] paramTypes,
-									  Object[] paramValues) {
+			Object[] paramValues) {
 		try {
 			Method method = clazz.getDeclaredMethod(methodName, paramTypes);
 			if (!method.isAccessible()) {
@@ -126,8 +126,8 @@ public class RefInvoker {
 				}
 				field.set(target, fieldValue);
 			} catch (Exception superE) {
-				//e.printStackTrace();
-				//superE.printStackTrace();
+				// e.printStackTrace();
+				// superE.printStackTrace();
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -152,7 +152,7 @@ public class RefInvoker {
 	public static Method findMethod(Object object, String methodName, Object[] args) {
 		if (args == null) {
 			try {
-				return object.getClass().getDeclaredMethod(methodName, (Class[])null);
+				return object.getClass().getDeclaredMethod(methodName, (Class[]) null);
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 			}
@@ -161,13 +161,14 @@ public class RefInvoker {
 			Method[] methods = object.getClass().getDeclaredMethods();
 			boolean isFound = false;
 			Method method = null;
-			for(Method m: methods) {
+			for (Method m : methods) {
 				if (m.getName().equals(methodName)) {
 					Class<?>[] types = m.getParameterTypes();
 					if (types.length == args.length) {
 						isFound = true;
-						for(int i = 0; i < args.length; i++) {
-							if (!(types[i] == args[i].getClass() || (types[i].isPrimitive() && primitiveToWrapper(types[i]) == args[i].getClass()))) {
+						for (int i = 0; i < args.length; i++) {
+							if (!(types[i] == args[i].getClass() || (types[i].isPrimitive() && primitiveToWrapper(types[i]) == args[i]
+									.getClass()))) {
 								isFound = false;
 								break;
 							}
@@ -179,7 +180,7 @@ public class RefInvoker {
 					}
 				}
 			}
-			return  method;
+			return method;
 		}
 	}
 

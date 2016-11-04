@@ -46,7 +46,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendBroadcast(Intent intent) {
 		TwsLog.d(TAG, " call sendBroadcast :" + intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendBroadcast(item);
 		}
 	}
@@ -55,7 +55,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendBroadcast(Intent intent, String receiverPermission) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendBroadcast(item, receiverPermission);
 		}
 	}
@@ -64,19 +64,19 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendOrderedBroadcast(Intent intent, String receiverPermission) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendOrderedBroadcast(item, receiverPermission);
 		}
 	}
 
 	@Override
-	public void sendOrderedBroadcast(Intent intent, String receiverPermission, BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
-			String initialData, Bundle initialExtras) {
+	public void sendOrderedBroadcast(Intent intent, String receiverPermission, BroadcastReceiver resultReceiver,
+			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
-			super.sendOrderedBroadcast(item, receiverPermission, resultReceiver,
-					scheduler, initialCode, initialData, initialExtras);
+		for (Intent item : list) {
+			super.sendOrderedBroadcast(item, receiverPermission, resultReceiver, scheduler, initialCode, initialData,
+					initialExtras);
 		}
 	}
 
@@ -85,7 +85,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendBroadcastAsUser(Intent intent, UserHandle user) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendBroadcastAsUser(item, user);
 		}
 	}
@@ -95,18 +95,19 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendBroadcastAsUser(item, user, receiverPermission);
 		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
-	public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission, BroadcastReceiver resultReceiver, Handler scheduler,
-			int initialCode, String initialData, Bundle initialExtras) {
+	public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
+			BroadcastReceiver resultReceiver, Handler scheduler, int initialCode, String initialData,
+			Bundle initialExtras) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendOrderedBroadcastAsUser(item, user, receiverPermission, resultReceiver, scheduler, initialCode,
 					initialData, initialExtras);
 		}
@@ -116,17 +117,17 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendStickyBroadcast(Intent intent) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendStickyBroadcast(item);
 		}
 	}
 
 	@Override
-	public void sendStickyOrderedBroadcast(Intent intent, BroadcastReceiver resultReceiver, Handler scheduler, int initialCode, String initialData,
-			Bundle initialExtras) {
+	public void sendStickyOrderedBroadcast(Intent intent, BroadcastReceiver resultReceiver, Handler scheduler,
+			int initialCode, String initialData, Bundle initialExtras) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendStickyOrderedBroadcast(item, resultReceiver, scheduler, initialCode, initialData, initialExtras);
 		}
 
@@ -136,7 +137,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void removeStickyBroadcast(Intent intent) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.removeStickyBroadcast(item);
 		}
 	}
@@ -146,18 +147,18 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendStickyBroadcastAsUser(Intent intent, UserHandle user) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendStickyBroadcastAsUser(item, user);
 		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
-	public void sendStickyOrderedBroadcastAsUser(Intent intent, UserHandle user, BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
-			String initialData, Bundle initialExtras) {
+	public void sendStickyOrderedBroadcastAsUser(Intent intent, UserHandle user, BroadcastReceiver resultReceiver,
+			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item:list) {
+		for (Intent item : list) {
 			super.sendStickyOrderedBroadcastAsUser(item, user, resultReceiver, scheduler, initialCode, initialData,
 					initialExtras);
 		}

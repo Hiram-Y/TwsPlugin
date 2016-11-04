@@ -1,5 +1,7 @@
 package com.tws.plugin.core.multidex;
 
+import java.util.List;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -22,8 +24,6 @@ import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 
 import com.tws.plugin.core.PluginLoader;
-
-import java.util.List;
 
 public class PluginMultiDexHelper {
 

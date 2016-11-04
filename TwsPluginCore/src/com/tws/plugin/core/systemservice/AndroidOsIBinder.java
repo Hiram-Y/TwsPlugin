@@ -22,7 +22,7 @@ public class AndroidOsIBinder extends MethodProxy {
 	}
 
 	public static IBinder installProxy(IBinder invokeResult) {
-		if(invokeResult == null){
+		if (invokeResult == null) {
 			return null;
 		}
 
@@ -40,7 +40,8 @@ public class AndroidOsIBinder extends MethodProxy {
 				try {
 
 					String descriptor = (String) args[0];
-					TwsLog.d(TAG, "queryLocalInterface::afterInvoke:" + descriptor + " targetClassName is " + target.getClass().getName());
+					TwsLog.d(TAG, "queryLocalInterface::afterInvoke:" + descriptor + " targetClassName is "
+							+ target.getClass().getName());
 
 					// TODO
 					// 通常情况下,如果是通过编译命令生成的接口, 类名如下
@@ -101,15 +102,18 @@ public class AndroidOsIBinder extends MethodProxy {
 
 					} else if ("IMountService".equals(descriptor)) {
 
-						stubProxy = Class.forName("android.os.storage.IMountService$Stub$Proxy", true, PluginLoader.class.getClassLoader());
+						stubProxy = Class.forName("android.os.storage.IMountService$Stub$Proxy", true,
+								PluginLoader.class.getClassLoader());
 
 					} else if ("android.content.IBulkCursor".equals(descriptor)) {
 
-						stubProxy = Class.forName("android.database.BulkCursorProxy", true, PluginLoader.class.getClassLoader());
+						stubProxy = Class.forName("android.database.BulkCursorProxy", true,
+								PluginLoader.class.getClassLoader());
 
 					} else {
 						// 默认
-						stubProxy = Class.forName(descriptor + "$Stub$Proxy", true, PluginLoader.class.getClassLoader());
+						stubProxy = Class
+								.forName(descriptor + "$Stub$Proxy", true, PluginLoader.class.getClassLoader());
 					}
 					Constructor constructor = stubProxy.getDeclaredConstructor(IBinder.class);
 					constructor.setAccessible(true);

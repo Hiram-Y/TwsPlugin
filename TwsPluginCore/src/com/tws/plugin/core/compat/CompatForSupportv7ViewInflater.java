@@ -1,14 +1,12 @@
 package com.tws.plugin.core.compat;
 
-import android.view.View;
-
-import com.tws.plugin.util.RefInvoker;
-
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import tws.component.log.TwsLog;
+import android.view.View;
+
+import com.tws.plugin.util.RefInvoker;
 
 /**
  * for supportv7

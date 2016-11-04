@@ -14,7 +14,7 @@ import dalvik.system.DexClassLoader;
 
 /**
  * 插件间依赖以及so管理
- *
+ * 
  * @author yongchen
  * 
  */
@@ -28,14 +28,14 @@ public class PluginClassLoader extends DexClassLoader {
 	private List<DexClassLoader> multiDexClassLoaderList;
 
 	public PluginClassLoader(String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent,
-							 String[] dependencies, List<String> multiDexList) {
+			String[] dependencies, List<String> multiDexList) {
 		super(dexPath, optimizedDirectory, libraryPath, parent);
 		this.dependencies = dependencies;
 
 		if (multiDexList != null) {
 			if (multiDexClassLoaderList == null) {
 				multiDexClassLoaderList = new ArrayList<DexClassLoader>(multiDexList.size());
-				for(String path: multiDexList) {
+				for (String path : multiDexList) {
 					multiDexClassLoaderList.add(new DexClassLoader(path, optimizedDirectory, libraryPath, parent));
 				}
 			}
@@ -64,21 +64,24 @@ public class PluginClassLoader extends DexClassLoader {
 					String soLoaderOfCopyN = soClassloaderMapper.get(soPathOfCopyN);
 
 					if (thisLoader.equals(soLoaderOfCopyN)) {
-						TwsLog.d(TAG, "findLibrary acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+						TwsLog.d(TAG, "findLibrary acturely so path : " + soPathOfCopyN + ", current classloader : "
+								+ thisLoader);
 						return soPathOfCopyN;
 					} else if (soLoaderOfCopyN == null) {
-						if(!new File(soPathOfCopyN).exists()) {
+						if (!new File(soPathOfCopyN).exists()) {
 							boolean isSuccess = FileUtil.copyFile(soPath, soPathOfCopyN);
 							if (isSuccess) {
 								soClassloaderMapper.put(soPathOfCopyN, thisLoader);
-								TwsLog.d(TAG, "findLibrary acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+								TwsLog.d(TAG, "findLibrary acturely so path : " + soPathOfCopyN
+										+ ", current classloader : " + thisLoader);
 								return soPathOfCopyN;
 							} else {
 								return null;
 							}
 						} else {
 							soClassloaderMapper.put(soPathOfCopyN, thisLoader);
-							TwsLog.d(TAG, "findLibrary acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+							TwsLog.d(TAG, "findLibrary acturely so path : " + soPathOfCopyN
+									+ ", current classloader : " + thisLoader);
 							return soPathOfCopyN;
 						}
 					}
@@ -91,7 +94,7 @@ public class PluginClassLoader extends DexClassLoader {
 
 	private String tryPath(String orignalPath, int i) {
 		StringBuilder soPathBuilder = new StringBuilder(orignalPath);
-		soPathBuilder.delete(orignalPath.length() - 3, orignalPath.length());//移除.so后缀
+		soPathBuilder.delete(orignalPath.length() - 3, orignalPath.length());// 移除.so后缀
 		soPathBuilder.append("_").append(i).append(".so");
 		return soPathBuilder.toString();
 	}
@@ -107,11 +110,11 @@ public class PluginClassLoader extends DexClassLoader {
 			suppressed = e;
 		}
 
-		//这里判断android.view 是为了解决webview的问题
+		// 这里判断android.view 是为了解决webview的问题
 		if (clazz == null && !className.startsWith("android.view")) {
 
 			if (multiDexClassLoaderList != null) {
-				for(DexClassLoader dexLoader : multiDexClassLoaderList) {
+				for (DexClassLoader dexLoader : multiDexClassLoaderList) {
 					try {
 						clazz = dexLoader.loadClass(className);
 					} catch (ClassNotFoundException e) {
@@ -123,9 +126,9 @@ public class PluginClassLoader extends DexClassLoader {
 			}
 
 			if (clazz == null && dependencies != null) {
-				for (String dependencePluginId: dependencies) {
+				for (String dependencePluginId : dependencies) {
 
-					//插件可能尚未初始化，确保使用前已经初始化
+					// 插件可能尚未初始化，确保使用前已经初始化
 					LoadedPlugin plugin = PluginLauncher.instance().startPlugin(dependencePluginId);
 
 					if (plugin != null) {

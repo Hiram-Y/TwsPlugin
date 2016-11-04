@@ -1,10 +1,8 @@
 package com.tws.plugin.core;
 
 import tws.component.log.TwsLog;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.util.ProcessUtil;

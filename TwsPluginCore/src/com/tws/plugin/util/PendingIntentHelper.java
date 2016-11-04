@@ -9,30 +9,31 @@ import com.tws.plugin.core.PluginIntentResolver;
  * @author yongchen
  */
 public class PendingIntentHelper {
-    /**
-     * used before send notification
-     * @param intent
-     * @return
-     */
-    public static Intent resolvePendingIntent(Intent intent, int type) {
+	/**
+	 * used before send notification
+	 * 
+	 * @param intent
+	 * @return
+	 */
+	public static Intent resolvePendingIntent(Intent intent, int type) {
 
-        if (type == PluginDescriptor.BROADCAST) {
+		if (type == PluginDescriptor.BROADCAST) {
 
-            Intent newIntent = PluginIntentResolver.resolveReceiver(intent).get(0);
-            return newIntent;
+			Intent newIntent = PluginIntentResolver.resolveReceiver(intent).get(0);
+			return newIntent;
 
-        } else if (type == PluginDescriptor.ACTIVITY) {
+		} else if (type == PluginDescriptor.ACTIVITY) {
 
-            PluginIntentResolver.resolveActivity(intent);
-            return intent;
+			PluginIntentResolver.resolveActivity(intent);
+			return intent;
 
-        } else if (type == PluginDescriptor.SERVICE) {
+		} else if (type == PluginDescriptor.SERVICE) {
 
-            PluginIntentResolver.resolveService(intent);
-            return intent;
+			PluginIntentResolver.resolveService(intent);
+			return intent;
 
-        }
-        return intent;
-    }
+		}
+		return intent;
+	}
 
 }

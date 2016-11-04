@@ -34,7 +34,6 @@ import com.tws.plugin.core.app.AndroidAppApplication;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.manager.PluginActivityMonitor;
 import com.tws.plugin.core.manager.PluginManagerHelper;
-import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.tws.plugin.util.ProcessUtil;
 import com.tws.plugin.util.RefInvoker;
 

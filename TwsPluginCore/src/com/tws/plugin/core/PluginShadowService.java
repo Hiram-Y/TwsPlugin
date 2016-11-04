@@ -38,11 +38,12 @@ public class PluginShadowService extends Service {
 	private void getAttachParam() {
 		mBaseContext = getBaseContext();
 		mThread = RefInvoker.getFieldObject(this, Service.class, "mThread");
-		mClassName = (String)RefInvoker.getFieldObject(this, Service.class, "mClassName");
-		mToken = (IBinder) RefInvoker.getFieldObject(this, Service.class, "mToken"); ;
+		mClassName = (String) RefInvoker.getFieldObject(this, Service.class, "mClassName");
+		mToken = (IBinder) RefInvoker.getFieldObject(this, Service.class, "mToken");
+		;
 		mApplication = getApplication();
 		mActivityManager = RefInvoker.getFieldObject(this, Service.class, "mActivityManager");
-		mStartCompatibility = (Boolean)RefInvoker.getFieldObject(this, Service.class, "mStartCompatibility");
+		mStartCompatibility = (Boolean) RefInvoker.getFieldObject(this, Service.class, "mStartCompatibility");
 	}
 
 	private void callServiceOnCreate() {
@@ -53,20 +54,16 @@ public class PluginShadowService extends Service {
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			realService = (Service) clazz.newInstance();
 		} catch (Exception e) {
-			throw new RuntimeException(
-					"Unable to instantiate service " + mClassName
-							+ ": " + e.toString(), e);
+			throw new RuntimeException("Unable to instantiate service " + mClassName + ": " + e.toString(), e);
 		}
 
 		try {
 			RefInvoker.invokeMethod(mBaseContext, "android.app.ContextImpl", "setOuterContext",
-					new Class[]{Context.class}, new Object[]{realService});
+					new Class[] { Context.class }, new Object[] { realService });
 			RefInvoker.invokeMethod(realService, Service.class, "attach",
-					new Class[]{Context.class,
-							ActivityThread.clazz(), String.class, IBinder.class,
-							Application.class, Object.class},
-					new Object[]{mBaseContext, mThread, mClassName, mToken,
-							mApplication, mActivityManager});
+					new Class[] { Context.class, ActivityThread.clazz(), String.class, IBinder.class,
+							Application.class, Object.class }, new Object[] { mBaseContext, mThread, mClassName,
+							mToken, mApplication, mActivityManager });
 			RefInvoker.setFieldObject(realService, Service.class, "mStartCompatibility", mStartCompatibility);
 
 			// 拿到创建好的service，重新 设置mBase和mApplicaiton
@@ -74,9 +71,7 @@ public class PluginShadowService extends Service {
 
 			realService.onCreate();
 		} catch (Exception e) {
-			throw new RuntimeException(
-					"Unable to create service " + mClassName
-							+ ": " + e.toString(), e);
+			throw new RuntimeException("Unable to create service " + mClassName + ": " + e.toString(), e);
 		}
 	}
 

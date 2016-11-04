@@ -48,7 +48,8 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
 		@Override
 		public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke,
 				final Object invokeResult) {
-			// 这里invokeResult的实际类型是com.android.webview.chromium.WebViewChromium implements WebViewProvider
+			// 这里invokeResult的实际类型是com.android.webview.chromium.WebViewChromium
+			// implements WebViewProvider
 			// 所以这里可以再次进行Proxy
 			final WebView webView = (WebView) args[0];
 			fixWebViewAsset(webView.getContext());

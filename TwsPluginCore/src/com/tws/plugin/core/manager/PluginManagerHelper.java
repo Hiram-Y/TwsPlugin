@@ -5,17 +5,14 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import tws.component.log.TwsLog;
-import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.core.PluginLoader;
-import com.tws.plugin.util.RefInvoker;
 
 /**
  * @author yongchen
