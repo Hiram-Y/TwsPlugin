@@ -586,7 +586,7 @@ public class PluginLoader {
 		case PLUGIN_UPDATE_ADD:
 			TwsLog.w(TAG, "pluginChangedCallBack ADD pluginName=" + getInstance().getDillPluginName()
 					+ " ======= packageName=" + packageName);
-			mPluginName_PackageName.put(getInstance().getDillPluginName(), packageName);
+			mPluginName_PackageName.put(getInstance().getDillPluginName().toLowerCase(), packageName);
 			savePluginsNameCacheMap(mPluginName_PackageName);
 			break;
 		case PLUGIN_UPDATE_REMOVEALL:

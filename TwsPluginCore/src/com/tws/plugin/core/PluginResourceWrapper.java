@@ -27,12 +27,12 @@ public class PluginResourceWrapper extends Resources {
 
 	private PluginDescriptor mPluginDescriptor;
 
-	public PluginResourceWrapper(AssetManager assets, DisplayMetrics metrics,
-			Configuration config, PluginDescriptor pluginDescriptor) {
+	public PluginResourceWrapper(AssetManager assets, DisplayMetrics metrics, Configuration config,
+			PluginDescriptor pluginDescriptor) {
 		super(assets, metrics, config);
 		this.mPluginDescriptor = pluginDescriptor;
 	}
-	
+
 	@Override
 	public String getResourcePackageName(int resid) throws NotFoundException {
 		if (idCaches.contains(resid)) {
@@ -40,43 +40,68 @@ public class PluginResourceWrapper extends Resources {
 		}
 		try {
 			return super.getResourcePackageName(resid);
-		} catch(NotFoundException e) {
+		} catch (NotFoundException e) {
 			TwsLog.e(TAG, "NotFoundException Try Following resid=" + Integer.toHexString(resid));
 
-			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
-			//华为、三星、小米等手机不会到这里来。
+			// 就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
+			// 华为、三星、小米等手机不会到这里来。
 			if (ResourceUtil.isMainResId(resid)) {
 				idCaches.add(resid);
 				return PluginLoader.getApplication().getPackageName();
 			}
-			throw new NotFoundException("Unable to find resource ID #0x"
-	                + Integer.toHexString(resid));
+			throw new NotFoundException("Unable to find resource ID #0x" + Integer.toHexString(resid));
 		}
 	}
-	
+
 	@Override
 	public String getResourceName(int resid) throws NotFoundException {
 		try {
 			return super.getResourceName(resid);
-		} catch(NotFoundException e) {
+		} catch (NotFoundException e) {
 			TwsLog.e(TAG, "NotFoundException Try Following");
 
-			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
-			//华为、三星、小米等手机不会到这里来。
+			// 就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
+			// 华为、三星、小米等手机不会到这里来。
 			if (ResourceUtil.isMainResId(resid)) {
 				return PluginLoader.getApplication().getResources().getResourceName(resid);
 			}
-			throw new NotFoundException("Unable to find resource ID #0x"
-	                + Integer.toHexString(resid));
+			throw new NotFoundException("Unable to find resource ID #0x" + Integer.toHexString(resid));
+		}
+	}
+
+	@Override
+	public String getResourceEntryName(int resid) {
+		try {
+			return super.getResourceEntryName(resid);
+		} catch (NotFoundException e) {
+			// vivo
+			if (ResourceUtil.isMainResId(resid)) {
+				return PluginLoader.getApplication().getResources().getResourceEntryName(resid);
+			}
+			TwsLog.e(TAG, "NotFoundException Try Following");
+			throw new NotFoundException("Unable to find resource ID #0x" + Integer.toHexString(resid));
+		}
+	}
+
+	@Override
+	public String getResourceTypeName(int resid) {
+		try {
+			return super.getResourceTypeName(resid);
+		} catch (NotFoundException e) {
+			// vivo
+			if (ResourceUtil.isMainResId(resid)) {
+				return PluginLoader.getApplication().getResources().getResourceTypeName(resid);
+			}
+			TwsLog.e(TAG, "NotFoundException Try Following");
+			throw new NotFoundException("Unable to find resource ID #0x" + Integer.toHexString(resid));
 		}
 	}
 
 	/**
-	 * 重写此方法主要是为了修正在插件中通过
-	 * getIdentifier(name, type,  getPackageName())此中形式反查id时
-	 *
+	 * 重写此方法主要是为了修正在插件中通过 getIdentifier(name, type, getPackageName())此中形式反查id时
+	 * 
 	 * 如果第三个参数通过调用getPackageName获得，由于此方法返回的是宿主的包名，可能会得不到预期的结果
-	 *
+	 * 
 	 * @param name
 	 * @param defType
 	 * @param defPackage
@@ -89,13 +114,13 @@ public class PluginResourceWrapper extends Resources {
 			return super.getIdentifier(name, defType, defPackage);
 		}
 
-		//传了packageName，而且不是宿主的packageName， 则直接返回
+		// 传了packageName，而且不是宿主的packageName， 则直接返回
 		if (!TextUtils.isEmpty(defPackage) && !PluginLoader.getApplication().getPackageName().equals(defPackage)) {
 			return super.getIdentifier(name, defType, defPackage);
 		}
 
-		//package:type/entry
-		//第一段 “package:“ 第二段 ”type/“ 第三段 “entry”
+		// package:type/entry
+		// 第一段 “package:“ 第二段 ”type/“ 第三段 “entry”
 		String packageName = null;
 		String type = null;
 		String entry = null;
@@ -135,14 +160,14 @@ public class PluginResourceWrapper extends Resources {
 					rClass = this.getClass().getClassLoader().loadClass(className);
 					Field field = rClass.getDeclaredField(entry);
 					if (field == null) {
-						//不在宿主中，换成插件的
+						// 不在宿主中，换成插件的
 						packageName = mPluginDescriptor.getPackageName();
 					} else {
-						//在宿主中
+						// 在宿主中
 						return PluginLoader.getApplication().getResources().getIdentifier(entry, type, packageName);
 					}
 				} catch (Exception e) {
-					//不在宿主中，换成插件的
+					// 不在宿主中，换成插件的
 					packageName = mPluginDescriptor.getPackageName();
 				}
 			}
@@ -151,4 +176,3 @@ public class PluginResourceWrapper extends Resources {
 
 	}
 }
-
