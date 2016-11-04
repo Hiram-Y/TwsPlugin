@@ -42,7 +42,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
 				"getService", (Class[]) null, (Object[]) null);
 		Object androidAppINotificationStubProxyProxy = ProxyUtil.createProxy(androidAppINotificationStubProxy,
 				new AndroidAppINotificationManager());
-		RefInvoker.setStaticOjbect(NotificationManager.class.getName(), "sService",
+		RefInvoker.setStaticObject(NotificationManager.class.getName(), "sService",
 				androidAppINotificationStubProxyProxy);
 		TwsLog.d(TAG, "安装完成");
 	}

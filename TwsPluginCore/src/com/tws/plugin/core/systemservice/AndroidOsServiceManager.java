@@ -29,7 +29,7 @@ public class AndroidOsServiceManager extends MethodProxy {
 				"getIServiceManager", (Class[]) null, (Object[]) null);
 		Object androidOsServiceManagerProxyProxy = ProxyUtil.createProxy(androidOsServiceManagerProxy,
 				new AndroidOsServiceManager());
-		RefInvoker.setStaticOjbect("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
+		RefInvoker.setStaticObject("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
 
 		// 干掉缓存
 		sCache = (HashMap<String, IBinder>) RefInvoker.getFieldObject(null, "android.os.ServiceManager", "sCache");

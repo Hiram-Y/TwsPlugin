@@ -34,6 +34,7 @@ import com.tencent.tws.sharelib.ShareService;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.core.PluginLoader;
 import com.tws.plugin.core.localservice.LocalServiceManager;
+import com.tws.plugin.core.manager.InstallResult;
 import com.tws.plugin.core.manager.PluginCallback;
 import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.util.FileUtil;
@@ -380,11 +381,44 @@ public class DebugPluginActivity extends TwsActivity {
 	private final BroadcastReceiver pluginInstallEvent = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			String actionType = intent.getStringExtra("type");
+			int code = intent.getIntExtra("code", -1);
+
+			Toast.makeText(DebugPluginActivity.this,
+					"插件: " + intent.getStringExtra("id") + ", action = " + actionType + ", " + getErrMsg(code),
+					Toast.LENGTH_SHORT).show();
+
 			showInstalledAll();
 			showBuildinPluginList();
 			showSdcardPluginList();
 		};
 	};
+
+	private static String getErrMsg(int code) {
+		String msg = "";
+		switch (code) {
+		case InstallResult.SUCCESS:
+			msg = "成功";
+		case InstallResult.SRC_FILE_NOT_FOUND:
+			msg = "失败: 安装文件未找到";
+		case InstallResult.COPY_FILE_FAIL:
+			msg = "失败: 复制安装文件到安装目录失败";
+		case InstallResult.SIGNATURES_INVALIDATE:
+			msg = "失败: 安装文件验证失败";
+		case InstallResult.VERIFY_SIGNATURES_FAIL:
+			msg = "失败: 插件和宿主签名串不匹配";
+		case InstallResult.PARSE_MANIFEST_FAIL:
+			msg = "失败: 插件Manifest文件解析出错";
+		case InstallResult.FAIL_BECAUSE_HAS_LOADED:
+			msg = "失败: 同版本插件已加载,无需安装";
+		case InstallResult.MIN_API_NOT_SUPPORTED:
+			msg = "失败: 当前系统版本过低,不支持此插件";
+		default:
+			msg = "失败: 其他 code=" + code;
+		}
+
+		return msg;
+	}
 
 	@Override
 	protected void onResume() {

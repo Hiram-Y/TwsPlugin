@@ -20,7 +20,8 @@ public class PluginActivityMonitor {
 	public void onActivityCreate(final Activity activity) {
 		if (!activity.isChild()) {
 			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
-				String pluginId = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
+				String pluginId = ((PluginContextTheme) activity.getApplication().getBaseContext())
+						.getPluginDescriptor().getPackageName();
 				BroadcastReceiver br = new BroadcastReceiver() {
 					@Override
 					public void onReceive(Context context, Intent intent) {
@@ -31,6 +32,18 @@ public class PluginActivityMonitor {
 
 				activity.registerReceiver(br, new IntentFilter(pluginId + ACTION_UN_INSTALL_PLUGIN));
 			}
+		}
+	}
+
+	public void onActivityResume(Activity activity) {
+		if (!activity.isChild()) {
+
+		}
+	}
+
+	public void onActivityPause(Activity activity) {
+		if (!activity.isChild()) {
+
 		}
 	}
 

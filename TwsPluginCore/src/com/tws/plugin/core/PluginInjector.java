@@ -33,6 +33,7 @@ import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.content.PluginProviderInfo;
 import com.tws.plugin.core.app.ActivityThread;
 import com.tws.plugin.core.compat.CompatForSupportv7_23_2;
+import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.util.ProcessUtil;
 import com.tws.plugin.util.RefInvoker;
@@ -95,9 +96,14 @@ public class PluginInjector {
 			providers.add(p);
 		}
 
-		// pluginContext.getPackageName().equals(applicationInfo.packageName) ==
-		// true
-		ActivityThread.installContentProviders(pluginContext, providers);
+		if (providers.size() > 0) {
+			TwsLog.d(TAG,
+					"为插件:" + pluginContext.getPackageName() + " 安装ContentProvider size=" + pluginProviderInfos.size());
+			// pluginContext.getPackageName().equals(applicationInfo.packageName)
+			// == true
+			// 安装的时候使用的是插件的Context, 所有无需对Classloader进行映射处理
+			ActivityThread.installContentProviders(pluginContext, providers);
+		}
 	}
 
 	static void injectInstrumetionFor360Safe(Activity activity, Instrumentation pluginInstrumentation) {
@@ -115,12 +121,25 @@ public class PluginInjector {
 	}
 
 	static void injectActivityContext(Activity activity) {
-		Intent intent = activity.getIntent();
-		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
-		// 如果是打开插件中的activity,
-		// 或者是打开的用来显示插件组件的宿主activity
-		boolean isStubActivity = PluginManagerHelper.isStub(intent.getComponent().getClassName());
-		if (ProcessUtil.isPluginProcess() && (isStubActivity || container != null)) {
+		if (activity instanceof WaitForLoadingPluginActivity) {
+			return;
+		}
+
+		TwsLog.d(TAG, "injectActivityContext");
+
+		PluginContainer container = null;
+		boolean isStubActivity = false;
+
+		if (ProcessUtil.isPluginProcess()) {
+			// 如果是打开插件中的activity,
+			Intent intent = activity.getIntent();
+			isStubActivity = PluginManagerHelper.isStub(intent.getComponent().getClassName());
+
+			// 或者是打开的用来显示插件组件的宿主activity
+			container = AnnotationProcessor.getPluginContainer(activity.getClass());
+		}
+
+		if (isStubActivity || container != null) {
 
 			// 在activityoncreate之前去完成attachBaseContext的事情
 

@@ -332,8 +332,13 @@ class PluginManagerImpl {
 				TwsLog.d(TAG, "正在进行DEXOPT..." + pluginDescriptor.getInstalledPath());
 				// ActivityThread.getPackageManager().performDexOptIfNeeded()
 				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
-				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
+				ClassLoader cl = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
 						pluginDescriptor.isStandalone(), null, null);
+				try {
+					cl.loadClass(Object.class.getName());
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 				TwsLog.d(TAG, "DEXOPT完毕");
 
 				LocalServiceManager.registerService(pluginDescriptor);

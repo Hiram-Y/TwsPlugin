@@ -57,7 +57,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
 				"sPackageManager");
 		Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy,
 				new AndroidAppIPackageManager());
-		RefInvoker.setStaticOjbect("android.app.ActivityThread", "sPackageManager",
+		RefInvoker.setStaticObject("android.app.ActivityThread", "sPackageManager",
 				androidAppIPackageManagerStubProxyProxy);
 		RefInvoker.setFieldObject(manager, "android.app.ApplicationPackageManager", "mPM",
 				androidAppIPackageManagerStubProxyProxy);
@@ -91,23 +91,21 @@ public class AndroidAppIPackageManager extends MethodProxy {
 		public Object afterInvoke(Object target, Method method, Object[] args, Object beforeResult, Object invokeResult) {
 			TwsLog.d(TAG, "afterInvoke method:" + method.getName());
 
-			// 注意：android 4.1.2及以下没有getList方法
-			List<PackageInfo> result = (List<PackageInfo>) RefInvoker.invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList",
-					(Class[]) null, (Object[]) null);
-
 			Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
 			if (plugins != null) {
-				if (result == null) {
-					result = new ArrayList<PackageInfo>();
-				}
-				for (PluginDescriptor pluginDescriptor : plugins) {
-					PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager()
-							.getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (Integer) args[0]);
-					if (packageInfo.applicationInfo != null) {
-						packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
-						packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+				// 注意：android 4.1.2及以下没有getList方法
+				List<PackageInfo> result = (List<PackageInfo>) RefInvoker.invokeMethod(invokeResult,
+						"android.content.pm.ParceledListSlice", "getList", (Class[]) null, (Object[]) null);
+				if (result != null) {
+					for (PluginDescriptor pluginDescriptor : plugins) {
+						PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager()
+								.getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (Integer) args[0]);
+						if (packageInfo.applicationInfo != null) {
+							packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
+							packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+						}
+						result.add(packageInfo);
 					}
-					result.add(packageInfo);
 				}
 			}
 
@@ -277,8 +275,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
 			if (arg0 instanceof ComponentName) {
 				ComponentName mComponentName = ((ComponentName) args[0]);
 
-				TwsLog.d(TAG, "getComponentEnabledSetting beforeInvoke method:" + method.getName() + " PackageName:" + mComponentName.getPackageName()
-						+ " ClassName:" + mComponentName.getClassName());
+				TwsLog.d(TAG, "getComponentEnabledSetting beforeInvoke method:" + method.getName() + " PackageName:"
+						+ mComponentName.getPackageName() + " ClassName:" + mComponentName.getClassName());
 
 				if ("com.htc.android.htcsetupwizard".equalsIgnoreCase(mComponentName.getPackageName())) {
 					return PackageManager.COMPONENT_ENABLED_STATE_DISABLED;

@@ -17,7 +17,12 @@ public class PluginCallbackImpl implements PluginCallback {
 
 	@Override
 	public void onInstall(int result, String packageName, String version, String src) {
-		PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_ADD, packageName);
+		if (result == InstallResult.SUCCESS) {
+			PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_ADD, packageName);
+		} else {
+			String description = packageName + "install rlt:" + result;
+			PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_ERROR, description);
+		}
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "install");
 		intent.putExtra(extra_id, packageName);
@@ -33,7 +38,7 @@ public class PluginCallbackImpl implements PluginCallback {
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "remove");
 		intent.putExtra(extra_id, packageName);
-		intent.putExtra(extra_result_code, success ? 1 : 0);
+		intent.putExtra(extra_result_code, success ? 0 : 7);
 		PluginLoader.getApplication().sendBroadcast(intent);
 	}
 
@@ -42,7 +47,7 @@ public class PluginCallbackImpl implements PluginCallback {
 		PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_REMOVEALL, "");
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "remove_all");
-		intent.putExtra(extra_result_code, success ? 1 : 0);
+		intent.putExtra(extra_result_code, success ? 0 : 7);
 		PluginLoader.getApplication().sendBroadcast(intent);
 	}
 

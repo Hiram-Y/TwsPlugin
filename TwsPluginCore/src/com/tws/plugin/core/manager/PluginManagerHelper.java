@@ -241,6 +241,11 @@ public class PluginManagerHelper {
 	public static Bundle call(Uri uri, String method, String arg, Bundle extras) {
 		ContentResolver resolver = PluginLoader.getApplication().getContentResolver();
 
-		return resolver.call(uri, method, arg, extras);
+		try {
+			return resolver.call(uri, method, arg, extras);
+		} catch (Exception e) {
+			TwsLog.e(TAG, "call uri fail - uri=" + uri + " method=" + method + " arg=" + arg + " extras=" + extras);
+		}
+		return null;
 	}
 }

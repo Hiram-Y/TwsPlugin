@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import com.tencent.tws.sharelib.annotation.AnnotationProcessor;
 import com.tencent.tws.sharelib.annotation.PluginContainer;
 import com.tws.plugin.content.PluginDescriptor;
+import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.manager.PluginActivityMonitor;
 import com.tws.plugin.core.manager.PluginManagerHelper;
@@ -110,7 +111,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					String[] targetClassName = action.split(PluginIntentResolver.CLASS_SEPARATOR);
 					String pluginClassName = targetClassName[0];
 
-					Class clazz = PluginLoader.loadPluginClassByName(pluginClassName);
+					PluginDescriptor pluginDescriptor = PluginManagerHelper
+							.getPluginDescriptorByClassName(pluginClassName);
+
+					if (pluginDescriptor != null) {
+						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+						if (!isRunning) {
+							return waitForLoading(pluginDescriptor);
+						}
+					}
+
+					Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, pluginClassName);
 					if (clazz != null) {
 						className = pluginClassName;
 						cl = clazz.getClassLoader();
@@ -130,7 +141,16 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					}
 				} else if (PluginManagerHelper.isExact(className, PluginDescriptor.ACTIVITY)) {
 					// 这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
-					Class clazz = PluginLoader.loadPluginClassByName(className);
+					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+
+					if (pluginDescriptor != null) {
+						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+						if (!isRunning) {
+							return waitForLoading(pluginDescriptor);
+						}
+					}
+
+					Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, className);
 					if (clazz != null) {
 						cl = clazz.getClassLoader();
 					} else {
@@ -149,7 +169,18 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 							if (cate.startsWith(RELAUNCH_FLAG)) {
 								className = cate.replace(RELAUNCH_FLAG, "");
 
-								Class clazz = PluginLoader.loadPluginClassByName(className);
+								PluginDescriptor pluginDescriptor = PluginManagerHelper
+										.getPluginDescriptorByClassName(className);
+
+								if (pluginDescriptor != null) {
+									boolean isRunning = PluginLauncher.instance().isRunning(
+											pluginDescriptor.getPackageName());
+									if (!isRunning) {
+										return waitForLoading(pluginDescriptor);
+									}
+								}
+
+								Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, className);
 								cl = clazz.getClassLoader();
 								found = true;
 								break;
@@ -187,6 +218,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		}
 	}
 
+	private Activity waitForLoading(PluginDescriptor pluginDescriptor) {
+		WaitForLoadingPluginActivity waitForLoadingPluginActivity = new WaitForLoadingPluginActivity();
+		waitForLoadingPluginActivity.setTargetPlugin(pluginDescriptor);
+		return waitForLoadingPluginActivity;
+	}
+
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
 
@@ -205,12 +242,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		}
 
 		if (ProcessUtil.isPluginProcess()) {
+			installPluginViewFactory(activity);
 
-			PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
-			// 如果配置了插件容器注解而且指定了插件Id,
-			// 框架会自动更换activity的context,无需安装PluginViewFactory
-			if (container != null && TextUtils.isEmpty(container.pluginId())) {
-				new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+			if (activity instanceof WaitForLoadingPluginActivity) {
+				// NOTHING
+			} else {
+				// AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
 			}
 
 			if (activity.isChild()) {
@@ -232,6 +269,14 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		monitor.onActivityCreate(activity);
 
+	}
+
+	private void installPluginViewFactory(Activity activity) {
+		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
+		// 如果配置了插件容器注解而且指定了插件Id, 框架会自动更换activity的context,无需安装PluginViewFactory
+		if (container != null && TextUtils.isEmpty(container.pluginId())) {
+			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+		}
 	}
 
 	@Override
@@ -292,6 +337,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void callActivityOnResume(Activity activity) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
 		super.callActivityOnResume(activity);
+		monitor.onActivityResume(activity);
 	}
 
 	@Override
@@ -315,6 +361,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void callActivityOnPause(Activity activity) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
 		super.callActivityOnPause(activity);
+		monitor.onActivityPause(activity);
 	}
 
 	@Override

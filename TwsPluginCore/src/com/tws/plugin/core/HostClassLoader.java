@@ -57,10 +57,9 @@ public class HostClassLoader extends DexClassLoader {
 			String realName = className.replace(PluginIntentResolver.CLASS_PREFIX_RECEIVER, "");
 
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
-
-			TwsLog.d(TAG, "className is " + className + " target is " + realName + (clazz == null ? " null" : " found"));
-
 			if (clazz != null) {
+				TwsLog.d(TAG, "className is " + className + " target is " + realName
+						+ (clazz == null ? " null" : " found"));
 				return clazz;
 			} else {
 				TwsLog.e(TAG, "到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound");

@@ -49,9 +49,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	private boolean crackPackageManager = false;
 
-	public PluginContextTheme(PluginDescriptor pluginDescriptor,
-							  Context base, Resources resources,
-							  ClassLoader classLoader) {
+	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources,
+			ClassLoader classLoader) {
 		super(base);
 		mPluginDescriptor = pluginDescriptor;
 		mResources = resources;
@@ -87,8 +86,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	}
 
 	/**
-	 * 传0表示使用系统默认主题，最终的现实样式和客户端程序的minSdk应该有关系。
-	 * 即系统针对不同的minSdk设置了不同的默认主题样式
+	 * 传0表示使用系统默认主题，最终的现实样式和客户端程序的minSdk应该有关系。 即系统针对不同的minSdk设置了不同的默认主题样式
 	 * 传非0的话表示传过来什么主题就显示什么主题
 	 */
 	@Override
@@ -103,9 +101,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			return mTheme;
 		}
 
-		Object result = RefInvoker.invokeStaticMethod(Resources.class.getName(), "selectDefaultTheme", new Class[]{
-				int.class, int.class}, new Object[]{mThemeResource,
-				getBaseContext().getApplicationInfo().targetSdkVersion});
+		Object result = RefInvoker.invokeStaticMethod(Resources.class.getName(), "selectDefaultTheme", new Class[] {
+				int.class, int.class }, new Object[] { mThemeResource,
+				getBaseContext().getApplicationInfo().targetSdkVersion });
 		if (result != null) {
 			mThemeResource = (Integer) result;
 		}
@@ -133,7 +131,6 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		return service;
 	}
 
-
 	private void initializeTheme() {
 		final boolean first = mTheme == null;
 		if (first) {
@@ -149,21 +146,21 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public String getPackageName() {
 
-		//packagemanager、activitymanager、wifi、window、inputservice
-		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
-		//而这里返回的正是插件本身的packageName, 因此需要通过安装AndroidOsServiceManager这个hook去修正,
-		//如果不安装AndroidOsServiceManager或者安装失败,这里应当返回宿主的packageName
+		// packagemanager、activitymanager、wifi、window、inputservice
+		// 等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
+		// 而这里返回的正是插件本身的packageName, 因此需要通过安装AndroidOsServiceManager这个hook去修正,
+		// 如果不安装AndroidOsServiceManager或者安装失败,这里应当返回宿主的packageName
 		return mPluginDescriptor.getPackageName();
-		//return PluginLoader.getApplication().getPackageName();
+		// return PluginLoader.getApplication().getPackageName();
 
 	}
 
-	//@hide
-	public String getBasePackageName() {
-		//ViewRootImpl中会调用这个方法, 这是个hide方法.
-		//如果这个方法也返回插件packageName, 则需要hook掉android.view.IWindowSession.relayout方法.
-		return PluginLoader.getApplication().getPackageName();
-	}
+	// @hide
+	// public String getBasePackageName() {
+	// //ViewRootImpl中会调用这个方法, 这是个hide方法.
+	// //如果这个方法也返回插件packageName, 则需要hook掉android.view.IWindowSession.relayout方法.
+	// return PluginLoader.getApplication().getPackageName();
+	// }
 
 	@Override
 	public Context getApplicationContext() {
@@ -172,14 +169,14 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public ApplicationInfo getApplicationInfo() {
-		//这里的ApplicationInfo是从LoadedApk中取出来的
-		//由于目前插件之间是共用1个插件进程。LoadedApk只有1个，而ApplicationInfo每个插件都有一个，
+		// 这里的ApplicationInfo是从LoadedApk中取出来的
+		// 由于目前插件之间是共用1个插件进程。LoadedApk只有1个，而ApplicationInfo每个插件都有一个，
 		// 所以不能通过直接修改loadedApk中的内容来修正这个方法的返回值，而是将修正的过程放在Context中去做，
-		//避免多个插件之间造成干扰
+		// 避免多个插件之间造成干扰
 		if (mApplicationInfo == null) {
 			try {
 				mApplicationInfo = getPackageManager().getApplicationInfo(mPluginDescriptor.getPackageName(), 0);
-				//这里修正packageManager中hook时设置的插件packageName
+				// 这里修正packageManager中hook时设置的插件packageName
 				mApplicationInfo.packageName = getPackageName();
 			} catch (PackageManager.NameNotFoundException e) {
 				e.printStackTrace();
@@ -204,20 +201,25 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
-		receivers.add(receiver);
+		if (receiver != null) {
+			receivers.add(receiver);
+		}
 		return super.registerReceiver(receiver, filter);
 	}
 
 	@Override
 	public void unregisterReceiver(BroadcastReceiver receiver) {
-		super.unregisterReceiver(receiver);
-		receivers.remove(receiver);
+		if (receivers.contains(receiver)) {
+			super.unregisterReceiver(receiver);
+			receivers.remove(receiver);
+		}
 	}
 
 	public void unregisterAllReceiver() {
-		for (BroadcastReceiver br:
-			 receivers) {
-			super.unregisterReceiver(br);
+		for (BroadcastReceiver br : receivers) {
+			if (br != null) {
+				super.unregisterReceiver(br);
+			}
 		}
 		receivers.clear();
 	}
@@ -225,8 +227,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public PackageManager getPackageManager() {
 		if (crackPackageManager) {
-			//欺骗MultDexInstaller， 使MultDexInstaller能得到正确的插件信息
-			return PluginMultiDexHelper.fixPackageManagerForMultDexInstaller(mPluginDescriptor.getPackageName(), super.getPackageManager());
+			// 欺骗MultDexInstaller， 使MultDexInstaller能得到正确的插件信息
+			return PluginMultiDexHelper.fixPackageManagerForMultDexInstaller(mPluginDescriptor.getPackageName(),
+					super.getPackageManager());
 		}
 		return super.getPackageManager();
 	}
@@ -235,12 +238,13 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		this.crackPackageManager = crackPackageManager;
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * 隔离插件间的SharedPreferences
+	 * 
 	 * @param name
 	 * @param mode
 	 * @return
@@ -248,18 +252,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public SharedPreferences getSharedPreferences(String name, int mode) {
 
-		//这里之所以需要追加前缀是因为ContextImpl类中的全局静态缓存sSharedPrefs
+		// 这里之所以需要追加前缀是因为ContextImpl类中的全局静态缓存sSharedPrefs
 		if (!name.startsWith(mPluginDescriptor.getPackageName() + "_")) {
 			name = mPluginDescriptor.getPackageName() + "_" + name;
 		}
 
-		//4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
+		// 4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
 		PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		Object cache = RefInvoker.getStaticFieldObject("android.app.ContextImpl", "sSharedPrefs");
 		if (Build.VERSION.SDK_INT >= 19 && cache instanceof ArrayMap) {
 			synchronized (PluginContextTheme.class) {
-				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>)cache;
+				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>) cache;
 				final String packageName = getPackageName();
 				ArrayMap<String, Object> packagePrefs = sSharedPrefs.get(packageName);
 				if (packagePrefs == null) {
@@ -269,14 +273,16 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 				Object sp = packagePrefs.get(name);
 				if (sp == null) {
-					packagePrefs.put(name, CompatForSharedPreferencesImpl.newSharedPreferencesImpl(getSharedPrefsFile(name), mode, getPackageName()));
+					packagePrefs.put(name, CompatForSharedPreferencesImpl.newSharedPreferencesImpl(
+							getSharedPrefsFile(name), mode, getPackageName()));
 				}
 			}
 		} else if (cache instanceof HashMap) {
-			HashMap<String, Object>  sSharedPrefs = (HashMap<String, Object>)cache;
+			HashMap<String, Object> sSharedPrefs = (HashMap<String, Object>) cache;
 			Object sp = sSharedPrefs.get(name);
 			if (sp == null) {
-				sSharedPrefs.put(name, CompatForSharedPreferencesImpl.newSharedPreferencesImpl(getSharedPrefsFile(name), mode, getPackageName()));
+				sSharedPrefs.put(name, CompatForSharedPreferencesImpl.newSharedPreferencesImpl(
+						getSharedPrefsFile(name), mode, getPackageName()));
 			}
 		}
 
@@ -295,9 +301,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		File dir = makeFilename(getDataDir(), "app_" + name);
 		if (!dir.exists()) {
 			dir.mkdirs();
-			//setpermisssion
+			// setpermisssion
 		}
-		return  dir;
+		return dir;
 	}
 
 	@Override
@@ -305,7 +311,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		File dir = new File(getDataDir(), "files");
 		if (!dir.exists()) {
 			dir.mkdirs();
-			//setpermisssion
+			// setpermisssion
 		}
 		return dir;
 	}
@@ -317,11 +323,11 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public FileOutputStream openFileOutput(String name, int mode) throws FileNotFoundException {
-		final boolean append = (mode&MODE_APPEND) != 0;
+		final boolean append = (mode & MODE_APPEND) != 0;
 		File f = makeFilename(getFilesDir(), name);
 		try {
 			FileOutputStream fos = new FileOutputStream(f, append);
-			//setFilePermissionsFromMode(f.getPath(), mode, 0);
+			// setFilePermissionsFromMode(f.getPath(), mode, 0);
 			return fos;
 		} catch (FileNotFoundException e) {
 		}
@@ -339,7 +345,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		File dir = new File(getDataDir(), "no_backup");
 		if (!dir.exists()) {
 			dir.mkdirs();
-			//setpermisssion
+			// setpermisssion
 		}
 		return dir;
 	}
@@ -349,7 +355,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		File dir = new File(getDataDir(), "cache");
 		if (!dir.exists()) {
 			dir.mkdirs();
-			//setpermisssion
+			// setpermisssion
 		}
 		return dir;
 	}
@@ -359,7 +365,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		File dir = new File(getDataDir(), "code_cache");
 		if (!dir.exists()) {
 			dir.mkdirs();
-			//setpermisssion
+			// setpermisssion
 		}
 		return dir;
 	}
@@ -372,7 +378,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory,
-											   DatabaseErrorHandler errorHandler) {
+			DatabaseErrorHandler errorHandler) {
 		name = getAbsuloteDatabasePath(name);
 		return super.openOrCreateDatabase(name, mode, factory, errorHandler);
 	}
@@ -420,25 +426,24 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		if (name.indexOf(File.separatorChar) < 0) {
 			if (!base.exists()) {
 				base.mkdirs();
-				//setpermisssion
+				// setpermisssion
 			}
 			return new File(base, name);
 		}
-		throw new IllegalArgumentException(
-				"File " + name + " contains a path separator");
+		throw new IllegalArgumentException("File " + name + " contains a path separator");
 	}
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
 	private File dataDir;
 
-	//android-N
+	// android-N
 	public File getDataDir() {
 		if (dataDir == null) {
 			dataDir = new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile().getParentFile(), "data");
 			if (!dataDir.exists()) {
 				dataDir.mkdirs();
-				//setpermisssion
+				// setpermisssion
 			}
 		}
 		return dataDir;
@@ -446,11 +451,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	public Context getOuter() {
 		Context base = getBaseContext();
-		while(base instanceof ContextWrapper) {
-			base = ((ContextWrapper)base).getBaseContext();
+		while (base instanceof ContextWrapper) {
+			base = ((ContextWrapper) base).getBaseContext();
 		}
 		if (base.getClass().getName().equals("android.app.ContextImpl")) {
-			base = (Context) RefInvoker.invokeMethod(base, "android.app.ContextImpl", "getOuterContext", (Class[])null, (Object[])null);
+			base = (Context) RefInvoker.invokeMethod(base, "android.app.ContextImpl", "getOuterContext",
+					(Class[]) null, (Object[]) null);
 		}
 		return base;
 	}

@@ -34,10 +34,8 @@ import android.widget.Toast;
 import com.tencent.tws.sharelib.util.HostProxy;
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.content.PluginProviderInfo;
 import com.tws.plugin.core.app.AndroidViewLayoutInflater;
 import com.tws.plugin.core.compat.CompatForSupportv7ViewInflater;
-import com.tws.plugin.core.manager.InstallResult;
 import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.tws.plugin.core.systemservice.AndroidAppINotificationManager;
@@ -62,6 +60,7 @@ public class PluginLoader {
 	private static final String ASSETS_PLUGS_DIR = "plugins";
 	private static Hashtable<String, String> mPluginName_PackageName = new Hashtable<String, String>();
 
+	public static final int PLUGIN_UPDATE_ERROR = -1;
 	public static final int PLUGIN_UPDATE_REMOVE = 0;
 	public static final int PLUGIN_UPDATE_ADD = 1;
 	public static final int PLUGIN_UPDATE_START = 2;
@@ -69,7 +68,8 @@ public class PluginLoader {
 	public static final int PLUGIN_UPDATE_REMOVEALL = 4;
 
 	private static PluginLoader instance;
-	private String mDillPluginName;
+
+	private static int sLoadingResId;
 
 	private PluginLoader() {
 	}
@@ -85,11 +85,12 @@ public class PluginLoader {
 	public void setDillPluginName(String pluginName) {
 		// CURRENT_PROCESS_PLUGINNAME
 		getSharedPreference().edit().putString(CURRENT_PROCESS_PLUGINNAME, pluginName).commit();
-		mDillPluginName = pluginName;
+		TwsLog.d(TAG, "setDillPluginName:" + pluginName);
 	}
 
 	public String getDillPluginName() {
-		String pluginName = getSharedPreference().getString(CURRENT_PROCESS_PLUGINNAME, mDillPluginName);
+		String pluginName = getSharedPreference().getString(CURRENT_PROCESS_PLUGINNAME, "");
+		TwsLog.d(TAG, "getDillPluginName rlt = " + pluginName);
 		return pluginName;
 	}
 
@@ -226,9 +227,11 @@ public class PluginLoader {
 
 	@SuppressWarnings("rawtypes")
 	public static Class loadPluginClassByName(String clazzName) {
-
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(clazzName);
+		return loadPluginClassByName(pluginDescriptor, clazzName);
+	}
 
+	public static Class loadPluginClassByName(PluginDescriptor pluginDescriptor, String clazzName) {
 		if (pluginDescriptor != null) {
 			// 插件可能尚未初始化，确保使用前已经初始化
 			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
@@ -402,7 +405,7 @@ public class PluginLoader {
 				// 构建map记录
 				Hashtable<String, String> pluginsNameCache = readPluginsNameCacheMap();
 				if (pluginsNameCache != null && 0 < pluginsNameCache.size()) {
-					TwsLog.d(TAG, "构建map记录 01");
+					TwsLog.d(TAG, "构建map记录 01 pluginsNameCache size is " + pluginsNameCache.size());
 					mPluginName_PackageName.putAll(pluginsNameCache);
 					Iterator<String> keys = mPluginName_PackageName.keySet().iterator();
 					String pluginName, pluginPackageName;
@@ -441,6 +444,8 @@ public class PluginLoader {
 							TwsLog.d(TAG, "apk is " + apk + " ===== packageName is " + packageName
 									+ " has installed --- continue!!!");
 							continue;
+						} else {
+							TwsLog.d(TAG, "will install:" + apk);
 						}
 
 						// 没有安装就执行安装流程
@@ -486,6 +491,7 @@ public class PluginLoader {
 			String list = Base64.encodeToString(data, Base64.DEFAULT);
 
 			getSharedPreference().edit().putString(PLUGIN_NAME_PAKCAGENAME, list).commit();
+			TwsLog.d(TAG, "savePluginsNameCacheMap nameCache size is " + nameCache.size());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -584,18 +590,33 @@ public class PluginLoader {
 			removePlugin(packageName);
 			break;
 		case PLUGIN_UPDATE_ADD:
-			TwsLog.w(TAG, "pluginChangedCallBack ADD pluginName=" + getInstance().getDillPluginName()
-					+ " ======= packageName=" + packageName);
-			mPluginName_PackageName.put(getInstance().getDillPluginName().toLowerCase(), packageName);
-			savePluginsNameCacheMap(mPluginName_PackageName);
+			final String dillName = getInstance().getDillPluginName().toLowerCase();
+			TwsLog.w(TAG, "pluginChangedCallBack PLUGIN_UPDATE_ADD pluginName=" + dillName + " ======= packageName="
+					+ packageName);
+			if (mPluginName_PackageName.containsKey(dillName)) {
+				TwsLog.e(TAG, "mPluginName_PackageName containsKey:" + dillName);
+			} else {
+				mPluginName_PackageName.put(dillName, packageName);
+				savePluginsNameCacheMap(mPluginName_PackageName);
+			}
 			break;
 		case PLUGIN_UPDATE_REMOVEALL:
 			mPluginName_PackageName.clear();
 			savePluginsNameCacheMap(mPluginName_PackageName);
 			break;
-
+		case PLUGIN_UPDATE_ERROR:
+			TwsLog.e(TAG, packageName);
+			break;
 		default:
 			break;
 		}
+	}
+
+	public static void setLoadingResId(int resId) {
+		sLoadingResId = resId;
+	}
+
+	public static int getLoadingResId() {
+		return sLoadingResId;
 	}
 }

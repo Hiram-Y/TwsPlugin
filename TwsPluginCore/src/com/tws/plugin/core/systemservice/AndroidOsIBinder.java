@@ -114,7 +114,7 @@ public class AndroidOsIBinder extends MethodProxy {
 					Constructor constructor = stubProxy.getDeclaredConstructor(IBinder.class);
 					constructor.setAccessible(true);
 					IInterface proxy = (IInterface) constructor.newInstance(target);
-					BinderProxyDelegate binderProxyDelegate = new BinderProxyDelegate(descriptor);
+					SystemApiDelegate binderProxyDelegate = new SystemApiDelegate(descriptor);
 
 					// 借此方法可以一次代理掉所有服务的remote, 而不必每个服务加一个hook
 					proxy = (IInterface) ProxyUtil.createProxy2(proxy, binderProxyDelegate);
