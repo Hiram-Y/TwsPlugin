@@ -16,11 +16,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Build;
 
 import com.tws.plugin.content.PluginActivityInfo;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.content.PluginProviderInfo;
 import com.tws.plugin.core.PluginLoader;
+import com.tws.plugin.core.compat.CompatForParceledListSliceApi21;
 import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.core.manager.PluginManagerProvider;
 import com.tws.plugin.core.proxy.MethodDelegate;
@@ -53,13 +55,13 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
 	public static void installProxy(PackageManager manager) {
 		TwsLog.d(TAG, "安装PackageManagerProxy");
-		Object androidAppIPackageManagerStubProxy = RefInvoker.getStaticFieldObject("android.app.ActivityThread",
+		Object androidAppIPackageManagerStubProxy = RefInvoker.getField("android.app.ActivityThread",
 				"sPackageManager");
 		Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy,
 				new AndroidAppIPackageManager());
-		RefInvoker.setStaticObject("android.app.ActivityThread", "sPackageManager",
+		RefInvoker.setField("android.app.ActivityThread", "sPackageManager",
 				androidAppIPackageManagerStubProxyProxy);
-		RefInvoker.setFieldObject(manager, "android.app.ApplicationPackageManager", "mPM",
+		RefInvoker.setField(manager, "android.app.ApplicationPackageManager", "mPM",
 				androidAppIPackageManagerStubProxyProxy);
 		TwsLog.d(TAG, "安装完成");
 	}
@@ -121,15 +123,25 @@ public class AndroidAppIPackageManager extends MethodProxy {
 			if (classNames != null && classNames.size() > 0) {
 				PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames
 						.get(0));
-				List<ResolveInfo> result = new ArrayList<ResolveInfo>();
-				ResolveInfo info = new ResolveInfo();
-				result.add(info);
-				info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-				return result;
+				if (Build.VERSION.SDK_INT <= 23) {
+					List<ResolveInfo> result = new ArrayList<ResolveInfo>();
+					ResolveInfo info = new ResolveInfo();
+					result.add(info);
+					info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+					return result;
+				} else {
+					// 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
+					ArrayList<ResolveInfo> resultList = new ArrayList<ResolveInfo>();
+					ResolveInfo info = new ResolveInfo();
+					resultList.add(info);
+					info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+					Object parceledListSlice = CompatForParceledListSliceApi21.newInstance(resultList);
+					return parceledListSlice;
+				}
 			}
+
 			return super.beforeInvoke(target, method, args);
 		}
-
 	}
 
 	public static class getApplicationInfo extends MethodDelegate {
@@ -224,11 +236,21 @@ public class AndroidAppIPackageManager extends MethodProxy {
 			if (classNames != null && classNames.size() > 0) {
 				PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames
 						.get(0));
-				List<ResolveInfo> result = new ArrayList<ResolveInfo>();
-				ResolveInfo info = new ResolveInfo();
-				result.add(info);
-				info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
-				return result;
+				if (Build.VERSION.SDK_INT <= 23) {
+					List<ResolveInfo> result = new ArrayList<ResolveInfo>();
+					ResolveInfo info = new ResolveInfo();
+					result.add(info);
+					info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
+					return result;
+				} else {
+					// 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
+					ArrayList<ResolveInfo> resultList = new ArrayList<ResolveInfo>();
+					ResolveInfo info = new ResolveInfo();
+					resultList.add(info);
+					info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
+					Object parceledListSlice = CompatForParceledListSliceApi21.newInstance(resultList);
+					return parceledListSlice;
+				}
 			}
 			return super.beforeInvoke(target, method, args);
 		}

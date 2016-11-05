@@ -34,7 +34,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
 			if (webViewFactoryProvider != null) {
 				Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider,
 						new AndroidWebkitWebViewFactoryProvider());
-				RefInvoker.setStaticObject("android.webkit.WebViewFactory", "sProviderInstance",
+				RefInvoker.setField("android.webkit.WebViewFactory", "sProviderInstance",
 						webViewFactoryProviderProxy);
 			} else {
 				// 如果取不到值，原因可能是不同版本差异
@@ -57,6 +57,44 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
 		}
 	}
 
+    /**
+     * 这个方法是解决如下问题:
+     *      目前插件进程是多个插件共享的, 而Webview的全局Context是进程唯一的。
+     *      要让哪个插件能加载插件自己的Assets目录下的本地HTML, 就的将Webview的全局Context设置为哪个插件的AppContext
+     *
+     *      但是当有多个插件在自己的Assets目录下的存在本地HTML文件时,
+     *      Webview的全局Context无论设置为哪个插件的AppContext,
+     *      都会导致另外一个插件的Asest下的HTML文件加载不出来。
+     *
+     *      因此每次切换Activity的时候都尝试将Webview的全局Context切换到当前Activity所在的AppContext
+     *
+     * @param pluginActivity
+     */
+	public static void switchWebViewContext(Context pluginActivity) {
+		TwsLog.d(TAG, "尝试切换WebView Context, 不同的WebView内核, 实现方式可能不同, 本方法基于Chrome的WebView实现");
+        try {
+            /**
+             * webviewProvider获取过程：
+             * new WebView()
+                ->WebViewFactory.getProvider().createWebView(this, new PrivateAccess()).init()
+                     ->loadChromiumProvider
+                            -> PathClassLoader("/system/framework/webviewchromium.jar")
+                                        .forName("com.android.webviewchromium.WebViewChromiumFactoryProvider")
+
+                    -> BootLoader.forName(android.webkit.WebViewClassic$Factory)
+
+                    ->new WebViewClassic.Factory()
+             */
+            WebView wb = new WebView(pluginActivity);
+            wb.loadUrl("");//触发下面的fixWebViewAsset方法
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			TwsLog.e(TAG, "插件Application对象尚未初始化会触发NPE，如果是异步初始化插件，应等待异步初始化完成再进入插件");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+    
 	private static void fixWebViewAsset(Context context) {
 		try {
 			ClassLoader cl = null;
@@ -110,14 +148,14 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
 						} catch (ClassNotFoundException e) {
 						}
 						if (sContextUtils != null) {
-							RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
+							RefInvoker.setField(null, sContextUtils, "sApplicationContext", null);
 							RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext",
 									new Class[] { Context.class }, new Object[] { context.getApplicationContext() });
 						}
 					}
 				}
 			} else {
-				RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
+				RefInvoker.setField(null, sContextUtils, "sApplicationContext", null);
 				RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[] { Context.class },
 						new Object[] { context.getApplicationContext() });
 				// 52.0.2743.98

@@ -70,7 +70,7 @@ public class PluginIntentResolver {
 	}
 
 	/* package */static Class resolveReceiverForClassLoader(Object msgObj) {
-		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
+		Intent intent = (Intent) RefInvoker.getField(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
 		if (intent.getComponent().getClassName().equals(PluginManagerHelper.bindStubReceiver())) {
 			String action = intent.getAction();
 			TwsLog.d(TAG, "action:" + action);
@@ -94,7 +94,7 @@ public class PluginIntentResolver {
 				if (Build.VERSION.SDK_INT >= 21) {
 					if (intent.getExtras() != null) {
 						PluginReceiverIntent newIntent = new PluginReceiverIntent(intent);
-						RefInvoker.setFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent",
+						RefInvoker.setField(msgObj, "android.app.ActivityThread$ReceiverData", "intent",
 								newIntent);
 					}
 				}
@@ -107,7 +107,7 @@ public class PluginIntentResolver {
 
 	/* package */static String resolveServiceForClassLoader(Object msgObj) {
 
-		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj,
+		ServiceInfo info = (ServiceInfo) RefInvoker.getField(msgObj,
 				"android.app.ActivityThread$CreateServiceData", "info");
 
 		if (ProcessUtil.isPluginProcess()) {

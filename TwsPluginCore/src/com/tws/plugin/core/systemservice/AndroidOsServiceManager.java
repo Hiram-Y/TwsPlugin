@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import tws.component.log.TwsLog;
+import android.os.Build;
 import android.os.IBinder;
+import android.view.ViewConfiguration;
 
+import com.tws.plugin.core.PluginLoader;
 import com.tws.plugin.core.proxy.MethodDelegate;
 import com.tws.plugin.core.proxy.MethodProxy;
 import com.tws.plugin.core.proxy.ProxyUtil;
@@ -25,14 +28,22 @@ public class AndroidOsServiceManager extends MethodProxy {
 
 	public static void installProxy() {
 		TwsLog.d(TAG, "安装IServiceManagerProxy");
-		Object androidOsServiceManagerProxy = RefInvoker.invokeStaticMethod("android.os.ServiceManager",
+		// for android 7.0 +
+		if (Build.VERSION.SDK_INT > 23) {
+			// 触发初始化WindowGlobal中的静态成员变量，
+			// 避免7.＋的系统中对window服务代理，
+			// 7.+的系统代理window服务会被SELinux拒绝导致陷入死循环
+			ViewConfiguration.get(PluginLoader.getApplication());
+		}
+        
+		Object androidOsServiceManagerProxy = RefInvoker.invokeMethod("android.os.ServiceManager",
 				"getIServiceManager", (Class[]) null, (Object[]) null);
 		Object androidOsServiceManagerProxyProxy = ProxyUtil.createProxy(androidOsServiceManagerProxy,
 				new AndroidOsServiceManager());
-		RefInvoker.setStaticObject("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
+		RefInvoker.setField("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
 
 		// 干掉缓存
-		sCache = (HashMap<String, IBinder>) RefInvoker.getFieldObject(null, "android.os.ServiceManager", "sCache");
+		sCache = (HashMap<String, IBinder>) RefInvoker.getField(null, "android.os.ServiceManager", "sCache");
 		sCacheKeySet = new HashSet<String>();
 		sCacheKeySet.addAll(sCache.keySet());
 		sCache.clear();

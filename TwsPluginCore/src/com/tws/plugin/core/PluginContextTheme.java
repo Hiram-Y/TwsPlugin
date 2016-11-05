@@ -101,7 +101,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			return mTheme;
 		}
 
-		Object result = RefInvoker.invokeStaticMethod(Resources.class.getName(), "selectDefaultTheme", new Class[] {
+		Object result = RefInvoker.invokeMethod(Resources.class.getName(), "selectDefaultTheme", new Class[] {
 				int.class, int.class }, new Object[] { mThemeResource,
 				getBaseContext().getApplicationInfo().targetSdkVersion });
 		if (result != null) {
@@ -238,10 +238,6 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		this.crackPackageManager = crackPackageManager;
 	}
 
-	// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-	// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	/**
 	 * 隔离插件间的SharedPreferences
 	 * 
@@ -251,6 +247,28 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	 */
 	@Override
 	public SharedPreferences getSharedPreferences(String name, int mode) {
+		if (Build.VERSION.SDK_INT > 23) {
+			synchronized (PluginContextTheme.class) {
+				ArrayMap<String, File> mSharedPrefsPaths = (ArrayMap<String, File>) RefInvoker.getField(
+						getContextImpl(), "android.app.ContextImpl", "mSharedPrefsPaths");
+				String parent = new File(getDataDir(), "shared_prefs").getAbsolutePath();
+				if (mSharedPrefsPaths != null) {
+					File file = mSharedPrefsPaths.get(name);
+					if (file != null && !file.getParent().equals(parent)) {
+						mSharedPrefsPaths.remove(name);// 置空之后再get会触发重建，则getDataDir有机会生效
+					}
+				}
+
+				File mPreferencesDir = (File) RefInvoker.getField(getContextImpl(), "android.app.ContextImpl",
+						"mPreferencesDir");
+				if (mPreferencesDir == null || !mPreferencesDir.getAbsolutePath().equals(parent)) {
+					RefInvoker.setField(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir", new File(
+							getDataDir(), "shared_prefs"));
+				}
+			}
+
+			return super.getSharedPreferences(name, mode);
+		}
 
 		// 这里之所以需要追加前缀是因为ContextImpl类中的全局静态缓存sSharedPrefs
 		if (!name.startsWith(mPluginDescriptor.getPackageName() + "_")) {
@@ -260,7 +278,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		// 4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
 		PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		Object cache = RefInvoker.getStaticFieldObject("android.app.ContextImpl", "sSharedPrefs");
+		Object cache = RefInvoker.getField("android.app.ContextImpl", "sSharedPrefs");
 		if (Build.VERSION.SDK_INT >= 19 && cache instanceof ArrayMap) {
 			synchronized (PluginContextTheme.class) {
 				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>) cache;
@@ -287,6 +305,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		}
 
 		return super.getSharedPreferences(name, mode);
+	}
+
+	// android-M
+	// removed
+	public File getSharedPreferencesPath(String name) {
+		return getSharedPrefsFile(name);
 	}
 
 	private File getSharedPrefsFile(String name) {
@@ -438,6 +462,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	private File dataDir;
 
 	// android-N
+	// @Override
 	public File getDataDir() {
 		if (dataDir == null) {
 			dataDir = new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile().getParentFile(), "data");
@@ -459,5 +484,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 					(Class[]) null, (Object[]) null);
 		}
 		return base;
+	}
+
+	private Object getContextImpl() {
+		int dep = 0;// 这个dep限制是以防万一陷入死循环
+		Context base = getBaseContext();
+		while (base instanceof ContextWrapper && dep < 10) {
+			base = ((ContextWrapper) base).getBaseContext();
+			dep++;
+		}
+		if (base.getClass().getName().equals("android.app.ContextImpl")) {
+			return base;
+		}
+		return null;
 	}
 }

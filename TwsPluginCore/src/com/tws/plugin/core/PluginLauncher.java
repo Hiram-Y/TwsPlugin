@@ -25,15 +25,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.core.app.ActivityThread;
 import com.tws.plugin.core.app.AndroidAppApplication;
+import com.tws.plugin.core.compat.CompatForWebViewFactoryApi21;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.manager.PluginActivityMonitor;
 import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.tws.plugin.util.ProcessUtil;
 import com.tws.plugin.util.RefInvoker;
 
@@ -82,23 +83,6 @@ public class PluginLauncher implements Serializable {
 		return null;
 	}
 
-	public void startPluginAsync(final PluginDescriptor pluginDescriptor, final Handler handler) {
-		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					final LoadedPlugin loadedPlugin = startPlugin(pluginDescriptor);
-					Message msg = handler.obtainMessage(0);
-					msg.obj = loadedPlugin;
-					msg.sendToTarget();
-				}
-			}).start();
-		} else {
-			startPlugin(pluginDescriptor);
-		}
-
-	}
-
 	public synchronized LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
 		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
 		if (plugin == null) {
@@ -143,9 +127,24 @@ public class PluginLauncher implements Serializable {
 			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 
 			if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+				TwsLog.i(TAG, "当前执行插件初始化的线程是主线程，开始初始化插件Application");
 				initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
 			} else {
-				// 交给startPluginAsync中的post处理
+				TwsLog.i(TAG, "当前执行插件初始化的线程不是主线程，异步通知主线程初始化插件Application:" + Thread.currentThread().getId()
+						+ " name is " + Thread.currentThread().getName());
+				final LoadedPlugin finalLoadedPlugin = plugin;
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					@Override
+					public void run() {
+						if (finalLoadedPlugin.pluginApplication == null) {
+							PluginLauncher.instance().initApplication(finalLoadedPlugin.pluginContext,
+									finalLoadedPlugin.pluginClassLoader,
+									finalLoadedPlugin.pluginContext.getResources(),
+									((PluginContextTheme) finalLoadedPlugin.pluginContext).getPluginDescriptor(),
+									finalLoadedPlugin);
+						}
+					}
+				});
 			}
 
 		} else {
@@ -157,6 +156,8 @@ public class PluginLauncher implements Serializable {
 
 	public void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes,
 			PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+		TwsLog.i(TAG, "开始初始化插件:" + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName());
+
 		long t13 = System.currentTimeMillis();
 
 		Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader,
@@ -174,6 +175,8 @@ public class PluginLauncher implements Serializable {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+
+		CompatForWebViewFactoryApi21.addWebViewAssets(plugin.pluginApplication.getAssets());
 
 		TwsLog.d(TAG, "初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}
@@ -264,11 +267,10 @@ public class PluginLauncher implements Serializable {
 
 		// 退出 LocalBroadcastManager
 		TwsLog.d(TAG, "退出LocalBroadcastManager");
-		Object mInstance = RefInvoker.getStaticFieldObject("android.support.v4.content.LocalBroadcastManager",
-				"mInstance");
+		Object mInstance = RefInvoker.getField("android.support.v4.content.LocalBroadcastManager", "mInstance");
 		if (mInstance != null) {
 			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>) RefInvoker
-					.getFieldObject(mInstance, "android.support.v4.content.LocalBroadcastManager", "mReceivers");
+					.getField(mInstance, "android.support.v4.content.LocalBroadcastManager", "mReceivers");
 			if (mReceivers != null) {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
 				while (ir.hasNext()) {
@@ -299,6 +301,7 @@ public class PluginLauncher implements Serializable {
 			@Override
 			public void run() {
 				// 这个方法需要在UI线程运行
+				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(PluginLoader.getApplication());
 
 				// 退出BroadcastReceiver
 				// 广播一般有个注册方式

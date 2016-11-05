@@ -26,19 +26,34 @@ public class SystemApiDelegate extends MethodDelegate {
 	public Object beforeInvoke(Object target, Method method, Object[] args) {
 		TwsLog.d(TAG, "beforeInvoke:" + descriptor + " method:" + method.getName());
 
-		// 这里做此判定是为了把一些特定的接口方法仍然交给特定的MethodProxy去处理,不在此做统一处理
-		// 这些"特定的MethodProxy"主要是一些查询类接口
-		// 单独判断checkPackage是因为AppOpsService的checkPackage方法会进入这里,
-		// 而if里面的replacePackageName方法里
-		// 面会触发一次ContentProvider调用,
-		// ContentProvider调用又会触发AppOpsService的checkPackage方法,
-		// AppOpsService的checkPackage方法被触发后又回进入这里,
-		// 造成递归异常,因此这里单独屏蔽掉checkPackage方法
-		if (!MethodProxy.sMethods.containsKey(method.getName()) && !"checkPackage".equals(method.getName())) {
-			replacePackageName(args);
-		}
+        //这里做此判定是为了把一些特定的接口方法仍然交给特定的MethodProxy去处理,不在此做统一处理
+        //这些"特定的MethodProxy"主要是一些查询类接口
+        //另外, 这里单独判断checkPackage是因为AppOpsService的checkPackage方法会进入这里, 而if里面的replacePackageName方法里
+        // 面会触发一次ContentProvider调用, ContentProvider调用又会触发AppOpsService的checkPackage方法,
+        // AppOpsService的checkPackage方法被触发后又回进入这里, 造成递归异常,因此这里单独屏蔽掉checkPackage方法
+        if (!MethodProxy.sMethods.containsKey(method.getName()) && !"checkPackage".equals(method.getName())) {
+            fixPackageName(method.getName(), args);
+        }
 
 		return null;
+	}
+
+	@Override
+	public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+		if ("android.view.IWindowManager".equals(descriptor)) {
+			TwsLog.d(TAG, "afterInvoke:" + descriptor + " methodName:" + method.getName());
+			if ("openSession".equals(method.getName())) {
+				if (invokeResult != null) {
+					// TODO 暂时不hook，
+					// 这个hook会引起弹Dailog和PopupWindow时发生DeadObject异常，
+					Object windowSession = null;// AndroidViewIWindowSession.installProxy(invokeResult);
+					if (windowSession != null) {
+						return windowSession;
+					}
+				}
+			}
+		}
+		return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
 	}
 
 	/**
@@ -46,7 +61,7 @@ public class SystemApiDelegate extends MethodDelegate {
 	 * 
 	 * @param args
 	 */
-	private void replacePackageName(Object[] args) {
+	private void fixPackageName(String methodName, Object[] args) {
 		if (args != null && args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
 				if (args[i] instanceof String && ((String) args[i]).contains(".")) {

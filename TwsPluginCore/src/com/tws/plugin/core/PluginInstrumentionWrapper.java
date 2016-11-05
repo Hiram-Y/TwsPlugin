@@ -26,6 +26,7 @@ import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.manager.PluginActivityMonitor;
 import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.tws.plugin.core.viewfactory.PluginViewFactory;
 import com.tws.plugin.util.ProcessUtil;
 import com.tws.plugin.util.RefInvoker;
@@ -247,7 +248,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			if (activity instanceof WaitForLoadingPluginActivity) {
 				// NOTHING
 			} else {
-				// AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
+				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
 			}
 
 			if (activity.isChild()) {
@@ -257,9 +258,9 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					base = ((ContextWrapper) base).getBaseContext();
 				}
 				if (base.getClass().getName().equals("android.app.ContextImpl")) {
-					RefInvoker.setFieldObject(base, "android.app.ContextImpl", "mBasePackageName",
+					RefInvoker.setField(base, "android.app.ContextImpl", "mBasePackageName",
 							activity.getPackageName());
-					RefInvoker.setFieldObject(base, "android.app.ContextImpl", "mOpPackageName",
+					RefInvoker.setField(base, "android.app.ContextImpl", "mOpPackageName",
 							activity.getPackageName());
 				}
 			}

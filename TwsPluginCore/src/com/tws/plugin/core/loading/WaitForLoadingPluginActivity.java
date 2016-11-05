@@ -19,7 +19,10 @@ import com.tws.plugin.core.PluginLoader;
 
 public class WaitForLoadingPluginActivity extends Activity {
 	private static final String TAG = "WaitForLoadingPluginActivity";
+
 	private PluginDescriptor pluginDescriptor;
+	private Handler handler;
+	private long loadingAt = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,9 @@ public class WaitForLoadingPluginActivity extends Activity {
 		if (resId != 0) {
 			setContentView(resId);
 		}
+		handler = new Handler();
+		loadingAt = System.currentTimeMillis();
+
 	}
 
 	@Override
@@ -45,29 +51,34 @@ public class WaitForLoadingPluginActivity extends Activity {
 		super.onResume();
 		TwsLog.d(TAG, "WaitForLoadingPluginActivity Shown");
 		if (pluginDescriptor != null && !PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName())) {
-			// 连续调用此方法不会导致多次初始化
-			PluginLauncher.instance().startPluginAsync(pluginDescriptor, new Handler() {
+			new Thread(new Runnable() {
 				@Override
-				public void handleMessage(Message msg) {
-					LoadedPlugin loadedPlugin = (LoadedPlugin) msg.obj;
-					if (loadedPlugin.pluginApplication == null) {
-						PluginLauncher.instance().initApplication(loadedPlugin.pluginContext,
-								loadedPlugin.pluginClassLoader, loadedPlugin.pluginContext.getResources(),
-								((PluginContextTheme) loadedPlugin.pluginContext).getPluginDescriptor(), loadedPlugin);
-					}
+				public void run() {
 
-					postDelayed(new Runnable() {
+					PluginLauncher.instance().startPlugin(pluginDescriptor);
+
+					long remainTime = (loadingAt + PluginLoader.getMinLoadingTime()) - System.currentTimeMillis();
+
+					handler.postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							startActivity(getIntent());
-							finish();
+							LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(
+									pluginDescriptor.getPackageName());
+							if (loadedPlugin != null && loadedPlugin.pluginApplication != null) {
+								TwsLog.d(TAG, "WaitForLoadingPluginActivity open target");
+								startActivity(getIntent());
+								finish();
+							} else {
+								TwsLog.d(TAG, "WTF! :" + pluginDescriptor + " :" + loadedPlugin);
+								finish();
+							}
 						}
-					}, 300);
+					}, remainTime);
 				}
-			});
+			}).start();
 		} else {
-			TwsLog.d(TAG, "WTF!");
-			// finish();
+			TwsLog.d(TAG, "WTF!:" + pluginDescriptor);
+			finish();
 		}
 	}
 

@@ -112,9 +112,9 @@ public class PluginCreator {
 		// LogUtil.d("create Plugin Resource from: ", assetPaths[0]);
 		// }
 
+		// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
+		assetPaths[0] = plugin;
 		if (!isStandalone) {
-			// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
-			assetPaths[0] = plugin;
 			if (dependencies != null) {
 				// 插件间资源依赖，这里需要遍历添加dependencies
 				// 这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
@@ -123,17 +123,14 @@ public class PluginCreator {
 					PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(dependencies[i]);
 					if (pd != null) {
 						assetPaths[1 + i] = pd.getInstalledPath();
+						TwsLog.v(TAG, "create Plugin Resource from: " + assetPaths[1 + i]);
 					} else {
 						assetPaths[1 + i] = "";
 					}
 				}
 			}
 			assetPaths[assetPaths.length - 1] = app;
-			TwsLog.d(TAG, "create Plugin Resource from assetPaths[0]=" + assetPaths[0] + " assetPaths[1]="
-					+ assetPaths[1]);
-		} else {
-			assetPaths[0] = plugin;
-			TwsLog.d(TAG, "create Plugin Resource from: " + assetPaths[0]);
+			TwsLog.d(TAG, "create Plugin Resource from assetPaths[1]: " + app);
 		}
 
 		return assetPaths;

@@ -29,12 +29,12 @@ public class AndroidViewLayoutInflater {
 	 * 
 	 */
 	public static void installPluginCustomViewConstructorCache() {
-		Map cache = (Map) RefInvoker.getFieldObject(null, LayoutInflater.class,
+		Map cache = (Map) RefInvoker.getField(null, LayoutInflater.class,
 				android_view_LayoutInflater_sConstructorMap);
 		if (cache != null) {
 			ConstructorHashMap<String, Constructor<? extends View>> newCacheMap = new ConstructorHashMap<String, Constructor<? extends View>>();
 			newCacheMap.putAll(cache);
-			RefInvoker.setFieldObject(null, LayoutInflater.class, android_view_LayoutInflater_sConstructorMap,
+			RefInvoker.setField(null, LayoutInflater.class, android_view_LayoutInflater_sConstructorMap,
 					newCacheMap);
 		}
 	}

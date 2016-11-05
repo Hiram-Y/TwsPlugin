@@ -22,6 +22,7 @@ import tws.component.log.TwsLog;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.tws.plugin.core.PluginLoader;
@@ -135,8 +136,11 @@ public class FileUtil {
 			}
 
 			if (!isSuccess) {
-				Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_SHORT)
-						.show();
+				TwsLog.e(TAG, "安装 :" + so + " 失败: NO_MATCHING_ABIS");
+				if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+					Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS",
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
