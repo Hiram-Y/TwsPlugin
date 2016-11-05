@@ -4,12 +4,10 @@ import tws.component.log.TwsLog;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.view.Window;
 
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.PluginContextTheme;
 import com.tws.plugin.core.PluginLauncher;
 import com.tws.plugin.core.PluginLoader;
 
