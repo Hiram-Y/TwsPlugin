@@ -58,7 +58,6 @@ public class PluginLoader {
 	private static boolean isLoaderInited = false;
 	private static boolean isLoaderPlugins = false;
 	private static final String ASSETS_PLUGS_DIR = "plugins";
-	private static Hashtable<String, String> mPluginName_PackageName = new Hashtable<String, String>();
 
 	public static final int PLUGIN_UPDATE_ERROR = -1;
 	public static final int PLUGIN_UPDATE_REMOVE = 0;
@@ -82,18 +81,6 @@ public class PluginLoader {
 		}
 
 		return instance;
-	}
-
-	public void setDillPluginName(String pluginName) {
-		// CURRENT_PROCESS_PLUGINNAME
-		getSharedPreference().edit().putString(CURRENT_PROCESS_PLUGINNAME, pluginName).commit();
-		TwsLog.d(TAG, "setDillPluginName:" + pluginName);
-	}
-
-	public String getDillPluginName() {
-		String pluginName = getSharedPreference().getString(CURRENT_PROCESS_PLUGINNAME, "");
-		TwsLog.d(TAG, "getDillPluginName rlt = " + pluginName);
-		return pluginName;
 	}
 
 	public static Application getApplication() {
@@ -377,14 +364,6 @@ public class PluginLoader {
 		return result;
 	}
 
-	private static void initMap() {
-		mPluginName_PackageName.clear();
-		mPluginName_PackageName.put("twsplugindemo.apk", "com.example.plugindemo");
-		mPluginName_PackageName.put("twsplugindemofor5.apk", "com.facebook.rebound.demo");
-		mPluginName_PackageName.put("twspluginhelloworld.apk", "com.example.pluginhelloworld");
-		mPluginName_PackageName.put("wxsdklibrary.apk", "com.example.wxsdklibrary");
-	}
-
 	public static synchronized void loadPlugins(Application app) {
 		if (!isLoaderPlugins) {
 			// step1 判断application的版本号，通过版本号来判断是否要全部更新插件内容
@@ -397,70 +376,53 @@ public class PluginLoader {
 				e.printStackTrace();
 			}
 
-			mPluginName_PackageName.clear();
 			if (getVersionCode() < currentVersionCode) {
-				TwsLog.d(TAG, "升级安装,先清理之前所有安装的插件");
+				TwsLog.d(TAG, "首次/升级安装,先清理...");// rick_Note:这个有个问题需要确定：如果新版本里面不包含之前版本的插件包该怎么处理？？？？
 				// 版本升级 清理掉之前安装的所有插件
 				PluginManagerHelper.removeAll();
 				saveVersionCode(currentVersionCode);
-			} else {
-				// 构建map记录
-				Hashtable<String, String> pluginsNameCache = readPluginsNameCacheMap();
-				if (pluginsNameCache != null && 0 < pluginsNameCache.size()) {
-					TwsLog.d(TAG, "构建map记录 01 pluginsNameCache size is " + pluginsNameCache.size());
-					mPluginName_PackageName.putAll(pluginsNameCache);
-					Iterator<String> keys = mPluginName_PackageName.keySet().iterator();
-					String pluginName, pluginPackageName;
-					TwsLog.d(TAG, "===================print mPluginName_PackageName info ===================");
-					while (keys.hasNext()) {
-						pluginName = keys.next();
-						pluginPackageName = mPluginName_PackageName.get(pluginName);
-						TwsLog.d(TAG, "【" + pluginName + "," + pluginPackageName + "】");
-					}
-				} else {
-					TwsLog.d(TAG, "构建map记录 02");
-					initMap();
-				}
-			}
-			savePluginsNameCacheMap(mPluginName_PackageName);
 
-			// step2 加载assets/plugins下面的插件
-			final AssetManager asset = getApplication().getAssets();
-			String[] files = null;
-			try {
-				files = asset.list(ASSETS_PLUGS_DIR);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			if (files != null) {
-				String packageName = "";
-				PluginDescriptor pluginDescriptor = null;
-				for (String apk : files) {
-					if (apk.endsWith(".apk")) {
-						// 根据apk的名称来配对是否有安装
-						getInstance().setDillPluginName(apk);
-						packageName = mPluginName_PackageName.get(apk.toLowerCase());
-						pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
-						if (null != pluginDescriptor) {
-							TwsLog.d(TAG, "apk is " + apk + " ===== packageName is " + packageName
-									+ " has installed --- continue!!!");
-							continue;
-						} else {
-							TwsLog.d(TAG, "will install:" + apk);
-						}
-
-						// 没有安装就执行安装流程
-						copyAndInstall(ASSETS_PLUGS_DIR + "/" + apk);
-
-						// 安装卸载都需要同步mPluginName_PackageName,这个在下面的callBack里面进行处理
-					} else {
-						getInstance().setDillPluginName(null);
-					}
-				}
+				// step2 加载assets/plugins下面的插件
+				installAssetsPlugins();
 			}
 
 			isLoaderPlugins = true;
+		}
+	}
+
+	// 安装内置插件
+	private static synchronized void installAssetsPlugins() {
+		TwsLog.d(TAG, "installAssetsPlugins()");
+		final AssetManager asset = getApplication().getAssets();
+		String[] files = null;
+		try {
+			files = asset.list(ASSETS_PLUGS_DIR);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (files != null) {
+			String packageName = "";
+			PluginDescriptor pluginDescriptor = null;
+			for (String apk : files) {
+				if (apk.endsWith(".apk")) {
+					pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+					if (null != pluginDescriptor) {
+						TwsLog.d(TAG, "apk is " + apk + " ===== packageName is " + packageName
+								+ " has installed --- continue!!!");
+						continue;
+					} else {
+						TwsLog.d(TAG, "will install:" + apk);
+					}
+
+					// 没有安装就执行安装流程
+					copyAndInstall(ASSETS_PLUGS_DIR + "/" + apk);
+
+					// 安装卸载都需要同步mPluginName_PackageName,这个在下面的callBack里面进行处理
+				} else {
+					//
+				}
+			}
 		}
 	}
 
@@ -481,74 +443,6 @@ public class PluginLoader {
 		return sp;
 	}
 
-	private synchronized static boolean savePluginsNameCacheMap(Hashtable<String, String> nameCache) {
-		ObjectOutputStream objectOutputStream = null;
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		try {
-			objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-			objectOutputStream.writeObject(nameCache);
-			objectOutputStream.flush();
-
-			byte[] data = byteArrayOutputStream.toByteArray();
-			String list = Base64.encodeToString(data, Base64.DEFAULT);
-
-			getSharedPreference().edit().putString(PLUGIN_NAME_PAKCAGENAME, list).commit();
-			TwsLog.d(TAG, "savePluginsNameCacheMap nameCache size is " + nameCache.size());
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (objectOutputStream != null) {
-				try {
-					objectOutputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (byteArrayOutputStream != null) {
-				try {
-					byteArrayOutputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return false;
-	}
-
-	private synchronized static Hashtable<String, String> readPluginsNameCacheMap() {
-		String list = getSharedPreference().getString(PLUGIN_NAME_PAKCAGENAME, "");
-		Serializable object = null;
-		if (!TextUtils.isEmpty(list)) {
-			ByteArrayInputStream byteArrayInputStream = null;
-			ObjectInputStream objectInputStream = null;
-			try {
-				byteArrayInputStream = new ByteArrayInputStream(Base64.decode(list, Base64.DEFAULT));
-				objectInputStream = new ObjectInputStream(byteArrayInputStream);
-				object = (Serializable) objectInputStream.readObject();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				if (objectInputStream != null) {
-					try {
-						objectInputStream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				if (byteArrayInputStream != null) {
-					try {
-						byteArrayInputStream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		return (Hashtable<String, String>) object;
-	}
-
 	public static void copyAndInstall(String name) {
 		try {
 			InputStream assestInput = getApplication().getAssets().open(name);
@@ -567,50 +461,6 @@ public class PluginLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 			Toast.makeText(getApplication(), "安装失败", Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	private synchronized static void removePlugin(String packageName) {
-		Enumeration<String> keys = mPluginName_PackageName.keys();
-		String pluginName, pluginPackageName;
-		while (keys.hasMoreElements()) {
-			pluginName = keys.nextElement();
-			pluginPackageName = mPluginName_PackageName.get(pluginName);
-			if (TextUtils.equals(packageName, pluginPackageName)) {
-				TwsLog.w(TAG, "pluginChangedCallBack REMOVE pluginName=" + pluginName + " ======= packageName="
-						+ packageName);
-				mPluginName_PackageName.remove(pluginName);
-			}
-		}
-
-		savePluginsNameCacheMap(mPluginName_PackageName);
-	}
-
-	public static void pluginChangedCallBack(int action, String packageName) {
-		switch (action) {
-		case PLUGIN_UPDATE_REMOVE:
-			removePlugin(packageName);
-			break;
-		case PLUGIN_UPDATE_ADD:
-			final String dillName = getInstance().getDillPluginName().toLowerCase();
-			TwsLog.w(TAG, "pluginChangedCallBack PLUGIN_UPDATE_ADD pluginName=" + dillName + " ======= packageName="
-					+ packageName);
-			if (mPluginName_PackageName.containsKey(dillName)) {
-				TwsLog.e(TAG, "mPluginName_PackageName containsKey:" + dillName);
-			} else {
-				mPluginName_PackageName.put(dillName, packageName);
-				savePluginsNameCacheMap(mPluginName_PackageName);
-			}
-			break;
-		case PLUGIN_UPDATE_REMOVEALL:
-			mPluginName_PackageName.clear();
-			savePluginsNameCacheMap(mPluginName_PackageName);
-			break;
-		case PLUGIN_UPDATE_ERROR:
-			TwsLog.e(TAG, packageName);
-			break;
-		default:
-			break;
 		}
 	}
 

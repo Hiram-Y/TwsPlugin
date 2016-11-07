@@ -17,12 +17,6 @@ public class PluginCallbackImpl implements PluginCallback {
 
 	@Override
 	public void onInstall(int result, String packageName, String version, String src) {
-		if (result == InstallResult.SUCCESS) {
-			PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_ADD, packageName);
-		} else {
-			String description = packageName + "install rlt:" + result;
-			PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_ERROR, description);
-		}
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "install");
 		intent.putExtra(extra_id, packageName);
@@ -34,7 +28,6 @@ public class PluginCallbackImpl implements PluginCallback {
 
 	@Override
 	public void onRemove(String packageName, boolean success) {
-		PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_REMOVE, packageName);
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "remove");
 		intent.putExtra(extra_id, packageName);
@@ -44,7 +37,6 @@ public class PluginCallbackImpl implements PluginCallback {
 
 	@Override
 	public void onRemoveAll(boolean success) {
-		PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_REMOVEALL, "");
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "remove_all");
 		intent.putExtra(extra_result_code, success ? 0 : 7);
@@ -54,7 +46,6 @@ public class PluginCallbackImpl implements PluginCallback {
 	// 未使用
 	@Override
 	public void onStart(String packageName) {
-		PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_START, packageName);
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "start");
 		intent.putExtra(extra_id, packageName);
@@ -64,7 +55,6 @@ public class PluginCallbackImpl implements PluginCallback {
 	// 未使用
 	@Override
 	public void onStop(String packageName) {
-		PluginLoader.pluginChangedCallBack(PluginLoader.PLUGIN_UPDATE_STOP, packageName);
 		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 		intent.putExtra(extra_type, "stop");
 		intent.putExtra(extra_id, packageName);

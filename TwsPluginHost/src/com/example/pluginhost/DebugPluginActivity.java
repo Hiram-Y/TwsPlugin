@@ -132,7 +132,6 @@ public class DebugPluginActivity extends TwsActivity {
 							}
 						} else {
 							String apkName = (String) buttonEx.getPluginLabel();
-							PluginLoader.getInstance().setDillPluginName(apkName);
 							PluginManagerHelper.installPlugin(mInnerSDCardPath + "//" + apkName);
 							buttonEx.setStatus(StatusButton.INSTALLED_PLUGIN);
 						}
@@ -187,7 +186,6 @@ public class DebugPluginActivity extends TwsActivity {
 								buttonEx.setStatus(StatusButton.UNINSTALL_PLUGIN);
 							}
 						} else {
-							PluginLoader.getInstance().setDillPluginName((String) buttonEx.getPluginLabel());
 							PluginLoader.copyAndInstall(ASSETS_PLUGS_DIR + "/" + (String) buttonEx.getPluginLabel());
 							buttonEx.setStatus(StatusButton.INSTALLED_PLUGIN);
 						}
