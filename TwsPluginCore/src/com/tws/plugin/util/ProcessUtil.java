@@ -1,17 +1,18 @@
 package com.tws.plugin.util;
 
+import tws.component.log.TwsLog;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
-import android.os.Build;
 
 import com.tws.plugin.core.PluginLoader;
 import com.tws.plugin.core.manager.PluginManagerProvider;
 
 public class ProcessUtil {
 
+	private static final String TAG = "ProcessUtil";
 	private static Boolean isPluginProcess;
 
 	public static boolean isPluginProcess(Context context) {
@@ -22,6 +23,7 @@ public class ProcessUtil {
 
 			isPluginProcess = processName.equals(pluginProcessName);
 		}
+
 		return isPluginProcess;
 	}
 
@@ -29,10 +31,26 @@ public class ProcessUtil {
 		return isPluginProcess(PluginLoader.getApplication());
 	}
 
+	public static boolean isHostProcess(Context context) {
+		String curProcessName = getCurProcessName(context);
+		String packageName = context.getPackageName();
+		if (curProcessName.equalsIgnoreCase(packageName)) {
+			return !isPluginProcess(context);
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isHostProcess() {
+		return isHostProcess(PluginLoader.getApplication());
+	}
+
 	private static String getCurProcessName(Context context) {
+		final int pid = android.os.Process.myPid();
+		TwsLog.d(TAG, "getCurProcessName pid=" + pid);
 		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		for (ActivityManager.RunningAppProcessInfo appProcess : activityManager.getRunningAppProcesses()) {
-			if (appProcess.pid == android.os.Process.myPid()) {
+			if (appProcess.pid == pid) {
 				return appProcess.processName;
 			}
 		}
@@ -41,14 +59,10 @@ public class ProcessUtil {
 
 	private static String getPluginProcessName(Context context) {
 		try {
-			if (Build.VERSION.SDK_INT >= 9) {
-				// 这里取个巧, 直接查询ContentProvider的信息中包含的processName
-				// 因为Contentprovider是被配置在插件进程的.
-				// 但是这个api只支持9及以上,
-				ProviderInfo pinfo = context.getPackageManager().getProviderInfo(
-						new ComponentName(context, PluginManagerProvider.class), 0);
-				return pinfo.processName;
-			}
+			// 这里取个巧,直接查询ContentProvider的信息中包含的processName,因为Contentprovider是被配置在插件进程的
+			ProviderInfo pinfo = context.getPackageManager().getProviderInfo(
+					new ComponentName(context, PluginManagerProvider.class), 0);
+			return pinfo.processName;
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}

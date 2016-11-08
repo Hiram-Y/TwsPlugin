@@ -197,8 +197,7 @@ public class PluginInjector {
 			activity.setTitle(activity.getClass().getName());
 
 		} else {
-			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
-			// 插入Context
+			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象插入Context
 			Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
 			RefInvoker.setField(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase,
 					null);

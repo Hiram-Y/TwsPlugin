@@ -31,10 +31,12 @@ public class PluginApplication extends Application {
 
 		// 如果initPluginFramework都在进程启动时就执行，自然很轻松满足上述条件。
 		if (ProcessUtil.isPluginProcess(this)) {
+			TwsLog.d(TAG, "插件进行 PluginLoader.initPluginFramework");
 			// 插件进程，必须在这里执行initPluginFramework
 			PluginLoader.initPluginFramework(this);
 		} else {
 			// 宿主进程，可以在这里执行，也可以选择在宿主的其他地方在需要时再启动插件框架
+			TwsLog.d(TAG, "宿主进行 PluginLoader.initPluginFramework");
 			PluginLoader.initPluginFramework(this);
 		}
 		// init ServiceManager
