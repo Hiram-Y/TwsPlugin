@@ -73,6 +73,9 @@
         <activity
             android:name="com.example.pluginhost.TestFragmentActivity"
             android:process=":plugin" />
+        <activity
+            android:name="com.example.pluginhost.TestTwsFragmentActivity"
+            android:process=":plugin" />
 
         <!-- 要展示插件中的View，所以配成插件进程 -->
         <activity

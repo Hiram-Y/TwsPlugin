@@ -30,14 +30,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.plugindemo.R;
 import com.example.plugindemo.provider.PluginDbTables;
 import com.example.plugindemo.receiver.PluginTestReceiver2;
 import com.example.plugindemo.service.PluginTestService;
-import com.tencent.tws.assistant.app.ActionBar;
 import com.tencent.tws.sharelib.SharePOJO;
 import com.tencent.tws.sharelib.util.HostProxy;
 
@@ -96,6 +94,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		}
 		findViewById(R.id.onClickPluginNormalFragment).setOnClickListener(this);
 		findViewById(R.id.onClickPluginSpecFragment).setOnClickListener(this);
+		findViewById(R.id.onClickPluginSpecTwsFragment).setOnClickListener(this);
 		findViewById(R.id.onClickPluginForDialogActivity).setOnClickListener(this);
 		findViewById(R.id.onClickPluginForOppoAndVivoActivity).setOnClickListener(this);
 		findViewById(R.id.onClickPluginNotInManifestActivity).setOnClickListener(this);
@@ -126,6 +125,14 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		context.startActivity(pluginActivity);
 	}
 
+	private static void startTwsFragmentInHostActivity(Context context, String targetId) {
+		Intent pluginActivity = new Intent();
+		pluginActivity.setClassName(context, "com.example.pluginhost.TestTwsFragmentActivity");
+		pluginActivity.putExtra("PluginDispatcher.fragmentId", targetId);
+		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(pluginActivity);
+	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -143,6 +150,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 			break;
 		case R.id.onClickPluginSpecFragment:
 			onClickPluginSpecFragment(v);
+			break;
+		case R.id.onClickPluginSpecTwsFragment:
+			onClickPluginSpecTwsFragment(v);
 			break;
 		case R.id.onClickPluginForDialogActivity:
 			onClickPluginForDialogActivity(v);
@@ -278,6 +288,11 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		startFragmentInHostActivity(this, "some_id_for_fragment2");
 	}
 
+	private void onClickPluginSpecTwsFragment(View v) {
+		startTwsFragmentInHostActivity(this, "some_id_for_fragment3");
+	}
+
+	
 	private void onClickPluginForDialogActivity(View v) {
 		// 利用className打开
 		Intent intent = new Intent();
@@ -530,7 +545,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 
 		if (Build.VERSION.SDK_INT >= 21) {
 			// api大于等于21时，测试通知栏携带插件布局资源文件
-			// builder.setContent(new RemoteViews(HostProxy.getApplication().getPackageName(), R.layout.plugin_notification));
+			// builder.setContent(new
+			// RemoteViews(HostProxy.getApplication().getPackageName(),
+			// R.layout.plugin_notification));
 		}
 
 		Notification notification = builder.getNotification();

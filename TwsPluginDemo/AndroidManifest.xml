@@ -35,6 +35,11 @@
         <exported-fragment
             android:name="some_id_for_fragment2"
             android:value="com.example.plugindemo.fragment.PluginSpecFragment" />
+        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
+        <exported-fragment
+            android:name="some_id_for_fragment3"
+            android:value="com.example.plugindemo.fragment.PluginSpecTwsFragment" />
+
         <!-- 通知插件框架本插件向外提供的业务服务接口 android:value为实现,android:label为接口 -->
         <exported-service
             android:name="login_service"
