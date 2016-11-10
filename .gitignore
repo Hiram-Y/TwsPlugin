@@ -157,3 +157,5 @@
 /TwsPluginCore/bin/classes/com/tws/plugin/core/loading/WaitForLoadingPluginActivity$1$1.class
 /TwsPluginCore/bin/classes/com/tws/plugin/core/loading/WaitForLoadingPluginActivity$1.class
 /TwsPluginCore/bin/classes/com/tws/plugin/core/loading/WaitForLoadingPluginActivity.class
+/TwsPluginConfigTheme/bin/*.cache
+/TwsPluginCore/bin/classes/com/tws/plugin/core/annotation/*.class
