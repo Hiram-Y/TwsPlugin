@@ -71,8 +71,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		// getResources().getString(getResources().getIdentifier("app_name",
 		// "string", "com.example.pluginhost")));
 
-//		ActionBar actionBar = getTwsActionBar();
-//		actionBar.setDisplayOptions(actionBar.getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
+		// ActionBar actionBar = getTwsActionBar();
+		// actionBar.setDisplayOptions(actionBar.getDisplayOptions() |
+		// ActionBar.DISPLAY_SHOW_TITLE);
 		setTitle("这是插件首屏");
 		// if (actionBar == null) {
 		// setTitle("这是插件首屏");
@@ -506,7 +507,36 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void testNotification() {
-		HostProxy.notification(LauncherActivity.class.getName(), "这是来自通知栏的参数", "来自插件ContentTitle", "来自插件ContentText");
+		// 当前交由宿主执行，使用的资源id得宿主能解析得到
+		NotificationManager notificationManager = (NotificationManager) HostProxy.getApplication().getSystemService(
+				HostProxy.getApplication().NOTIFICATION_SERVICE);
+		Notification.Builder builder = new Notification.Builder(HostProxy.getApplication());
+
+		Intent intent = new Intent();
+		// 唤起指定Activity，这个应该换成宿主的
+		intent.setClassName(HostProxy.getApplication().getPackageName(), LauncherActivity.class.getName());
+		// 还可以支持唤起service、receiver等等。
+		intent.putExtra("param1", "这是来自通知栏的参数");
+		PendingIntent contentIndent = PendingIntent.getActivity(HostProxy.getApplication(), 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		builder.setContentIntent(contentIndent).setSmallIcon(HostProxy.getShareDrawableId("ic_launcher"))// 设置状态栏里面的图标（小图标）
+				// .setLargeIcon(BitmapFactory.decodeResource(res,R.drawable.i5))//下拉下拉列表里面的图标（大图标）
+				// .setTicker("this is bitch!")//设置状态栏的显示的信息
+				.setWhen(System.currentTimeMillis())// 设置时间发生时间
+				.setAutoCancel(true)// 设置可以清除
+				.setContentTitle("来自插件ContentTitle")// 设置下拉列表里的标题
+				.setDefaults(Notification.DEFAULT_SOUND)// 设置为默认的声音
+				.setContentText("来自插件ContentText");// 设置上下文内容
+
+		if (Build.VERSION.SDK_INT >= 21) {
+			// api大于等于21时，测试通知栏携带插件布局资源文件
+			// builder.setContent(new RemoteViews(HostProxy.getApplication().getPackageName(), R.layout.plugin_notification));
+		}
+
+		Notification notification = builder.getNotification();
+
+		final int notifyId = 100;
+		notificationManager.notify(notifyId, notification);
 	}
 
 	private static String streamToString(InputStream input) throws IOException {

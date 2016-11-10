@@ -81,41 +81,4 @@ public class HostProxy {
 		TwsLog.d("rick_Print:", "getShareIntegerId resName=" + resName + " id=0x" + Integer.toHexString(id));
 		return id;
 	}
-
-	public static void notification(String className, String notificationValue, CharSequence title, CharSequence text) {
-		if (sApplication == null) {
-			return;
-		}
-
-		NotificationManager notificationManager = (NotificationManager) sApplication
-				.getSystemService(sApplication.NOTIFICATION_SERVICE);
-		Notification.Builder builder = new Notification.Builder(sApplication);
-
-		Intent intent = new Intent();
-		// 唤起指定Activity，这个应该换成宿主的
-		intent.setClassName(sApplication.getPackageName(), className);
-		// 还可以支持唤起service、receiver等等。
-		intent.putExtra("param1", notificationValue);
-		PendingIntent contentIndent = PendingIntent.getActivity(sApplication, 0, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
-		final int id = getShareDrawableId("ic_launcher");
-		builder.setContentIntent(contentIndent).setSmallIcon(id)// 设置状态栏里面的图标（小图标）
-				// .setLargeIcon(BitmapFactory.decodeResource(res,R.drawable.i5))//下拉下拉列表里面的图标（大图标）
-				// .setTicker("this is bitch!")//设置状态栏的显示的信息
-				.setWhen(System.currentTimeMillis())// 设置时间发生时间
-				.setAutoCancel(true)// 设置可以清除
-				.setContentTitle(title)// 设置下拉列表里的标题
-				.setDefaults(Notification.DEFAULT_SOUND)// 设置为默认的声音
-				.setContentText(text);// 设置上下文内容
-
-		// if (Build.VERSION.SDK_INT >= 21) {
-		// // api大于等于21时，测试通知栏携带插件布局资源文件
-		// builder.setContent(new RemoteViews(sApplication.getPackageName(),
-		// R.layout.plugin_notification));
-		//
-		// }
-
-		Notification notification = builder.getNotification();
-		notificationManager.notify(id, notification);
-	}
 }
