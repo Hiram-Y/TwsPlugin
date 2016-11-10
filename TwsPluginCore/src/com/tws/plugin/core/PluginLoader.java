@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.tencent.tws.sharelib.util.HostProxy;
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.core.app.AndroidViewLayoutInflater;
@@ -92,7 +91,6 @@ public class PluginLoader {
 
 			isLoaderInited = true;
 			sApplication = app;
-			HostProxy.setApplication(sApplication);
 
 			// 这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
 			// 原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
@@ -355,6 +353,7 @@ public class PluginLoader {
 
 	public static synchronized void loadPlugins(Application app) {
 		if (!isLoaderPlugins) {
+			long beginTime = System.currentTimeMillis();
 			// step1 判断application的版本号，通过版本号来判断是否要全部更新插件内容
 			int currentVersionCode = 1;
 			try {
@@ -374,6 +373,8 @@ public class PluginLoader {
 				// step2 加载assets/plugins下面的插件
 				installAssetsPlugins();
 			}
+
+			TwsLog.d(TAG, "loadPlugins 耗时：" + (System.currentTimeMillis() - beginTime) + "ms");
 
 			isLoaderPlugins = true;
 		}

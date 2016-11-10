@@ -1,4 +1,4 @@
-package com.tencent.tws.sharelib.annotation;
+package com.tws.plugin.core.annotation;
 
 public class AnnotationProcessor {
 

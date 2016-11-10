@@ -8,8 +8,8 @@ import android.widget.Toast;
 import com.tencent.tws.assistant.support.v4.app.Fragment;
 import com.tencent.tws.assistant.support.v4.app.FragmentTransaction;
 import com.tencent.tws.assistant.support.v4.app.TwsFragmentActivity;
-import com.tencent.tws.sharelib.annotation.PluginContainer;
 import com.tws.plugin.core.PluginLoader;
+import com.tws.plugin.core.annotation.PluginContainer;
 
 /**
  * 一个非常普通的FragmentActivty， 用来展示一个来自插件中的fragment。

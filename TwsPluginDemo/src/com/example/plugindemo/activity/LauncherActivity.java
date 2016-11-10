@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 
 import tws.component.log.TwsLog;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -69,21 +70,17 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		// getResources().getString(getResources().getIdentifier("app_name",
 		// "string", "com.example.pluginhost")));
 
-		// ActionBar actionBar = getTwsActionBar();
-		// actionBar.setDisplayOptions(actionBar.getDisplayOptions() |
-		// ActionBar.DISPLAY_SHOW_TITLE);
-		setTitle("这是插件首屏");
-		// if (actionBar == null) {
-		// setTitle("这是插件首屏");
-		// } else {
-		// actionBar.setTitle("这是插件首屏");
-		// actionBar.setSubtitle("这是副标题");
-		// actionBar.setLogo(R.drawable.ic_launcher);
-		// actionBar.setIcon(R.drawable.ic_launcher);
-		// actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME |
-		// ActionBar.DISPLAY_HOME_AS_UP
-		// | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
-		// }
+		ActionBar actionBar = getActionBar();
+		if (actionBar == null) {
+			setTitle("这是插件首屏");
+		} else {
+			actionBar.setTitle("这是插件首屏");
+			actionBar.setSubtitle("这是副标题");
+			actionBar.setLogo(R.drawable.ic_launcher);
+			actionBar.setIcon(R.drawable.ic_launcher);
+			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
+					| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+		}
 
 		findViewById(R.id.onClickHellowrld).setOnClickListener(this);
 		findViewById(R.id.onClickWeiXin).setOnClickListener(this);
@@ -528,7 +525,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		Notification.Builder builder = new Notification.Builder(HostProxy.getApplication());
 
 		Intent intent = new Intent();
-		// 唤起指定Activity，这个应该换成宿主的
+		// 唤起指定Activity
 		intent.setClassName(HostProxy.getApplication().getPackageName(), LauncherActivity.class.getName());
 		// 还可以支持唤起service、receiver等等。
 		intent.putExtra("param1", "这是来自通知栏的参数");

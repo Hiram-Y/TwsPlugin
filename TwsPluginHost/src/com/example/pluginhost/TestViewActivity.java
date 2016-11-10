@@ -6,8 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.pluginhost.R;
-import com.tencent.tws.sharelib.annotation.PluginContainer;
+import com.tws.plugin.core.annotation.PluginContainer;
 
 @PluginContainer
 public class TestViewActivity extends Activity {
@@ -17,7 +16,7 @@ public class TestViewActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 
-		//这个layout里面嵌入了一个来自插件的自定义控件
+		// 这个layout里面嵌入了一个来自插件的自定义控件
 		setContentView(R.layout.view_activity);
 
 		setTitle("控件级插件");

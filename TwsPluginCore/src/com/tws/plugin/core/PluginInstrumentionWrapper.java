@@ -19,9 +19,9 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.text.TextUtils;
 
-import com.tencent.tws.sharelib.annotation.AnnotationProcessor;
-import com.tencent.tws.sharelib.annotation.PluginContainer;
 import com.tws.plugin.content.PluginDescriptor;
+import com.tws.plugin.core.annotation.AnnotationProcessor;
+import com.tws.plugin.core.annotation.PluginContainer;
 import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.manager.PluginActivityMonitor;

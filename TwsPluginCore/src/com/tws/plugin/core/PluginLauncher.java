@@ -86,7 +86,7 @@ public class PluginLauncher implements Serializable {
 	public synchronized LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
 		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
 		if (plugin == null) {
-			long startAt = System.currentTimeMillis();
+			long beginTime = System.currentTimeMillis();
 			TwsLog.d(TAG, "正在初始化插: " + pluginDescriptor.getPackageName()
 					+ ": Resources, DexClassLoader, Context, Application");
 			TwsLog.d(
@@ -102,15 +102,15 @@ public class PluginLauncher implements Serializable {
 				TwsLog.e(TAG, "初始化插件失败");
 			}
 
-			long t1 = System.currentTimeMillis();
-			TwsLog.d(TAG, "初始化插件资源耗时:" + (t1 - startAt));
+			long ct_Res_end = System.currentTimeMillis();
+			TwsLog.d(TAG, "初始化插件资源 耗时：" + (ct_Res_end - beginTime));
 
 			DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
 					pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(),
 					pluginDescriptor.getDependencies(), pluginDescriptor.getMuliDexList());
 
-			long t12 = System.currentTimeMillis();
-			TwsLog.d(TAG, "初始化插件DexClassLoader耗时:" + (t12 - t1));
+			long ct_Dex_end = System.currentTimeMillis();
+			TwsLog.d(TAG, "初始化插件DexClassLoader 耗时：" + (ct_Dex_end - ct_Res_end));
 
 			PluginContextTheme pluginContext = (PluginContextTheme) PluginCreator.createPluginContext(pluginDescriptor,
 					PluginLoader.getApplication().getBaseContext(), pluginRes, pluginClassLoader);
@@ -118,8 +118,8 @@ public class PluginLauncher implements Serializable {
 			// 插件Context默认主题设置为插件application主题
 			pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
 
-			long t13 = System.currentTimeMillis();
-			TwsLog.d(TAG, "初始化插件Theme耗时:" + (t13 - t12));
+			long ct_Theme_end = System.currentTimeMillis();
+			TwsLog.d(TAG, "初始化插件Theme 耗时：" + (ct_Theme_end - ct_Dex_end));
 
 			plugin = new LoadedPlugin(pluginDescriptor.getPackageName(), pluginDescriptor.getInstalledPath(),
 					pluginContext, pluginClassLoader);
@@ -147,6 +147,8 @@ public class PluginLauncher implements Serializable {
 				});
 			}
 
+			long ct_end = System.currentTimeMillis();
+			TwsLog.d(TAG, "startPlugin  耗时：" + (ct_end - beginTime));
 		} else {
 			// LogUtil.d("IS RUNNING", packageName);
 		}
@@ -167,7 +169,7 @@ public class PluginLauncher implements Serializable {
 
 		long t3 = System.currentTimeMillis();
 		TwsLog.d(TAG, "初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName()
-				+ ", 耗时:" + (t3 - t13));
+				+ ",  耗时：" + (t3 - t13));
 
 		try {
 			ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(),
@@ -237,11 +239,7 @@ public class PluginLauncher implements Serializable {
 				// bridge。将插件的call发给宿主的call，
 				// 从而使得宿主application中注册的callback能监听到插件Activity的声明周期
 				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge());
-			} else {
-				// 对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
-				// 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
 			}
-
 		}
 
 		return application;

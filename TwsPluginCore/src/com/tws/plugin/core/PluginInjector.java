@@ -24,13 +24,12 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
 
-import com.tencent.tws.sharelib.annotation.AnnotationProcessor;
-import com.tencent.tws.sharelib.annotation.PluginContainer;
-import com.tencent.tws.sharelib.util.HostProxy;
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginActivityInfo;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.content.PluginProviderInfo;
+import com.tws.plugin.core.annotation.AnnotationProcessor;
+import com.tws.plugin.core.annotation.PluginContainer;
 import com.tws.plugin.core.app.ActivityThread;
 import com.tws.plugin.core.compat.CompatForSupportv7_23_2;
 import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
@@ -398,7 +397,7 @@ public class PluginInjector {
 			// }
 		} else {
 			TwsLog.d(TAG, "getPluginTheme " + Build.BRAND + " use HostApplicationTheme!");
-			pluginAppTheme = HostProxy.getHostApplicationThemeId();
+			pluginAppTheme = PluginLoader.getApplication().getApplicationInfo().theme;
 			if (pluginAppTheme == 0 && pd.isStandalone()) {
 				pluginAppTheme = android.R.style.Theme_Holo_Light;
 			}

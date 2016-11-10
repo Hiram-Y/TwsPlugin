@@ -1,4 +1,4 @@
-package com.tencent.tws.sharelib.annotation;
+package com.tws.plugin.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
