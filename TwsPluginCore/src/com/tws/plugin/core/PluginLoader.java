@@ -29,7 +29,6 @@ import com.tws.plugin.core.app.AndroidViewLayoutInflater;
 import com.tws.plugin.core.compat.CompatForSupportv7ViewInflater;
 import com.tws.plugin.core.manager.PluginManagerHelper;
 import com.tws.plugin.core.systemservice.AndroidAppIActivityManager;
-import com.tws.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.tws.plugin.core.systemservice.AndroidAppIPackageManager;
 import com.tws.plugin.core.systemservice.AndroidOsServiceManager;
 import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
@@ -103,7 +102,6 @@ public class PluginLoader {
 			}
 
 			AndroidAppIActivityManager.installProxy();
-			AndroidAppINotificationManager.installProxy();
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 
 			if (isPluginProcess) {
