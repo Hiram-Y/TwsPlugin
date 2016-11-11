@@ -32,13 +32,8 @@ public class ProcessUtil {
 	}
 
 	public static boolean isHostProcess(Context context) {
-		String curProcessName = getCurProcessName(context);
-		String packageName = context.getPackageName();
-		if (curProcessName.equalsIgnoreCase(packageName)) {
-			return !isPluginProcess(context);
-		} else {
-			return false;
-		}
+		// 当前宿主和插件一个进程
+		return isPluginProcess(context);
 	}
 
 	public static boolean isHostProcess() {
