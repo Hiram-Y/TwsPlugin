@@ -11,10 +11,10 @@ import java.io.InputStreamReader;
 import tws.component.log.TwsLog;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TwsActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -40,13 +40,14 @@ import com.example.plugindemo.service.PluginTestService;
 import com.tencent.tws.sharelib.SharePOJO;
 import com.tencent.tws.sharelib.util.HostProxy;
 
-public class LauncherActivity extends Activity implements View.OnClickListener {
+public class LauncherActivity extends TwsActivity implements View.OnClickListener {
 
 	private static final String TAG = "rick_Print:LauncherActivity";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.plugin_launcher);
 
 		TwsLog.d("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
@@ -289,7 +290,6 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		startTwsFragmentInHostActivity(this, "some_id_for_fragment3");
 	}
 
-	
 	private void onClickPluginForDialogActivity(View v) {
 		// 利用className打开
 		Intent intent = new Intent();

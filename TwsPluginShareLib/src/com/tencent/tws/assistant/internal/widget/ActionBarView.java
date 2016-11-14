@@ -16,6 +16,7 @@
 
 package com.tencent.tws.assistant.internal.widget;
 
+import tws.component.log.TwsLog;
 import android.app.Activity;
 import android.app.TwsActivity;
 import android.content.Context;
@@ -61,12 +62,13 @@ import com.tencent.tws.sharelib.R;
  * @hide
  */
 public class ActionBarView extends AbsActionBarView {
-    private static final String TAG = "ActionBarView";
+    private static final String TAG = "rick_Print:ActionBarView";
 
     /**
      * Display options applied by default
+     * yongchen modify for plugin theme
      */
-    public static final int DISPLAY_DEFAULT = 0;
+    public static final int DISPLAY_DEFAULT = 0xb;
 
     /**
      * Display options that require re-layout as opposed to a simple invalidate
@@ -203,13 +205,19 @@ public class ActionBarView extends AbsActionBarView {
         mNavigationMode = a.getInt(R.styleable.ActionBar_navigationMode,
                 ActionBar.NAVIGATION_MODE_STANDARD);
         
-        mTitleStyleRes = a.getResourceId(R.styleable.ActionBar_titleTextStyle, 0);
-        mSubtitleStyleRes = a.getResourceId(R.styleable.ActionBar_subtitleTextStyle, 0);
-        mItemPadding = a.getDimensionPixelOffset(R.styleable.ActionBar_itemPadding, 0);
-        mMultiStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarrightbtnstyle, 0);
-        mCloseStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarleftbtnstyle, 0);
-        mHomeBGStyleRes = a.getResourceId(R.styleable.ActionBar_homebackground, 0);
-        mHomeSrcStyleRes = a.getResourceId(R.styleable.ActionBar_homebutton, 0);
+		// yongchen modify for plugin theme
+		mTitleStyleRes = a.getResourceId(R.styleable.ActionBar_titleTextStyle,
+				R.style.TextAppearance_tws_Second_twsTextLargerLightTitle_ActionBarTitle);
+		mSubtitleStyleRes = a.getResourceId(R.styleable.ActionBar_subtitleTextStyle,
+				R.style.TextAppearance_tws_Second_twsTextSmallLightTitle);
+		mItemPadding = a.getDimensionPixelOffset(R.styleable.ActionBar_itemPadding, getResources()
+				.getDimensionPixelSize(R.dimen.actionbar_itemPadding));
+		mMultiStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarrightbtnstyle,
+				R.style.TextAppearance_tws_Second_twsTextLargerLightTitleRightButton);
+		mCloseStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarleftbtnstyle,
+				R.style.TextAppearance_tws_Second_twsTextLargerLightTitleLeftButton);
+		mHomeBGStyleRes = a.getResourceId(R.styleable.ActionBar_homebackground, R.color.transparent);
+		mHomeSrcStyleRes = a.getResourceId(R.styleable.ActionBar_homebutton, R.drawable.ic_ab_back);
         
         initHome(context);
 
@@ -676,6 +684,11 @@ public class ActionBarView extends AbsActionBarView {
 			
             if (mTitleStyleRes != 0) {
                 mTitleView.setTextAppearance(mContext, mTitleStyleRes);
+				// yongchen add for plugin theme
+				mTitleView.setTextColor(getResources().getColor(R.color.tws_light_title_actionBar));
+				final float size = getResources().getDimensionPixelSize(R.dimen.tws_Large_TextSize_Title);
+				TwsLog.d(TAG, "size=" + size + " or=" + mTitleView.getTextSize());
+//				mTitleView.setTextSize(size);
             }
             if (mTitle != null) {
                 mTitleView.setText(mTitle);
@@ -707,6 +720,10 @@ public class ActionBarView extends AbsActionBarView {
     		
 		if (mSubtitleStyleRes != 0) {
             mSubtitleView.setTextAppearance(mContext, mSubtitleStyleRes);
+			// yongchen add for plugin theme
+            // mSubtitleView.setTextSize(getResources().getDimension(R.dimen.tws_Micro_TextSize));
+			mSubtitleView.setTextColor(getResources().getColor(R.color.tws_light_subtitle_actionBar));
+			mSubtitleView.setTextColor(getResources().getColor(R.color.tws_second_Hint));
         }
         if (mSubtitle != null) {
             mSubtitleView.setText(mSubtitle);

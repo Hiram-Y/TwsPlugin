@@ -341,11 +341,11 @@
 
     <style name="TextAppearance.tws.Second.twsTextLargerLightTitle.ActionBarTitle">
         <item name="android:textColor">@color/tws_light_title_actionBar</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">@dimen/tws_Large_TextSize_Title</item>
     </style>
 
     <style name="TextAppearance.tws.Second.twsTextLargerLightTitleLeftButton" parent="Widget.tws.Button.Second">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/tws_Large_TextSize</item>
         <item name="android:textColor">@color/tws_text_light_title_actionbarbtn</item>
         <item name="android:textColorHint">@color/tws_second_Hint</item>
         <item name="android:background">@color/transparent</item>
@@ -437,7 +437,7 @@
     </style>
 
     <style name="TextAppearance.tws.Second.twsTextSmallLightTitle">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/tws_Micro_TextSize</item>
         <item name="android:textColor">@color/tws_light_subtitle_actionBar</item>
         <item name="android:textColorHint">@color/tws_second_Hint</item>
     </style>
@@ -1300,8 +1300,8 @@
         <item name="divider">?android:attr/dividerVertical</item>
         <item name="progressBarStyle">@style/Widget.tws.ProgressBar.Horizontal</item>
         <item name="indeterminateProgressStyle">@style/Widget.tws.ProgressBar.Small</item>
-        <item name="progressBarPadding">32dip</item>
-        <item name="itemPadding">8dip</item>
+        <item name="progressBarPadding">@dimen/actionbar_progressBarPadding</item>
+        <item name="itemPadding">@dimen/actionbar_itemPadding</item>
         <item name="displayOptions">useLogo|showHome|showTitle</item>
         <item name="height">?android:attr/actionBarSize</item>
         <item name="android:paddingLeft">0dip</item>

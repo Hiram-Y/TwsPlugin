@@ -56,7 +56,7 @@ public class PluginApplication extends Application {
 		super.onCreate();
 
 		TwsLog.registerLogReceiver(this);
-		if (!ProcessUtil.isPluginProcess(this)) {
+		if (ProcessUtil.isHostProcess(this)) {
 			PluginLoader.loadPlugins(this);
 		}
 	}
