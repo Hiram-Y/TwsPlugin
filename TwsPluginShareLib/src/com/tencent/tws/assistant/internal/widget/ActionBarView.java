@@ -16,7 +16,6 @@
 
 package com.tencent.tws.assistant.internal.widget;
 
-import tws.component.log.TwsLog;
 import android.app.Activity;
 import android.app.TwsActivity;
 import android.content.Context;
@@ -62,7 +61,7 @@ import com.tencent.tws.sharelib.R;
  * @hide
  */
 public class ActionBarView extends AbsActionBarView {
-    private static final String TAG = "rick_Print:ActionBarView";
+    private static final String TAG = "ActionBarView";
 
     /**
      * Display options applied by default
@@ -144,6 +143,7 @@ public class ActionBarView extends AbsActionBarView {
 	
 	public boolean mIsMarksPointFlag;
 	private boolean mIsMenuConfigFlag;
+	private boolean mIsRunInPlugins;
 	
     public void setActionbarViewActivity(Activity fatherActivity,boolean sendMessage) {
     	mActivity=fatherActivity;
@@ -206,18 +206,26 @@ public class ActionBarView extends AbsActionBarView {
                 ActionBar.NAVIGATION_MODE_STANDARD);
         
 		// yongchen modify for plugin theme
-		mTitleStyleRes = a.getResourceId(R.styleable.ActionBar_titleTextStyle,
-				R.style.TextAppearance_tws_Second_twsTextLargerLightTitle_ActionBarTitle);
-		mSubtitleStyleRes = a.getResourceId(R.styleable.ActionBar_subtitleTextStyle,
-				R.style.TextAppearance_tws_Second_twsTextSmallLightTitle);
-		mItemPadding = a.getDimensionPixelOffset(R.styleable.ActionBar_itemPadding, getResources()
-				.getDimensionPixelSize(R.dimen.actionbar_itemPadding));
-		mMultiStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarrightbtnstyle,
-				R.style.TextAppearance_tws_Second_twsTextLargerLightTitleRightButton);
-		mCloseStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarleftbtnstyle,
-				R.style.TextAppearance_tws_Second_twsTextLargerLightTitleLeftButton);
-		mHomeBGStyleRes = a.getResourceId(R.styleable.ActionBar_homebackground, R.color.transparent);
-		mHomeSrcStyleRes = a.getResourceId(R.styleable.ActionBar_homebutton, R.drawable.ic_ab_back);
+		mIsRunInPlugins = false;
+		mTitleStyleRes = a.getResourceId(R.styleable.ActionBar_titleTextStyle, 0);
+		mIsRunInPlugins = 0 == mTitleStyleRes ? true : false;
+
+		if (mIsRunInPlugins) {
+			mTitleStyleRes = R.style.TextAppearance_tws_Second_twsTextLargerLightTitle_ActionBarTitle;
+			mSubtitleStyleRes = R.style.TextAppearance_tws_Second_twsTextSmallLightTitle;
+			mItemPadding = getResources().getDimensionPixelSize(R.dimen.actionbar_itemPadding);
+			mMultiStyleRes = R.style.TextAppearance_tws_Second_twsTextLargerLightTitleRightButton;
+			mCloseStyleRes = R.style.TextAppearance_tws_Second_twsTextLargerLightTitleLeftButton;
+			mHomeBGStyleRes = R.color.transparent;
+			mHomeSrcStyleRes = R.drawable.ic_ab_back;
+		} else {
+			mSubtitleStyleRes = a.getResourceId(R.styleable.ActionBar_subtitleTextStyle, 0);
+			mItemPadding = a.getDimensionPixelOffset(R.styleable.ActionBar_itemPadding, 0);
+			mMultiStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarrightbtnstyle, 0);
+			mCloseStyleRes = a.getResourceId(R.styleable.ActionBar_actionbarleftbtnstyle, 0);
+			mHomeBGStyleRes = a.getResourceId(R.styleable.ActionBar_homebackground, 0);
+			mHomeSrcStyleRes = a.getResourceId(R.styleable.ActionBar_homebutton, 0);
+		}
         
         initHome(context);
 
@@ -685,9 +693,11 @@ public class ActionBarView extends AbsActionBarView {
             if (mTitleStyleRes != 0) {
                 mTitleView.setTextAppearance(mContext, mTitleStyleRes);
 				// yongchen add for plugin theme
-				mTitleView.setTextColor(getResources().getColor(R.color.tws_light_title_actionBar));
-				//<dimen name="tws_Large_TextSize_Title">18sp</dimen>
-				mTitleView.setTextSize(18.0f);
+				if (mIsRunInPlugins) {
+					mTitleView.setTextColor(getResources().getColor(R.color.tws_light_title_actionBar));
+					// <dimen name="tws_Large_TextSize_Title">18sp</dimen>
+					mTitleView.setTextSize(18.0f);
+				}
             }
             if (mTitle != null) {
                 mTitleView.setText(mTitle);
@@ -720,11 +730,13 @@ public class ActionBarView extends AbsActionBarView {
 		if (mSubtitleStyleRes != 0) {
             mSubtitleView.setTextAppearance(mContext, mSubtitleStyleRes);
 			// yongchen add for plugin theme
-			mSubtitleView.setTextColor(getResources().getColor(R.color.tws_light_subtitle_actionBar));
-			mSubtitleView.setTextColor(getResources().getColor(R.color.tws_second_Hint));
-            // mSubtitleView.setTextSize(getResources().getDimension(R.dimen.tws_Micro_TextSize));
-            //<dimen name="tws_Micro_TextSize">12sp</dimen>
-			mSubtitleView.setTextSize(12.0f);
+			if (mIsRunInPlugins) {
+				mSubtitleView.setTextColor(getResources().getColor(R.color.tws_light_subtitle_actionBar));
+				mSubtitleView.setHintTextColor(getResources().getColor(R.color.tws_second_Hint));
+				// mSubtitleView.setTextSize(getResources().getDimension(R.dimen.tws_Micro_TextSize));
+				// <dimen name="tws_Micro_TextSize">12sp</dimen>
+				mSubtitleView.setTextSize(12.0f);
+			}
         }
         if (mSubtitle != null) {
             mSubtitleView.setText(mSubtitle);
