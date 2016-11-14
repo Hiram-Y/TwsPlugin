@@ -686,9 +686,8 @@ public class ActionBarView extends AbsActionBarView {
                 mTitleView.setTextAppearance(mContext, mTitleStyleRes);
 				// yongchen add for plugin theme
 				mTitleView.setTextColor(getResources().getColor(R.color.tws_light_title_actionBar));
-				final float size = getResources().getDimensionPixelSize(R.dimen.tws_Large_TextSize_Title);
-				TwsLog.d(TAG, "size=" + size + " or=" + mTitleView.getTextSize());
-//				mTitleView.setTextSize(size);
+				//<dimen name="tws_Large_TextSize_Title">18sp</dimen>
+				mTitleView.setTextSize(18.0f);
             }
             if (mTitle != null) {
                 mTitleView.setText(mTitle);
@@ -721,9 +720,11 @@ public class ActionBarView extends AbsActionBarView {
 		if (mSubtitleStyleRes != 0) {
             mSubtitleView.setTextAppearance(mContext, mSubtitleStyleRes);
 			// yongchen add for plugin theme
-            // mSubtitleView.setTextSize(getResources().getDimension(R.dimen.tws_Micro_TextSize));
 			mSubtitleView.setTextColor(getResources().getColor(R.color.tws_light_subtitle_actionBar));
 			mSubtitleView.setTextColor(getResources().getColor(R.color.tws_second_Hint));
+            // mSubtitleView.setTextSize(getResources().getDimension(R.dimen.tws_Micro_TextSize));
+            //<dimen name="tws_Micro_TextSize">12sp</dimen>
+			mSubtitleView.setTextSize(12.0f);
         }
         if (mSubtitle != null) {
             mSubtitleView.setText(mSubtitle);
