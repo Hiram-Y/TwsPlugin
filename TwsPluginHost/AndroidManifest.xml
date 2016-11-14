@@ -102,8 +102,8 @@
         </service>
 
         <provider
-            android:name="com.tws.plugin.core.manager.PluginManagerProvider"
-            android:authorities="com.example.pluginhost.manager.pluginmanager"
+            android:name="com.tws.plugin.manager.PluginManagerProvider"
+            android:authorities="com.example.pluginhost.manager"
             android:exported="false" />
         <provider
             android:name="com.limpoxe.support.servicemanager.ServiceProvider"

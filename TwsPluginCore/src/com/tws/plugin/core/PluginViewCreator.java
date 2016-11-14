@@ -12,7 +12,7 @@ import android.view.View;
 
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.manager.PluginManagerHelper;
 
 /**
  * 控件级插件的实现原理
@@ -81,13 +81,12 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 				if (baseContext instanceof PluginContextTheme) {
 					baseContext = ((PluginContextTheme) baseContext).getBaseContext();
 				}
-				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
-						baseContext, pluginDescriptor.getApplicationTheme());
-				Class<? extends View> clazz = pluginViewContext.getClassLoader().loadClass(viewClassName)
-						.asSubclass(View.class);
+				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, baseContext, pluginDescriptor.getApplicationTheme());
+				Class<? extends View> clazz = pluginViewContext.getClassLoader()
+						.loadClass(viewClassName).asSubclass(View.class);
 
-				Constructor<? extends View> constructor = clazz.getConstructor(new Class[] { Context.class,
-						AttributeSet.class });
+				Constructor<? extends View> constructor = clazz.getConstructor(new Class[] {
+						Context.class, AttributeSet.class});
 				constructor.setAccessible(true);
 				return constructor.newInstance(new Object[] { pluginViewContext, atts });
 			} else {

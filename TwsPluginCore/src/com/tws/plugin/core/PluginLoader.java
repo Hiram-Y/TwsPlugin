@@ -24,13 +24,13 @@ import android.widget.Toast;
 
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.app.AndroidViewLayoutInflater;
+import com.tws.plugin.core.android.HackLayoutInflater;
 import com.tws.plugin.core.compat.CompatForSupportv7ViewInflater;
-import com.tws.plugin.core.manager.PluginManagerHelper;
-import com.tws.plugin.core.systemservice.AndroidAppIActivityManager;
-import com.tws.plugin.core.systemservice.AndroidAppIPackageManager;
-import com.tws.plugin.core.systemservice.AndroidOsServiceManager;
-import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.tws.plugin.core.proxy.systemservice.AndroidAppIActivityManager;
+import com.tws.plugin.core.proxy.systemservice.AndroidAppIPackageManager;
+import com.tws.plugin.core.proxy.systemservice.AndroidOsServiceManager;
+import com.tws.plugin.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.tws.plugin.manager.PluginManagerHelper;
 import com.tws.plugin.util.FileUtil;
 import com.tws.plugin.util.ProcessUtil;
 
@@ -55,21 +55,11 @@ public class PluginLoader {
 	public static final int PLUGIN_UPDATE_STOP = 3;
 	public static final int PLUGIN_UPDATE_REMOVEALL = 4;
 
-	private static PluginLoader instance;
-
 	private static int sLoadingResId;
 
 	private static long sMinLoadingTime = 400;
 
 	private PluginLoader() {
-	}
-
-	public static PluginLoader getInstance() {
-		if (instance == null) {
-			instance = new PluginLoader();
-		}
-
-		return instance;
 	}
 
 	public static Application getApplication() {
@@ -100,10 +90,11 @@ public class PluginLoader {
 			}
 
 			AndroidAppIActivityManager.installProxy();
+			// AndroidAppINotificationManager.installProxy();
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 
 			if (isPluginProcess) {
-				AndroidViewLayoutInflater.installPluginCustomViewConstructorCache();
+				HackLayoutInflater.installPluginCustomViewConstructorCache();
 				CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
 				// 不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
 				new Handler().post(new Runnable() {
@@ -227,6 +218,9 @@ public class PluginLoader {
 			}
 
 		}
+
+		TwsLog.e(TAG, "loadPluginClass Fail for clazzName:" + clazzName
+				+ (pluginDescriptor == null ? "pluginDescriptor = null" : "pluginDescriptor not null"));
 
 		return null;
 

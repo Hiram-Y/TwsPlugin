@@ -1,23 +1,63 @@
 package com.tws.plugin.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import tws.component.log.TwsLog;
+
 @SuppressWarnings("unchecked")
 public class RefInvoker {
+	private static final String TAG = "RefInvoker";
 
-	public static Object invokeMethod(String className, String methodName, Class[] paramTypes, Object[] paramValues) {
-		return invokeMethod(null, className, methodName, paramTypes, paramValues);
+	private static final ClassLoader system = ClassLoader.getSystemClassLoader();
+	private static final ClassLoader bootloader = system.getParent();
+	private static final ClassLoader application = RefInvoker.class.getClassLoader();
+
+	private static HashMap<String, Class> clazzCache = new HashMap<String, Class>();
+
+	public static Class forName(String clazzName) throws ClassNotFoundException {
+		Class clazz = clazzCache.get(clazzName);
+		if (clazz == null) {
+			clazz = Class.forName(clazzName);
+			ClassLoader cl = clazz.getClassLoader();
+			if (cl == system || cl == application || cl == bootloader) {
+				clazzCache.put(clazzName, clazz);
+			}
+		}
+		return clazz;
+	}
+
+	public static Object newInstance(String className, Class[] paramTypes, Object[] paramValues) {
+		try {
+			Class clazz = forName(className);
+			Constructor constructor = clazz.getConstructor(paramTypes);
+			if (!constructor.isAccessible()) {
+				constructor.setAccessible(true);
+			}
+			return constructor.newInstance(paramValues);
+		} catch (ClassNotFoundException e) {
+			TwsLog.e(TAG, "ClassNotFoundException", e);
+		} catch (NoSuchMethodException e) {
+			TwsLog.e(TAG, "NoSuchMethodException", e);
+		} catch (IllegalAccessException e) {
+			TwsLog.e(TAG, "IllegalAccessException", e);
+		} catch (InstantiationException e) {
+			TwsLog.e(TAG, "InstantiationException", e);
+		} catch (InvocationTargetException e) {
+			TwsLog.e(TAG, "InvocationTargetException", e);
+		}
+		return null;
 	}
 
 	public static Object invokeMethod(Object target, String className, String methodName, Class[] paramTypes,
 			Object[] paramValues) {
 
 		try {
-			Class clazz = Class.forName(className);
+			Class clazz = forName(className);
 			return invokeMethod(target, clazz, methodName, paramTypes, paramValues);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -47,14 +87,10 @@ public class RefInvoker {
 		return null;
 	}
 
-	public static Object getField(String className, String fieldName) {
-		return getField(null, className, fieldName);
-	}
-
 	@SuppressWarnings("rawtypes")
 	public static Object getField(Object target, String className, String fieldName) {
 		try {
-			Class clazz = Class.forName(className);
+			Class clazz = forName(className);
 			return getField(target, clazz, fieldName);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -91,14 +127,10 @@ public class RefInvoker {
 
 	}
 
-	public static void setField(String className, String fieldName, Object fieldValue) {
-		setField(null, className, fieldName, fieldValue);
-	}
-
 	@SuppressWarnings("rawtypes")
 	public static void setField(Object target, String className, String fieldName, Object fieldValue) {
 		try {
-			Class clazz = Class.forName(className);
+			Class clazz = forName(className);
 			setField(target, clazz, fieldName, fieldValue);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -199,31 +231,4 @@ public class RefInvoker {
 		return convertedClass;
 	}
 
-	public static <T> Wrapper wrap(T instance) {
-		return new Wrapper(instance);
-	}
-
-	public static class Wrapper {
-
-		Object instance;
-
-		Wrapper(Object instance) {
-			this.instance = instance;
-		}
-
-		public <K> K with(Class<K> k) {
-			try {
-				return k.getConstructor(Object.class).newInstance(instance);
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-	}
 }

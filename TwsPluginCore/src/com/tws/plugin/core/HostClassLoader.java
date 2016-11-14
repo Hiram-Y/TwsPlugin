@@ -32,6 +32,7 @@ public class HostClassLoader extends DexClassLoader {
 	protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
 
 		// Just for Receiver and Service
+		TwsLog.d(TAG, "loadClass className:" + className + " resolve=" + resolve);
 
 		if (className.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 

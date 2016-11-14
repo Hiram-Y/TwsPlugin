@@ -1,13 +1,9 @@
 <resources>
-
-    <attr name="custarr_text" format="string|reference" />
-    <attr name="custarr_text_color" format="color|reference" />
-    <attr name="custarr_text_color_size" format="dimension|reference" />
-
+    <!-- 注意 这里声明的attr所在是数组，不能再sytel中进行定义，否则会新产生style id -->
     <declare-styleable name="PluginTestCustomAttrView">
-        <attr name="custarr_text" />
-        <attr name="custarr_text_color" />
-        <attr name="custarr_text_color_size" />
+        <attr name="custarr_text" format="string|reference"/>
+        <attr name="custarr_text_color" format="color|reference"/>
+        <attr name="custarr_text_color_size" format="dimension|reference"/>
     </declare-styleable>
 
 </resources>

@@ -9,8 +9,8 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.manager.PluginManagerHelper;
-import com.tws.plugin.util.RefInvoker;
+import com.tws.plugin.core.android.HackAssetManager;
+import com.tws.plugin.manager.PluginManagerHelper;
 
 import dalvik.system.DexClassLoader;
 
@@ -39,20 +39,26 @@ public class PluginCreator {
 		File libDir = new File(apkParentDir, "lib");
 		libDir.mkdirs();
 
-		if (!isStandalone) {// 非独立插件
-			return new PluginClassLoader(absolutePluginApkPath, optDir.getAbsolutePath(), libDir.getAbsolutePath(),
-					PluginLoader.class.getClassLoader(),// 宿主classloader
-					dependences,// 插件依赖的插件
+		if (!isStandalone) {//非独立插件
+			return new PluginClassLoader(
+					absolutePluginApkPath,
+					optDir.getAbsolutePath(),
+					libDir.getAbsolutePath(),
+					PluginLoader.class.getClassLoader(),//宿主classloader
+					dependences,//插件依赖的插件
 					null);
-		} else {// 独立插件
-			return new PluginClassLoader(absolutePluginApkPath, optDir.getAbsolutePath(), libDir.getAbsolutePath(),
-			/*
-			 * In theory this should be the "system" class loader; in practice
-			 * we don't use that and can happily (and more efficiently) use the
-			 * bootstrap class loader.
-			 */
-			ClassLoader.getSystemClassLoader().getParent(),// 系统classloader
-					null,// 独立插件无依赖
+		} else {//独立插件
+			return new PluginClassLoader(
+					absolutePluginApkPath,
+					optDir.getAbsolutePath(),
+					libDir.getAbsolutePath(),
+					/*
+			         * In theory this should be the "system" class loader; in practice we
+			         * don't use that and can happily (and more efficiently) use the
+			         * bootstrap class loader.
+			         */
+					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
+					null,//独立插件无依赖
 					pluginApkMultDexPath);
 		}
 
@@ -63,19 +69,17 @@ public class PluginCreator {
 	 * 
 	 * @return
 	 */
-	public static Resources createPluginResource(String mainApkPath, Resources mainRes,
-			PluginDescriptor pluginDescriptor) {
+	public static Resources createPluginResource(String mainApkPath, Resources mainRes, PluginDescriptor pluginDescriptor) {
 		String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
 		if (new File(absolutePluginApkPath).exists()) {
 			boolean isStandalone = pluginDescriptor.isStandalone();
 			String[] dependencies = pluginDescriptor.getDependencies();
 
 			try {
-				String[] assetPaths = buildAssetPath(isStandalone, mainApkPath, absolutePluginApkPath, dependencies);
+				String[] assetPaths = buildAssetPath(isStandalone, mainApkPath,
+						absolutePluginApkPath, dependencies);
 				AssetManager assetMgr = AssetManager.class.newInstance();
-				RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
-						new Class[] { String[].class }, new Object[] { assetPaths });
-
+				new HackAssetManager(assetMgr).addAssetPaths(assetPaths);
 				Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
 						mainRes.getConfiguration(), pluginDescriptor);
 

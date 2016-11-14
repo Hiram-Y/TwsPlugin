@@ -16,10 +16,9 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.pluginhost.R;
 import com.tencent.tws.sharelib.SharePOJO;
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.manager.PluginManagerHelper;
 
 public class DetailActivity extends Activity {
 

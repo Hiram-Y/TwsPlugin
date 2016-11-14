@@ -26,11 +26,12 @@ import android.util.ArrayMap;
 import android.view.LayoutInflater;
 
 import com.tws.plugin.content.PluginDescriptor;
+import com.tws.plugin.core.android.HackContextImpl;
+import com.tws.plugin.core.android.HackResources;
 import com.tws.plugin.core.compat.CompatForSharedPreferencesImpl;
 import com.tws.plugin.core.localservice.LocalServiceManager;
 import com.tws.plugin.core.multidex.PluginMultiDexHelper;
 import com.tws.plugin.util.ProcessUtil;
-import com.tws.plugin.util.RefInvoker;
 
 /**
  * 注意：意外覆写父类方法可能会抛出LingageError 也就是说如果要在这个类里添加非override的public方法的话要小心了。
@@ -101,11 +102,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			return mTheme;
 		}
 
-		Object result = RefInvoker.invokeMethod(Resources.class.getName(), "selectDefaultTheme", new Class[] {
-				int.class, int.class }, new Object[] { mThemeResource,
-				getBaseContext().getApplicationInfo().targetSdkVersion });
+		Integer result = HackResources.selectDefaultTheme(mThemeResource,
+				getBaseContext().getApplicationInfo().targetSdkVersion);
 		if (result != null) {
-			mThemeResource = (Integer) result;
+			mThemeResource = result;
 		}
 
 		initializeTheme();
@@ -156,11 +156,15 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	}
 
 	// @hide
-	// public String getBasePackageName() {
-	// //ViewRootImpl中会调用这个方法, 这是个hide方法.
-	// //如果这个方法也返回插件packageName, 则需要hook掉android.view.IWindowSession.relayout方法.
-	// return PluginLoader.getApplication().getPackageName();
-	// }
+	public String getBasePackageName() {
+		// ViewRootImpl中会调用这个方法, 这是个hide方法.
+		return PluginLoader.getApplication().getPackageName();
+	}
+
+	// //@hide
+	public String getOpPackageName() {
+		return PluginLoader.getApplication().getPackageName();
+	}
 
 	@Override
 	public Context getApplicationContext() {
@@ -247,10 +251,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	 */
 	@Override
 	public SharedPreferences getSharedPreferences(String name, int mode) {
+
 		if (Build.VERSION.SDK_INT > 23) {
 			synchronized (PluginContextTheme.class) {
-				ArrayMap<String, File> mSharedPrefsPaths = (ArrayMap<String, File>) RefInvoker.getField(
-						getContextImpl(), "android.app.ContextImpl", "mSharedPrefsPaths");
+				HackContextImpl impl = new HackContextImpl(getContextImpl());
+
+				ArrayMap<String, File> mSharedPrefsPaths = impl.getSharedPrefsPaths();
 				String parent = new File(getDataDir(), "shared_prefs").getAbsolutePath();
 				if (mSharedPrefsPaths != null) {
 					File file = mSharedPrefsPaths.get(name);
@@ -259,11 +265,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 					}
 				}
 
-				File mPreferencesDir = (File) RefInvoker.getField(getContextImpl(), "android.app.ContextImpl",
-						"mPreferencesDir");
+				File mPreferencesDir = impl.getPreferencesDir();
 				if (mPreferencesDir == null || !mPreferencesDir.getAbsolutePath().equals(parent)) {
-					RefInvoker.setField(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir", new File(
-							getDataDir(), "shared_prefs"));
+					impl.setPreferencesDir(new File(getDataDir(), "shared_prefs"));
 				}
 			}
 
@@ -278,7 +282,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		// 4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
 		PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		Object cache = RefInvoker.getField("android.app.ContextImpl", "sSharedPrefs");
+		Object cache = HackContextImpl.getSharedPrefs();
 		if (Build.VERSION.SDK_INT >= 19 && cache instanceof ArrayMap) {
 			synchronized (PluginContextTheme.class) {
 				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>) cache;
@@ -479,9 +483,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		while (base instanceof ContextWrapper) {
 			base = ((ContextWrapper) base).getBaseContext();
 		}
-		if (base.getClass().getName().equals("android.app.ContextImpl")) {
-			base = (Context) RefInvoker.invokeMethod(base, "android.app.ContextImpl", "getOuterContext",
-					(Class[]) null, (Object[]) null);
+		if (HackContextImpl.instanceOf(base)) {
+			base = new HackContextImpl(base).getOuterContext();
 		}
 		return base;
 	}
@@ -493,7 +496,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			base = ((ContextWrapper) base).getBaseContext();
 			dep++;
 		}
-		if (base.getClass().getName().equals("android.app.ContextImpl")) {
+		if (HackContextImpl.instanceOf(base)) {
 			return base;
 		}
 		return null;

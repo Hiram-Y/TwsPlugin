@@ -34,9 +34,9 @@ import com.tencent.tws.sharelib.ShareService;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.core.PluginLoader;
 import com.tws.plugin.core.localservice.LocalServiceManager;
-import com.tws.plugin.core.manager.InstallResult;
-import com.tws.plugin.core.manager.PluginCallback;
-import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.manager.InstallResult;
+import com.tws.plugin.manager.PluginCallback;
+import com.tws.plugin.manager.PluginManagerHelper;
 import com.tws.plugin.util.FileUtil;
 import com.tws.plugin.util.ResourceUtil;
 

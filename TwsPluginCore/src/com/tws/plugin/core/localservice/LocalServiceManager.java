@@ -106,6 +106,9 @@ public class LocalServiceManager {
 	}
 
 	public static void unRegistAll() {
+        if (!isSupport) {
+            return;
+        }
 		ServiceManager.unPublishAllService();
 	}
 

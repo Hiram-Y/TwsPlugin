@@ -11,9 +11,10 @@ import android.os.Build;
 import com.tws.plugin.content.PluginActivityInfo;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.content.PluginReceiverIntent;
-import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.core.android.HackCreateServiceData;
+import com.tws.plugin.core.android.HackReceiverData;
+import com.tws.plugin.manager.PluginManagerHelper;
 import com.tws.plugin.util.ProcessUtil;
-import com.tws.plugin.util.RefInvoker;
 
 public class PluginIntentResolver {
 	private static final String TAG = "rick_Print:PluginIntentResolver";
@@ -30,11 +31,8 @@ public class PluginIntentResolver {
 				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubServiceName));
 			}
 		} else {
-			if (intent.getComponent() != null
-					&& null != PluginManagerHelper
-							.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
-				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent
-						.getComponent().getClassName()));
+			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
 			}
 		}
 	}
@@ -49,17 +47,13 @@ public class PluginIntentResolver {
 				Intent newIntent = new Intent(intent);
 				newIntent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(),
 						PluginManagerHelper.bindStubReceiver()));
-				// hackReceiverForClassLoader检测到这个标记后会进行替换
-				newIntent.setAction(className + CLASS_SEPARATOR
-						+ (intent.getAction() == null ? "" : intent.getAction()));
+				//hackReceiverForClassLoader检测到这个标记后会进行替换
+				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
 				result.add(newIntent);
 			}
 		} else {
-			if (intent.getComponent() != null
-					&& null != PluginManagerHelper
-							.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
-				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent
-						.getComponent().getClassName()));
+			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
 			}
 		}
 
@@ -69,8 +63,9 @@ public class PluginIntentResolver {
 		return result;
 	}
 
-	/* package */static Class resolveReceiverForClassLoader(Object msgObj) {
-		Intent intent = (Intent) RefInvoker.getField(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
+	/* package */static Class resolveReceiverForClassLoader(final Object msgObj) {
+		HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
+		Intent intent = hackReceiverData.getIntent();
 		if (intent.getComponent().getClassName().equals(PluginManagerHelper.bindStubReceiver())) {
 			String action = intent.getAction();
 			TwsLog.d(TAG, "action:" + action);
@@ -80,7 +75,7 @@ public class PluginIntentResolver {
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName[0]);
 				if (clazz != null) {
 					intent.setExtrasClassLoader(clazz.getClassLoader());
-					// 由于之前intent被修改过 这里再吧Intent还原到原始的intent
+					//由于之前intent被修改过 这里再吧Intent还原到原始的intent
 					if (targetClassName.length > 1) {
 						intent.setAction(targetClassName[1]);
 					} else {
@@ -88,14 +83,12 @@ public class PluginIntentResolver {
 					}
 				}
 				// PluginClassLoader检测到这个特殊标记后会进行替换
-				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER
-						+ targetClassName[0]));
+				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
+						CLASS_PREFIX_RECEIVER + targetClassName[0]));
 
 				if (Build.VERSION.SDK_INT >= 21) {
 					if (intent.getExtras() != null) {
-						PluginReceiverIntent newIntent = new PluginReceiverIntent(intent);
-						RefInvoker.setField(msgObj, "android.app.ActivityThread$ReceiverData", "intent",
-								newIntent);
+						hackReceiverData.setIntent(new PluginReceiverIntent(intent));
 					}
 				}
 
@@ -107,17 +100,17 @@ public class PluginIntentResolver {
 
 	/* package */static String resolveServiceForClassLoader(Object msgObj) {
 
-		ServiceInfo info = (ServiceInfo) RefInvoker.getField(msgObj,
-				"android.app.ActivityThread$CreateServiceData", "info");
+		HackCreateServiceData hackCreateServiceData = new HackCreateServiceData(msgObj);
+		ServiceInfo info = hackCreateServiceData.getInfo();
 
 		if (ProcessUtil.isPluginProcess()) {
 
 			PluginInjector.hackHostClassLoaderIfNeeded();
 
-			// 通过映射查找
+			//通过映射查找
 			String targetClassName = PluginManagerHelper.getBindedPluginServiceName(info.name);
-			// TODO 或许可以通过这个方式来处理service
-			// info.applicationInfo = XXX
+			//TODO 或许可以通过这个方式来处理service
+			//info.applicationInfo = XXX
 
 			TwsLog.d(TAG, "hackServiceName=" + info.name + " packageName=" + info.packageName + " processName="
 					+ info.processName + " targetClassName=" + targetClassName + " applicationInfo.packageName="
@@ -149,18 +142,15 @@ public class PluginIntentResolver {
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
 
-			String stubActivityName = PluginManagerHelper.bindStubActivity(className,
-					Integer.parseInt(pluginActivityInfo.getLaunchMode()));
+			String stubActivityName = PluginManagerHelper.bindStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
 
-			intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));
-			// PluginInstrumentationWrapper检测到这个标记后会进行替换
-			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
+			intent.setComponent(
+					new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));
+			//PluginInstrumentationWrapper检测到这个标记后会进行替换
+			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction()==null?"":intent.getAction()));
 		} else {
-			if (intent.getComponent() != null
-					&& null != PluginManagerHelper
-							.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
-				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent
-						.getComponent().getClassName()));
+			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
 			}
 		}
 	}

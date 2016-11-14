@@ -28,15 +28,15 @@ import android.os.Looper;
 
 import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginDescriptor;
-import com.tws.plugin.core.app.ActivityThread;
-import com.tws.plugin.core.app.AndroidAppApplication;
+import com.tws.plugin.core.android.HackActivityThread;
+import com.tws.plugin.core.android.HackApplication;
+import com.tws.plugin.core.android.HackSupportV4LocalboarcastManager;
 import com.tws.plugin.core.compat.CompatForWebViewFactoryApi21;
 import com.tws.plugin.core.localservice.LocalServiceManager;
-import com.tws.plugin.core.manager.PluginActivityMonitor;
-import com.tws.plugin.core.manager.PluginManagerHelper;
-import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.tws.plugin.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.tws.plugin.manager.PluginActivityMonitor;
+import com.tws.plugin.manager.PluginManagerHelper;
 import com.tws.plugin.util.ProcessUtil;
-import com.tws.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
 
@@ -95,8 +95,8 @@ public class PluginLauncher implements Serializable {
 							+ pluginDescriptor.getInstalledPath());
 
 			Resources pluginRes = PluginCreator.createPluginResource(
-					PluginLoader.getApplication().getApplicationInfo().sourceDir, PluginLoader.getApplication()
-							.getResources(), pluginDescriptor);
+					PluginLoader.getApplication().getApplicationInfo().sourceDir,
+					PluginLoader.getApplication().getResources(), pluginDescriptor);
 
 			if (pluginRes == null) {
 				TwsLog.e(TAG, "初始化插件失败");
@@ -106,14 +106,19 @@ public class PluginLauncher implements Serializable {
 			TwsLog.d(TAG, "初始化插件资源 耗时：" + (ct_Res_end - beginTime));
 
 			DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
-					pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(),
-					pluginDescriptor.getDependencies(), pluginDescriptor.getMuliDexList());
+							pluginDescriptor.getInstalledPath(),
+							pluginDescriptor.isStandalone(),
+							pluginDescriptor.getDependencies(),
+							pluginDescriptor.getMuliDexList());
 
 			long ct_Dex_end = System.currentTimeMillis();
 			TwsLog.d(TAG, "初始化插件DexClassLoader 耗时：" + (ct_Dex_end - ct_Res_end));
 
-			PluginContextTheme pluginContext = (PluginContextTheme) PluginCreator.createPluginContext(pluginDescriptor,
-					PluginLoader.getApplication().getBaseContext(), pluginRes, pluginClassLoader);
+			PluginContextTheme pluginContext = (PluginContextTheme)PluginCreator.createPluginContext(
+					pluginDescriptor,
+					PluginLoader.getApplication().getBaseContext(),
+					pluginRes,
+					pluginClassLoader);
 
 			// 插件Context默认主题设置为插件application主题
 			pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
@@ -121,8 +126,10 @@ public class PluginLauncher implements Serializable {
 			long ct_Theme_end = System.currentTimeMillis();
 			TwsLog.d(TAG, "初始化插件Theme 耗时：" + (ct_Theme_end - ct_Dex_end));
 
-			plugin = new LoadedPlugin(pluginDescriptor.getPackageName(), pluginDescriptor.getInstalledPath(),
-					pluginContext, pluginClassLoader);
+			plugin = new LoadedPlugin(pluginDescriptor.getPackageName(),
+					pluginDescriptor.getInstalledPath(),
+					pluginContext,
+					pluginClassLoader);
 
 			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 
@@ -156,24 +163,23 @@ public class PluginLauncher implements Serializable {
 		return plugin;
 	}
 
-	public void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes,
-			PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+	public void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+
 		TwsLog.i(TAG, "开始初始化插件:" + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName());
 
 		long t13 = System.currentTimeMillis();
 
-		Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader,
-				pluginDescriptor);
+		Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);
 
-		plugin.pluginApplication = pluginApplication;// 这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
+		plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
 
 		long t3 = System.currentTimeMillis();
 		TwsLog.d(TAG, "初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName()
 				+ ",  耗时：" + (t3 - t13));
 
 		try {
-			ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(),
-					pluginDescriptor, pluginClassLoader, pluginRes, pluginApplication);
+			HackActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
+					pluginClassLoader, pluginRes, pluginApplication);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -183,8 +189,7 @@ public class PluginLauncher implements Serializable {
 		TwsLog.d(TAG, "初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}
 
-	private Application callPluginApplicationOnCreate(Context pluginContext, DexClassLoader classLoader,
-			PluginDescriptor pluginDescriptor) {
+	private Application callPluginApplicationOnCreate(Context pluginContext, DexClassLoader classLoader, PluginDescriptor pluginDescriptor) {
 
 		Application application = null;
 
@@ -208,9 +213,8 @@ public class PluginLauncher implements Serializable {
 			e.printStackTrace();
 		}
 
-		// 安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
-		PluginInjector.installContentProviders(PluginLoader.getApplication(), application, pluginDescriptor
-				.getProviderInfos().values());
+		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
+		PluginInjector.installContentProviders(PluginLoader.getApplication(), application, pluginDescriptor.getProviderInfos().values());
 
 		// 执行onCreate
 		if (application != null) {
@@ -231,15 +235,16 @@ public class PluginLauncher implements Serializable {
 			Thread.setDefaultUncaughtExceptionHandler(old);
 
 			if (Build.VERSION.SDK_INT >= 14) {
-				// ActivityLifecycleCallbacks
-				// 的回调实际是由Activity内部在自己的声明周期函数内主动调用application的注册的callback触发的
-				// 由于我们把插件Activity内部的application成员变量替换调用了
-				// 会导致不会触发宿主中注册的ActivityLifecycleCallbacks
-				// 那么我们在这里给插件的Application对象注册一个callback
-				// bridge。将插件的call发给宿主的call，
-				// 从而使得宿主application中注册的callback能监听到插件Activity的声明周期
-				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge());
+				// ActivityLifecycleCallbacks 的回调实际是由Activity内部在自己的声明周期函数内主动调用application的注册的callback触发的
+				//由于我们把插件Activity内部的application成员变量替换调用了  会导致不会触发宿主中注册的ActivityLifecycleCallbacks
+				//那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
+				//从而使得宿主application中注册的callback能监听到插件Activity的声明周期
+				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge(PluginLoader.getApplication()));
+			} else {
+				//对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
+				// 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
 			}
+
 		}
 
 		return application;
@@ -260,30 +265,28 @@ public class PluginLauncher implements Serializable {
 
 		// 退出Activity
 		TwsLog.d(TAG, "退出Activity");
-		PluginLoader.getApplication().sendBroadcast(
-				new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
+		PluginLoader.getApplication().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
 
 		// 退出 LocalBroadcastManager
 		TwsLog.d(TAG, "退出LocalBroadcastManager");
-		Object mInstance = RefInvoker.getField("android.support.v4.content.LocalBroadcastManager", "mInstance");
+		Object mInstance = HackSupportV4LocalboarcastManager.getInstance();
 		if (mInstance != null) {
-			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>) RefInvoker
-					.getField(mInstance, "android.support.v4.content.LocalBroadcastManager", "mReceivers");
+			HackSupportV4LocalboarcastManager hackSupportV4LocalboarcastManager = new HackSupportV4LocalboarcastManager(mInstance);
+			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = hackSupportV4LocalboarcastManager.getReceivers();
 			if (mReceivers != null) {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
-				while (ir.hasNext()) {
+				while(ir.hasNext()) {
 					BroadcastReceiver item = ir.next();
 					if (item.getClass().getClassLoader() == plugin.pluginClassLoader) {
-						RefInvoker.invokeMethod(mInstance, "android.support.v4.content.LocalBroadcastManager",
-								"unregisterReceiver", new Class[] { BroadcastReceiver.class }, new Object[] { item });
+						hackSupportV4LocalboarcastManager.unregisterReceiver(item);
 					}
 				}
 			}
 		}
 
-		// 退出Service
-		// bindservie启动的service应该不需要处理，退出activity的时候会unbind
-		Map<IBinder, Service> map = ActivityThread.getAllServices();
+		//退出Service
+		//bindservie启动的service应该不需要处理，退出activity的时候会unbind
+		Map<IBinder, Service> map = HackActivityThread.get().getServices();
 		if (map != null) {
 			Collection<Service> list = map.values();
 			for (Service s : list) {
@@ -333,39 +336,46 @@ public class PluginLauncher implements Serializable {
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	static class LifecycleCallbackBridge implements ActivityLifecycleCallbacks {
+
+		private HackApplication hackPluginApplication;
+
+		public LifecycleCallbackBridge(Application pluginApplication) {
+			this.hackPluginApplication = new HackApplication(pluginApplication);
+		}
+
 		@Override
 		public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-			AndroidAppApplication.dispatchActivityCreated(PluginLoader.getApplication(), activity, savedInstanceState);
+			hackPluginApplication.dispatchActivityCreated(activity, savedInstanceState);
 		}
 
 		@Override
 		public void onActivityStarted(Activity activity) {
-			AndroidAppApplication.dispatchActivityStarted(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityStarted(activity);
 		}
 
 		@Override
 		public void onActivityResumed(Activity activity) {
-			AndroidAppApplication.dispatchActivityResumed(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityResumed(activity);
 		}
 
 		@Override
 		public void onActivityPaused(Activity activity) {
-			AndroidAppApplication.dispatchActivityPaused(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityPaused(activity);
 		}
 
 		@Override
 		public void onActivityStopped(Activity activity) {
-			AndroidAppApplication.dispatchActivityStopped(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityStopped(activity);
 		}
 
 		@Override
 		public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-			AndroidAppApplication.dispatchActivitySaveInstanceState(PluginLoader.getApplication(), activity, outState);
+			hackPluginApplication.dispatchActivitySaveInstanceState(activity, outState);
 		}
 
 		@Override
 		public void onActivityDestroyed(Activity activity) {
-			AndroidAppApplication.dispatchActivityDestroyed(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityDestroyed(activity);
 		}
 	}
 }

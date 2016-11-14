@@ -43,37 +43,34 @@ public class PluginManifestParser {
 
 			ArrayList<String> dependencies = null;
 
-			PluginDescriptor desciptor = new PluginDescriptor();
-			do {
-				switch (eventType) {
-				case XmlPullParser.START_DOCUMENT: {
-					break;
-				}
-				case XmlPullParser.START_TAG: {
-					String tag = parser.getName();
-					if ("manifest".equals(tag)) {
+            PluginDescriptor desciptor = new PluginDescriptor();
+            do {
+                switch (eventType) {
+                    case XmlPullParser.START_DOCUMENT: {
+                        break;
+                    }
+                    case XmlPullParser.START_TAG: {
+                        String tag = parser.getName();
+                        if ("manifest".equals(tag)) {
+                        	
+                            namespaceAndroid = parser.getNamespace("android");
+                            
+                            packageName = parser.getAttributeValue(null, "package");
+                            String versionCode = parser.getAttributeValue(namespaceAndroid, "versionCode");
+                            String versionName = parser.getAttributeValue(namespaceAndroid, "versionName");
+                            String platformBuildVersionCode = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionCode");
+                            String platformBuildVersionName = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionName");
 
-						namespaceAndroid = parser.getNamespace("android");
+                            //用这个字段来标记apk是独立apk，还是需要依赖主程序的class和resource
+                            //当这个值等于宿主程序packageName时，则认为这个插件是需要依赖宿主的class和resource的
+                            String sharedUserId = parser.getAttributeValue(namespaceAndroid, "sharedUserId");
 
-						packageName = parser.getAttributeValue(null, "package");
-						String versionCode = parser.getAttributeValue(namespaceAndroid, "versionCode");
-						String versionName = parser.getAttributeValue(namespaceAndroid, "versionName");
-						String platformBuildVersionCode = parser.getAttributeValue(namespaceAndroid,
-								"platformBuildVersionCode");
-						String platformBuildVersionName = parser.getAttributeValue(namespaceAndroid,
-								"platformBuildVersionName");
+                            desciptor.setPackageName(packageName);
+                            desciptor.setVersion(versionName + "_" + versionCode);
+                            desciptor.setPlatformBuildVersionCode(platformBuildVersionCode);
+                            desciptor.setPlatformBuildVersionName(platformBuildVersionName);
 
-						// 用这个字段来标记apk是独立apk，还是需要依赖主程序的class和resource
-						// 当这个值等于宿主程序packageName时，则认为这个插件是需要依赖宿主的class和resource的
-						String sharedUserId = parser.getAttributeValue(namespaceAndroid, "sharedUserId");
-
-						desciptor.setPackageName(packageName);
-						desciptor.setVersion(versionName + "_" + versionCode);
-						desciptor.setPlatformBuildVersionCode(platformBuildVersionCode);
-						desciptor.setPlatformBuildVersionName(platformBuildVersionName);
-
-						desciptor.setStandalone(sharedUserId == null
-								|| !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
+                            desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
 
 						TwsLog.d(TAG, "packageName=" + packageName + " versionCode=" + versionCode + " versionName="
 								+ versionName + " sharedUserId=" + sharedUserId);
@@ -90,30 +87,25 @@ public class PluginManifestParser {
 						String name = parser.getAttributeValue(namespaceAndroid, "name");
 						String value = parser.getAttributeValue(namespaceAndroid, "value");
 
-						if (name != null) {
+                        if (name != null) {
+//                          HashMap<String, String> metaData = desciptor.getMetaData();
+//                          if (metaData == null) {
+//                              metaData = new HashMap<String, String>();
+//                              desciptor.setMetaData(metaData);
+//                          }
+//                          if (value != null && value.startsWith("@") && value.length() == 9) {
+//                              String idHex = value.replace("@", "");
+//                              try {
+//                                  int id = Integer.parseInt(idHex, 16);
+//                                  value = Integer.toString(id);
+//                              } catch (Exception e) {
+//                                  e.printStackTrace();
+//                              }
+//                          }
+//                          metaData.put(name, value);
 
-							// HashMap<String, String> metaData =
-							// desciptor.getMetaData();
-							// if (metaData == null) {
-							// metaData = new HashMap<String, String>();
-							// desciptor.setMetaData(metaData);
-							// }
-							// if (value != null && value.startsWith("@") &&
-							// value.length() == 9) {
-							// String idHex = value.replace("@", "");
-							// try {
-							// int id = Integer.parseInt(idHex, 16);
-							// value = Integer.toString(id);
-							// } catch (Exception e) {
-							// e.printStackTrace();
-							// }
-							// }
-							// metaData.put(name, value);
-
-							TwsLog.d(TAG, "meta-data name=" + name + " value=" + value);
-
-						}
-
+                        	TwsLog.d(TAG, "meta-data name=" + name + " value=" + value);
+                      }
 					} else if ("exported-fragment".equals(tag)) {
 
 						String name = parser.getAttributeValue(namespaceAndroid, "name");
@@ -293,18 +285,18 @@ public class PluginManifestParser {
 				desciptor.setDependencies((String[]) dependencies.toArray(new String[0]));
 			}
 
-			return desciptor;
-		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	private static String addIntentFilter(HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName,
-			String namespace, XmlPullParser parser, String endTagName) throws XmlPullParserException, IOException {
+            return desciptor;
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+	private static String addIntentFilter(HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName, String namespace,
+			XmlPullParser parser, String endTagName) throws XmlPullParserException, IOException {
 		int eventType = parser.getEventType();
 		String activityName = parser.getAttributeValue(namespace, "name");
 		activityName = getName(activityName, packageName);

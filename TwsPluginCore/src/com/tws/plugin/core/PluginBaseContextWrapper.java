@@ -32,7 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 
-import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.manager.PluginManagerHelper;
 
 public class PluginBaseContextWrapper extends ContextWrapper {
 
@@ -74,9 +74,9 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
 		TwsLog.d(TAG, intent.toString());
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
-		for (Intent item : list) {
-			super.sendOrderedBroadcast(item, receiverPermission, resultReceiver, scheduler, initialCode, initialData,
-					initialExtras);
+		for (Intent item:list) {
+			super.sendOrderedBroadcast(item, receiverPermission, resultReceiver,
+					scheduler, initialCode, initialData, initialExtras);
 		}
 	}
 

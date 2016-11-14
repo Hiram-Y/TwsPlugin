@@ -20,7 +20,6 @@ import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
 
@@ -28,28 +27,27 @@ import com.tws.plugin.content.LoadedPlugin;
 import com.tws.plugin.content.PluginActivityInfo;
 import com.tws.plugin.content.PluginDescriptor;
 import com.tws.plugin.content.PluginProviderInfo;
+import com.tws.plugin.core.android.HackActivity;
+import com.tws.plugin.core.android.HackActivityThread;
+import com.tws.plugin.core.android.HackApplication;
+import com.tws.plugin.core.android.HackContextImpl;
+import com.tws.plugin.core.android.HackContextThemeWrapper;
+import com.tws.plugin.core.android.HackContextWrapper;
+import com.tws.plugin.core.android.HackLayoutInflater;
+import com.tws.plugin.core.android.HackLoadedApk;
+import com.tws.plugin.core.android.HackService;
+import com.tws.plugin.core.android.HackWindow;
 import com.tws.plugin.core.annotation.AnnotationProcessor;
 import com.tws.plugin.core.annotation.PluginContainer;
-import com.tws.plugin.core.app.ActivityThread;
 import com.tws.plugin.core.compat.CompatForSupportv7_23_2;
 import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
-import com.tws.plugin.core.manager.PluginManagerHelper;
+import com.tws.plugin.manager.PluginManagerHelper;
 import com.tws.plugin.util.ProcessUtil;
-import com.tws.plugin.util.RefInvoker;
 import com.tws.plugin.util.ResourceUtil;
 
 public class PluginInjector {
 
-	private static final String TAG = "rick_Print:PluginInjector";
-
-	private static final String android_content_ContextWrapper_mBase = "mBase";
-
-	private static final String android_content_ContextThemeWrapper_attachBaseContext = "attachBaseContext";
-	private static final String android_content_ContextThemeWrapper_mResources = "mResources";
-	private static final String android_content_ContextThemeWrapper_mTheme = "mTheme";
-
-	private static final String android_app_Activity_mInstrumentation = "mInstrumentation";
-	private static final String android_app_Activity_mActivityInfo = "mActivityInfo";
+	private static final String TAG = "PluginInjector";
 
 	/**
 	 * 替换宿主程序Application对象的mBase是为了修改它的几个StartActivity、
@@ -57,11 +55,8 @@ public class PluginInjector {
 	 */
 	static void injectBaseContext(Context context) {
 		TwsLog.d(TAG, "替换宿主程序Application对象的mBase");
-		Context base = (Context) RefInvoker.getField(context, ContextWrapper.class.getName(),
-				android_content_ContextWrapper_mBase);
-		Context newBase = new PluginBaseContextWrapper(base);
-		RefInvoker.setField(context, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase,
-				newBase);
+		HackContextWrapper wrapper = new HackContextWrapper(context);
+		wrapper.setBase(new PluginBaseContextWrapper(wrapper.getBase()));
 	}
 
 	/**
@@ -70,18 +65,16 @@ public class PluginInjector {
 	static void injectInstrumentation() {
 		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
 		TwsLog.d(TAG, "替换宿主程序Intstrumentation");
-		ActivityThread.wrapInstrumentation();
+		HackActivityThread.wrapInstrumentation();
 	}
 
 	static void injectHandlerCallback() {
 		TwsLog.d(TAG, "向宿主程序消息循环插入回调器");
-		ActivityThread.wrapHandler();
+		HackActivityThread.wrapHandler();
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext,
 			Collection<PluginProviderInfo> pluginProviderInfos) {
-		TwsLog.d(TAG, "安装插件ContentProvider:" + pluginContext.getPackageName() + " pluginProviderInfos.siz is "
-				+ pluginProviderInfos.size());
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();
@@ -101,7 +94,7 @@ public class PluginInjector {
 			// pluginContext.getPackageName().equals(applicationInfo.packageName)
 			// == true
 			// 安装的时候使用的是插件的Context, 所有无需对Classloader进行映射处理
-			ActivityThread.installContentProviders(pluginContext, providers);
+			HackActivityThread.get().installContentProviders(pluginContext, providers);
 		}
 	}
 
@@ -110,16 +103,15 @@ public class PluginInjector {
 		// 之所以要检查，是因为如果手机上安装了360手机卫士等app，它们可能会劫持用户app的ActivityThread对象，
 		// 导致在PluginApplication的onCreate方法里面替换mInstrumention可能会失败
 		// 所以这里再做一次检查
-		Instrumentation instrumention = (Instrumentation) RefInvoker.getField(activity, Activity.class.getName(),
-				android_app_Activity_mInstrumentation);
+		HackActivity hackActivity = new HackActivity(activity);
+		Instrumentation instrumention = hackActivity.getInstrumentation();
 		if (!(instrumention instanceof PluginInstrumentionWrapper)) {
 			// 说明被360还原了，这里再次尝试替换
-			RefInvoker.setField(activity, Activity.class.getName(), android_app_Activity_mInstrumentation,
-					pluginInstrumentation);
+			hackActivity.setInstrumentation(pluginInstrumentation);
 		}
 	}
 
-	static void injectActivityContext(Activity activity) {
+	static void injectActivityContext(final Activity activity) {
 		if (activity instanceof WaitForLoadingPluginActivity) {
 			return;
 		}
@@ -137,6 +129,8 @@ public class PluginInjector {
 			// 或者是打开的用来显示插件组件的宿主activity
 			container = AnnotationProcessor.getPluginContainer(activity.getClass());
 		}
+
+		HackActivity hackActivity = new HackActivity(activity);
 
 		if (isStubActivity || container != null) {
 
@@ -159,7 +153,7 @@ public class PluginInjector {
 				Application pluginApp = plugin.pluginApplication;
 
 				// 重设mApplication
-				RefInvoker.setField(activity, Activity.class.getName(), "mApplication", pluginApp);
+				hackActivity.setApplication(pluginApp);
 			} else {
 				// 是打开的用来显示插件组件的宿主activity
 
@@ -182,8 +176,8 @@ public class PluginInjector {
 			}
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(activity.getClass().getName());
-			ActivityInfo activityInfo = (ActivityInfo) RefInvoker.getField(activity, Activity.class.getName(),
-					android_app_Activity_mActivityInfo);
+
+			ActivityInfo activityInfo = hackActivity.getActivityInfo();
 			int pluginAppTheme = getPluginTheme(activityInfo, pluginActivityInfo, pd);
 
 			TwsLog.d(TAG, "Theme 0x" + Integer.toHexString(pluginAppTheme) + " activity:"
@@ -196,13 +190,11 @@ public class PluginInjector {
 			activity.setTitle(activity.getClass().getName());
 
 		} else {
-			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象插入Context
+			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
+			// 插入Context
 			Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
-			RefInvoker.setField(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase,
-					null);
-			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(),
-					android_content_ContextThemeWrapper_attachBaseContext, new Class[] { Context.class },
-					new Object[] { mainContext });
+			hackActivity.setBase(null);
+			hackActivity.attachBaseContext(mainContext);
 		}
 	}
 
@@ -212,42 +204,42 @@ public class PluginInjector {
 		}
 
 		// 重设BaseContext
-		RefInvoker.setField(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase, null);
-		RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(),
-				android_content_ContextThemeWrapper_attachBaseContext, new Class[] { Context.class },
-				new Object[] { pluginContext });
+		HackContextThemeWrapper hackContextThemeWrapper = new HackContextThemeWrapper(activity);
+		hackContextThemeWrapper.setBase(null);
+		hackContextThemeWrapper.attachBaseContext(pluginContext);
 
 		// 由于在attach的时候Resource已经被初始化了，所以需要重置Resource
-		RefInvoker.setField(activity, ContextThemeWrapper.class.getName(),
-				android_content_ContextThemeWrapper_mResources, null);
+		hackContextThemeWrapper.setResources(null);
 
 		CompatForSupportv7_23_2.fixResource(pluginContext, activity);
 
 		// 重设theme
 		if (pluginAppTheme != 0) {
-			RefInvoker.setField(activity, ContextThemeWrapper.class.getName(),
-					android_content_ContextThemeWrapper_mTheme, null);
+			hackContextThemeWrapper.setTheme(null);
 			activity.setTheme(pluginAppTheme);
 		}
 		// 重设theme
 		((PluginContextTheme) pluginContext).mTheme = null;
 		pluginContext.setTheme(pluginAppTheme);
 
+		Window window = activity.getWindow();
+
+		HackWindow hackWindow = new HackWindow(window);
 		// 重设mContext
-		RefInvoker.setField(activity.getWindow(), Window.class.getName(), "mContext", pluginContext);
+		hackWindow.setContext(pluginContext);
 
 		// 重设mWindowStyle
-		RefInvoker.setField(activity.getWindow(), Window.class.getName(), "mWindowStyle", null);
+		hackWindow.setWindowStyle(null);
 
 		// 重设LayoutInflater
 		TwsLog.d(TAG, activity.getWindow().getClass().getName());
-		RefInvoker.setField(activity.getWindow(), activity.getWindow().getClass().getName(), "mLayoutInflater",
-				LayoutInflater.from(activity));
+		// 注意：这里getWindow().getClass().getName() 不一定是android.view.Window
+		// 如miui下返回MIUI window
+		hackWindow.setLayoutInflater(window.getClass().getName(), LayoutInflater.from(activity));
 
 		// 如果api>=11,还要重设factory2
 		if (Build.VERSION.SDK_INT >= 11) {
-			RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(),
-					"setPrivateFactory", new Class[] { LayoutInflater.Factory2.class }, new Object[] { activity });
+			new HackLayoutInflater(window.getLayoutInflater()).setPrivateFactory(activity);
 		}
 	}
 
@@ -304,10 +296,9 @@ public class PluginInjector {
 
 	/* package */static void replaceReceiverContext(Context baseContext, Context newBase) {
 
-		if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
-			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext,
-					"android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
-			RefInvoker.setField(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", newBase);
+		if (HackContextImpl.instanceOf(baseContext)) {
+			ContextWrapper receiverRestrictedContext = new HackContextImpl(baseContext).getReceiverRestrictedContext();
+			new HackContextWrapper(receiverRestrictedContext).setBase(newBase);
 		}
 	}
 
@@ -315,7 +306,7 @@ public class PluginInjector {
 	// 这里做个遍历保护
 	// break;
 	/* package */static void replacePluginServiceContext(String serviceName) {
-		Map<IBinder, Service> services = ActivityThread.getAllServices();
+		Map<IBinder, Service> services = HackActivityThread.get().getServices();
 		if (services != null) {
 			Iterator<Service> itr = services.values().iterator();
 			while (itr.hasNext()) {
@@ -334,22 +325,16 @@ public class PluginInjector {
 
 		LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
-		RefInvoker.setField(
-				service,
-				ContextWrapper.class.getName(),
-				"mBase",
-				PluginLoader.getNewPluginComponentContext(plugin.pluginContext, service.getBaseContext(),
-						pd.getApplicationTheme()));
-
-		RefInvoker.setField(service, Service.class.getName(), "mApplication", plugin.pluginApplication);
-
-		RefInvoker.setField(service, Service.class, "mClassName",
-				PluginManagerHelper.bindStubService(service.getClass().getName()));
+		HackService hackService = new HackService(service);
+		hackService.setBase(PluginLoader.getNewPluginComponentContext(plugin.pluginContext, service.getBaseContext(),
+				pd.getApplicationTheme()));
+		hackService.setApplication(plugin.pluginApplication);
+		hackService.setClassName(PluginManagerHelper.bindStubService(service.getClass().getName()));
 
 	}
 
 	/* package */static void replaceHostServiceContext(String serviceName) {
-		Map<IBinder, Service> services = ActivityThread.getAllServices();
+		Map<IBinder, Service> services = HackActivityThread.get().getServices();
 		if (services != null) {
 			Iterator<Service> itr = services.values().iterator();
 			while (itr.hasNext()) {
@@ -407,44 +392,27 @@ public class PluginInjector {
 	}
 
 	/**
-	 * 通常系统服务实例内部都有一个成员变量private final Context mContext;
-	 * 
-	 * 这个成员变量通常是一个ContextImpl实例。
-	 * 
-	 * @param manager
-	 *            通过getSystemService获取的系统服务。例如 ActivityManager
-	 * 
-	 */
-	static void replaceContext(Object manager, Context context) {
-		Object original = RefInvoker.getField(manager, manager.getClass(), "mContext");
-		if (original != null) {// 表示确实存在此成员变量对象，替换掉
-			RefInvoker.setField(manager, manager.getClass().getName(), "mContext", context);
-		}
-	}
-
-	/**
 	 * 如果插件中不包含service、receiver，是不需要替换classloader的
 	 */
 	public static void hackHostClassLoaderIfNeeded() {
-		Object mLoadedApk = RefInvoker.getField(PluginLoader.getApplication(), Application.class.getName(),
-				"mLoadedApk");
+		HackApplication hackApplication = new HackApplication(PluginLoader.getApplication());
+		Object mLoadedApk = hackApplication.getLoadedApk();
 		if (mLoadedApk == null) {
 			// 重试一次
-			mLoadedApk = RefInvoker.getField(PluginLoader.getApplication(), Application.class.getName(),
-					"mLoadedApk");
+			mLoadedApk = hackApplication.getLoadedApk();
 		}
 		if (mLoadedApk == null) {
 			// 换个方式再试一次
-			mLoadedApk = ActivityThread.getLoadedApk();
+			mLoadedApk = HackActivityThread.getLoadedApk();
 		}
 		if (mLoadedApk != null) {
-			ClassLoader originalLoader = (ClassLoader) RefInvoker.getField(mLoadedApk, "android.app.LoadedApk",
-					"mClassLoader");
+			HackLoadedApk hackLoadedApk = new HackLoadedApk(mLoadedApk);
+			ClassLoader originalLoader = hackLoadedApk.getClassLoader();
 			if (!(originalLoader instanceof HostClassLoader)) {
 				HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplication().getCacheDir()
 						.getAbsolutePath(), PluginLoader.getApplication().getCacheDir().getAbsolutePath(),
 						originalLoader);
-				RefInvoker.setField(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
+				hackLoadedApk.setClassLoader(newLoader);
 			}
 		} else {
 			TwsLog.w(TAG, "What!!Why?");

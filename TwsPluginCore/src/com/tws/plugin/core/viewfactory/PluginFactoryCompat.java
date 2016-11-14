@@ -41,16 +41,18 @@ public class PluginFactoryCompat {
 			super(delegateFactory);
 		}
 
-		@Override
-		public View onCreateView(View parent, String name, Context context, AttributeSet attributeSet) {
-			return mDelegateFactory.onCreateView(parent, name, context, attributeSet);
-		}
-	}
+        @Override
+        public View onCreateView(View parent, String name, Context context,
+                                 AttributeSet attributeSet) {
+            return mDelegateFactory.onCreateView(parent, name, context, attributeSet);
+        }
+    }
 
-	static void setFactory(LayoutInflater inflater, PluginFactoryInterface factory) {
-		if (Build.VERSION.SDK_INT >= 11) {
-			final LayoutInflater.Factory2 factory2 = factory != null ? new FactoryWrapper2(factory) : null;
-			inflater.setFactory2(factory2);
+    static void setFactory(LayoutInflater inflater, PluginFactoryInterface factory) {
+        if (Build.VERSION.SDK_INT >=11) {
+            final LayoutInflater.Factory2 factory2 = factory != null
+                    ? new FactoryWrapper2(factory) : null;
+            inflater.setFactory2(factory2);
 
 			if (Build.VERSION.SDK_INT < 21) {
 				final LayoutInflater.Factory f = inflater.getFactory();
@@ -66,7 +68,8 @@ public class PluginFactoryCompat {
 				}
 			}
 		} else {
-			final LayoutInflater.Factory factory1 = factory != null ? new FactoryWrapper(factory) : null;
+            final LayoutInflater.Factory factory1 = factory != null
+                    ? new FactoryWrapper(factory) : null;
 			inflater.setFactory(factory1);
 		}
 

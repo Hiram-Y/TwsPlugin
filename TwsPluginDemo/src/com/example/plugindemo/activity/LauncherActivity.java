@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.plugindemo.R;
@@ -228,7 +229,8 @@ public class LauncherActivity extends TwsActivity implements View.OnClickListene
 			testReadAssert();
 			break;
 		case R.id.test_notification:
-			testNotification();
+			hostNotification();
+			// pluginNotification();
 			break;
 		case R.id.onClickSidebarActivity:
 			onClickSidebarActivity();
@@ -518,7 +520,7 @@ public class LauncherActivity extends TwsActivity implements View.OnClickListene
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void testNotification() {
+	private void hostNotification() {
 		// 当前交由宿主执行，使用的资源id得宿主能解析得到
 		NotificationManager notificationManager = (NotificationManager) HostProxy.getApplication().getSystemService(
 				HostProxy.getApplication().NOTIFICATION_SERVICE);

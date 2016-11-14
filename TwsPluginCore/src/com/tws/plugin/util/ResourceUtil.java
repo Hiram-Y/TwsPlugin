@@ -127,15 +127,14 @@ public class ResourceUtil {
 		return pd.getDescription();
 	}
 
-	public static Bundle getApplicationMetaData(String apkPath) {
-		// 暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
-		PackageInfo info = PluginLoader.getApplication().getPackageManager()
-				.getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
-		if (info != null && info.applicationInfo != null) {
-			return info.applicationInfo.metaData;
-		}
-		return null;
-	}
+    public static Bundle getApplicationMetaData(String apkPath) {
+        //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
+        PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
+        if (info != null && info.applicationInfo != null) {
+            return info.applicationInfo.metaData;
+        }
+        return null;
+    }
 
 	public static Drawable getLogo(PluginDescriptor pd) {
 		if (Build.VERSION.SDK_INT >= 9) {
@@ -187,6 +186,7 @@ public class ResourceUtil {
 			cause = e.getCause();
 		}
 
-		throw new RuntimeException("Failed to rewrite resource references for " + packageName, cause);
-	}
+        throw new RuntimeException("Failed to rewrite resource references for " + packageName,
+                cause);
+    }
 }

@@ -20,16 +20,17 @@ import android.os.UserHandle;
 import android.text.TextUtils;
 
 import com.tws.plugin.content.PluginDescriptor;
+import com.tws.plugin.core.android.HackContextImpl;
+import com.tws.plugin.core.android.HackInstrumentation;
 import com.tws.plugin.core.annotation.AnnotationProcessor;
 import com.tws.plugin.core.annotation.PluginContainer;
 import com.tws.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.tws.plugin.core.localservice.LocalServiceManager;
-import com.tws.plugin.core.manager.PluginActivityMonitor;
-import com.tws.plugin.core.manager.PluginManagerHelper;
-import com.tws.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.tws.plugin.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.tws.plugin.core.viewfactory.PluginViewFactory;
+import com.tws.plugin.manager.PluginActivityMonitor;
+import com.tws.plugin.manager.PluginManagerHelper;
 import com.tws.plugin.util.ProcessUtil;
-import com.tws.plugin.util.RefInvoker;
 
 /**
  * 插件Activity免注册的主要实现原理。 如有必要，可以增加被代理的方法数量。
@@ -43,11 +44,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 	private static final String TAG = "rick_Print:PluginInstrumentionWrapper";
 
-	private final Instrumentation realInstrumention;
+	private final HackInstrumentation hackInstrumentation;
 	private PluginActivityMonitor monitor;
 
 	public PluginInstrumentionWrapper(Instrumentation instrumentation) {
-		this.realInstrumention = instrumentation;
+		this.hackInstrumentation = new HackInstrumentation(instrumentation);
 		this.monitor = new PluginActivityMonitor();
 	}
 
@@ -141,6 +142,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						throw new ClassNotFoundException("pluginClassName : " + pluginClassName, new Throwable());
 					}
 				} else if (PluginManagerHelper.isExact(className, PluginDescriptor.ACTIVITY)) {
+
 					// 这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
 					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
@@ -257,11 +259,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				while (base instanceof ContextWrapper) {
 					base = ((ContextWrapper) base).getBaseContext();
 				}
-				if (base.getClass().getName().equals("android.app.ContextImpl")) {
-					RefInvoker.setField(base, "android.app.ContextImpl", "mBasePackageName",
-							activity.getPackageName());
-					RefInvoker.setField(base, "android.app.ContextImpl", "mOpPackageName",
-							activity.getPackageName());
+				if (HackContextImpl.instanceOf(base)) {
+					HackContextImpl impl = new HackContextImpl(base);
+					String packageName = PluginLoader.getApplication().getPackageName();
+					String packageName1 = activity.getPackageName();
+					impl.setBasePackageName(packageName);
+					impl.setOpPackageName(packageName);
 				}
 			}
 		}
@@ -376,12 +379,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
-						Intent.class, int.class, Bundle.class }, new Object[] { who, contextThread, token, target,
-						intent, requestCode, options });
-
-		return (ActivityResult) result;
+		return hackInstrumentation.execStartActivity(who, contextThread, token, target, intent, requestCode, options);
 	}
 
 	public void execStartActivities(Context who, IBinder contextThread, IBinder token, Activity target,
@@ -389,10 +387,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intents);
 
-		RefInvoker
-				.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(), "execStartActivities",
-						new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class, Intent[].class,
-								Bundle.class }, new Object[] { who, contextThread, token, target, intents, options });
+		hackInstrumentation.execStartActivities(who, contextThread, token, target, intents, options);
 	}
 
 	public void execStartActivitiesAsUser(Context who, IBinder contextThread, IBinder token, Activity target,
@@ -400,10 +395,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intents);
 
-		RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivitiesAsUser", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
-						Intent[].class, Bundle.class, int.class }, new Object[] { who, contextThread, token, target,
-						intents, options, userId });
+		hackInstrumentation.execStartActivitiesAsUser(who, contextThread, token, target, intents, options, userId);
 	}
 
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Fragment target,
@@ -411,12 +403,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Fragment.class,
-						Intent.class, int.class, Bundle.class }, new Object[] { who, contextThread, token, target,
-						intent, requestCode, options });
-
-		return (ActivityResult) result;
+		return hackInstrumentation.execStartActivity(who, contextThread, token, target, intent, requestCode, options);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -425,12 +412,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
-						Intent.class, int.class, Bundle.class, UserHandle.class }, new Object[] { who, contextThread,
-						token, target, intent, requestCode, options, user });
-
-		return (ActivityResult) result;
+		return hackInstrumentation.execStartActivity(who, contextThread, token, target, intent, requestCode, options,
+				user);
 	}
 
 	// /////////// Android 4.0.4及以下 ///////////////
@@ -440,20 +423,13 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
-						Intent.class, int.class }, new Object[] { who, contextThread, token, target, intent,
-						requestCode });
-
-		return (ActivityResult) result;
+		return hackInstrumentation.execStartActivity(who, contextThread, token, target, intent, requestCode);
 	}
 
 	public void execStartActivities(Context who, IBinder contextThread, IBinder token, Activity target, Intent[] intents) {
 		PluginIntentResolver.resolveActivity(intents);
 
-		RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(), "execStartActivities",
-				new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class, Intent[].class },
-				new Object[] { who, contextThread, token, target, intents });
+		hackInstrumentation.execStartActivities(who, contextThread, token, target, intents);
 	}
 
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Fragment target,
@@ -461,12 +437,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Fragment.class,
-						Intent.class, int.class }, new Object[] { who, contextThread, token, target, intent,
-						requestCode });
-
-		return (ActivityResult) result;
+		return hackInstrumentation.execStartActivity(who, contextThread, token, target, intent, requestCode);
 	}
 
 	// ///// For Android 5.1
@@ -474,11 +445,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			Intent intent, int requestCode, Bundle options, int userId) {
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivityAsCaller", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
-						Intent.class, int.class, Bundle.class, int.class }, new Object[] { who, contextThread, token,
-						target, intent, requestCode, options, userId });
-		return (ActivityResult) result;
+		return hackInstrumentation.execStartActivityAsCaller(who, contextThread, token, target, intent, requestCode,
+				options, userId);
 	}
 
 	public void execStartActivityFromAppTask(Context who, IBinder contextThread, Object appTask, Intent intent,
@@ -486,12 +454,6 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		try {
-			RefInvoker.invokeMethod(realInstrumention, Instrumentation.class.getName(), "execStartActivityFromAppTask",
-					new Class[] { Context.class, IBinder.class, Class.forName("android.app.IAppTask"), Intent.class,
-							Bundle.class, }, new Object[] { who, contextThread, appTask, intent, options });
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		hackInstrumentation.execStartActivityFromAppTask(who, contextThread, appTask, intent, options);
 	}
 }

@@ -48,8 +48,8 @@ public class CompatForSupportv7_23_2 {
 					if (TintContextWrapper != null) {
 						Object sCache = (Object) RefInvoker.getField(null, TintContextWrapper, "sCache");
 						if (!(sCache instanceof TintContextWrapperArrayList)) {
-							RefInvoker.setField(null, TintContextWrapper, "sCache",
-									new TintContextWrapperArrayList(TintContextWrapper));
+							RefInvoker.setField(null, TintContextWrapper, "sCache", new TintContextWrapperArrayList(
+									TintContextWrapper));
 						}
 					}
 				}
