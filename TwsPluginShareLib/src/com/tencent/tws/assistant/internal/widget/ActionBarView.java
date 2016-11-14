@@ -144,6 +144,10 @@ public class ActionBarView extends AbsActionBarView {
 	public boolean mIsMarksPointFlag;
 	private boolean mIsMenuConfigFlag;
 	private boolean mIsRunInPlugins;
+
+	public boolean isRunInPlugins() {
+		return mIsRunInPlugins;
+	}
 	
     public void setActionbarViewActivity(Activity fatherActivity,boolean sendMessage) {
     	mActivity=fatherActivity;

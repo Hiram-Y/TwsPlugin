@@ -130,6 +130,10 @@ public class TwsActivity extends Activity {
 				throw new AndroidRuntimeException("twsAddContentView no contenParent");
 			}
 			mActionBarView = (ActionBarView) mActivityView.findViewById(R.id.tws_action_bar);
+			if(mActionBarView.isRunInPlugins()){
+				mActivityView.setBackgroundColor(getResources().getColor(R.color.tws_view_bg));
+			}
+			
 			final int tws_action_bar_height = (int) getResources().getDimension(R.dimen.tws_action_bar_height);
 			mActionBarView.setContentHeight(getResources().getBoolean(R.bool.config_statusbar_state) ? tws_action_bar_height + getStatusBarHeight()
 					: tws_action_bar_height);

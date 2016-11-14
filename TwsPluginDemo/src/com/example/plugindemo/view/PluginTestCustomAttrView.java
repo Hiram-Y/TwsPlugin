@@ -1,5 +1,6 @@
 package com.example.plugindemo.view;
 
+import tws.component.log.TwsLog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -17,6 +18,7 @@ import com.example.plugindemo.R;
  */
 public class PluginTestCustomAttrView extends LinearLayout {
 
+	private static final String TAG = "rick_Print:PluginTestCustomAttrView";
 	private String attrText;
 	private int attrColor;
 	private float attrSize;
@@ -28,25 +30,14 @@ public class PluginTestCustomAttrView extends LinearLayout {
 	public PluginTestCustomAttrView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		int[] customAttrArray = new int[] { R.attr.custarr_text, R.attr.custarr_text_color,
-				R.attr.custarr_text_color_size };
+		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PluginTestCustomAttrView, 0, 0);
 
-		final TypedArray a = context.obtainStyledAttributes(attrs, customAttrArray, 0, 0);
-
-		attrText = a.getString(indexof(R.attr.custarr_text, customAttrArray));
-		attrColor = a.getColor(indexof(R.attr.custarr_text_color, customAttrArray), 0);
-		attrSize = a.getDimension(indexof(R.attr.custarr_text_color_size, customAttrArray), 0);
+		attrText = a.getString(R.styleable.PluginTestCustomAttrView_custarr_text);
+		attrColor = a.getColor(R.styleable.PluginTestCustomAttrView_custarr_text_color, 0);
+		attrSize = a.getDimension(R.styleable.PluginTestCustomAttrView_custarr_text_color_size, 0);
+		TwsLog.d(TAG, "attrText=" + attrText + " attrColor=" + attrColor + " attrSize=" + attrSize);
 
 		a.recycle();
-	}
-
-	private int indexof(int attr, int[] attrArray) {
-		for (int i = 0; i < attrArray.length; i++) {
-			if (attr == attrArray[i]) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	@Override
