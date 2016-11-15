@@ -40,7 +40,7 @@ public class AndroidOsServiceManager extends MethodProxy {
 		Object androidOsServiceManagerProxy = HackServiceManager.getIServiceManager();
 		Object androidOsServiceManagerProxyProxy = ProxyUtil.createProxy(androidOsServiceManagerProxy,
 				new AndroidOsServiceManager());
-		
+
 		HackServiceManager.setServiceManager(androidOsServiceManagerProxyProxy);
 
 		// 干掉缓存

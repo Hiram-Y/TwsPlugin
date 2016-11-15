@@ -41,19 +41,10 @@ public class PluginLoader {
 	private static final String TAG = "rick_Print:PluginLoader";
 	private static final String PLUGIN_SHAREED_PREFERENCE_NAME = "plugins.shared.preferences";
 	private static final String VERSION_CODE_KEY = "version.code";
-	private static final String PLUGIN_NAME_PAKCAGENAME = "plugin.map.cache";
-	private static final String CURRENT_PROCESS_PLUGINNAME = "curprocess.plugin.name";
 	private static Application sApplication;
 	private static boolean isLoaderInited = false;
 	private static boolean isLoaderPlugins = false;
 	private static final String ASSETS_PLUGS_DIR = "plugins";
-
-	public static final int PLUGIN_UPDATE_ERROR = -1;
-	public static final int PLUGIN_UPDATE_REMOVE = 0;
-	public static final int PLUGIN_UPDATE_ADD = 1;
-	public static final int PLUGIN_UPDATE_START = 2;
-	public static final int PLUGIN_UPDATE_STOP = 3;
-	public static final int PLUGIN_UPDATE_REMOVEALL = 4;
 
 	private static int sLoadingResId;
 
